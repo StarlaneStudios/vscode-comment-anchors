@@ -16,22 +16,24 @@ View the changelog [here](CHANGELOG.md)
 
 The default settings come with anchors for the following tags:
 
-* ANCHOR
-* TODO
-* FIXME
-* STUB
-* NOTE
-* REVIEW
+* ANCHOR - Used to indicate a section in your file
+* TODO - An item that is awaiting competion
+* FIXME - An item that requires a bugfix
+* STUB - Used for generated default snippets
+* NOTE - An important note for a specific code section
+* REVIEW - An item that needs additional review
 
-In order to make an anchor, simply place the tag name in a string or comment, with an additional anchor message behind it.
+In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
 
 ![Preview](media/preview.gif)
 
-All anchor tags have their own color, which can be customized in the settings.
+## Anchor types
 
-![All tags](media/all-anchors.png);
+All anchor types have their own icon and highlight color, which can be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
 
-##Configuration
+![All tags](media/all-anchors.png)
+
+## Configuration
 
 Use `commentAnchors.parseDelay` to alter the delay in milliseconds between when you stop with typing and when the anchor parser starts. Increasing this value can result in better performance. (Default 200)
 
@@ -69,4 +71,4 @@ Issues can be submitted in the GitHub repository [here](https://github.com/Exodi
 
 You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
 
-#### Thanks for using Comment Anchors!
+#### Thanks for using Comment Anchors! :heart:

@@ -11,6 +11,10 @@
 		"Other"
 	],
 	"icon": "media/icon.png",
+	"galleryBanner": {
+		"color": "#3ea8ff",
+		"theme": "dark"
+	},
 	"homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
 	"repository": {
 		"url": "https://github.com/ExodiusStudios/vscode-comment-anchors",
