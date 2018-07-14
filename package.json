@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file navigation",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.25.0"
@@ -12,7 +12,7 @@
 	],
 	"icon": "media/icon.png",
 	"galleryBanner": {
-		"color": "#3ea8ff",
+		"color": "#005dc1",
 		"theme": "dark"
 	},
 	"homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
