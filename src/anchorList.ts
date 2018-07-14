@@ -81,7 +81,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 			this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
 			this.anchorDecorators.clear();
 
-			this._config.tags.forEach((tag: TagEntry) => {
+			this._config.tags.list.forEach((tag: TagEntry) => {
 				this.tags.set(tag.tag, tag.iconColor);
 
 				if(this._config!.tagHighlights.enabled) {
@@ -140,7 +140,8 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 				const comment = match[2].trim();
 				const decoration = { range: anchorSpan, hoverMessage: comment };
 
-				const anchor = new Anchor(match[1], match[1] + ": " + comment, decoration, this.tags.get(match[1]) || "default");
+				const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
+				const anchor = new Anchor(match[1], display, decoration, this.tags.get(match[1]) || "default");
 				
 				this.anchors.push(anchor);
 			}

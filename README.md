@@ -71,4 +71,4 @@ Issues can be submitted in the GitHub repository [here](https://github.com/Exodi
 
 You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
 
-#### Thanks for using Comment Anchors! :heart:
+#### Thanks for using Comment Anchors! ❤️

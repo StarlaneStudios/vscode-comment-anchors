@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file navigation",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.25.0"
@@ -69,7 +69,13 @@
 					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
 					"scope": "window"
 				},
-				"commentAnchors.tags": {
+				"commentAnchors.tags.displayInSidebar": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to display tag names in the sidebar",
+					"scope": "window"
+				},
+				"commentAnchors.tags.list": {
 					"type": "array",
 					"default": [
 						{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023"},
