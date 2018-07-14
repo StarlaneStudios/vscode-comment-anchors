@@ -1,0 +1,122 @@
+{
+	"name": "comment-anchors",
+	"displayName": "Comment Anchors",
+	"description": "Place anchor tags within comments",
+	"version": "0.0.1",
+	"publisher": "ExodiusStudios",
+	"engines": {
+		"vscode": "^1.25.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "commentAnchors.parse",
+				"title": "Parse the current file and look for anchors"
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "comment-anchors",
+					"title": "Comment Anchors",
+					"icon": "res/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"comment-anchors": [
+				{
+					"id": "anchorsList",
+					"name": "Anchors list"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "commentAnchors.parse",
+					"when": "view == anchorsList",
+					"group": "operations"
+				}
+			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "Comment Anchors configuration",
+			"properties": {
+				"commentAnchors.tagHighlights.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to highlight the anchor tags",
+					"scope": "window"
+				},
+				"commentAnchors.parseDelay": {
+					"type": "number",
+					"default": 200,
+					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
+					"scope": "window"
+				},
+				"commentAnchors.tags": {
+					"type": "array",
+					"default": [
+						{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023"},
+						{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff"},
+						{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336"},
+						{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8"},
+						{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300"},
+						{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17"}
+					],
+					"items": {
+						"type": "object",
+						"required": ["tag"],
+						"properties": {
+							"tag": {
+								"type": "string"
+							},
+							"iconColor": {
+								"type": "string",
+								"enum": [
+									"default",
+									"red",
+									"purple",
+									"green",
+									"orange",
+									"blue"
+								],
+								"default": "default"
+							},
+							"highlightColor": {
+								"type": "string"
+							}
+						}
+					},
+					"description": "List of comment anchor tags",
+					"scope": "window"
+				}
+			}
+		}
+	},
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension",
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"devDependencies": {
+		"@types/debounce": "^1.0.0",
+		"@types/mocha": "^2.2.42",
+		"@types/node": "^7.0.43",
+		"typescript": "^2.6.1",
+		"vscode": "^1.1.6"
+	},
+	"dependencies": {
+		"debounce": "^1.1.0"
+	}
+}
