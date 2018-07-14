@@ -1,8 +1,8 @@
 {
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
-	"description": "Place anchor tags within comments",
-	"version": "0.0.1",
+	"description": "Place anchor tags within comments for easy file navigation",
+	"version": "1.0.0",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.25.0"
@@ -10,6 +10,12 @@
 	"categories": [
 		"Other"
 	],
+	"icon": "media/icon.png",
+	"homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
+	"repository": {
+		"url": "https://github.com/ExodiusStudios/vscode-comment-anchors",
+		"type": "git"
+	},
 	"contributes": {
 		"commands": [
 			{

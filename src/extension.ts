@@ -11,7 +11,7 @@ export function activate(context: ExtensionContext) {
 	anchorListProvider = new AnchorListProvider(context);
 
 	window.registerTreeDataProvider('anchorsList', anchorListProvider);
-	commands.registerCommand("commentAnchors.parse", () => anchorListProvider.refresh());
+	commands.registerCommand("commentAnchors.parse", () => anchorListProvider.parse(null));
 }
 
 export function deactivate() {

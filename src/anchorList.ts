@@ -105,7 +105,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 			this.matcher = new RegExp(`\\b(${tags})\\b(.*)$`, "gm");
 
 			// Perform a parse of the document
-			this.parse();
+			this.parse(null);
 		} catch(err) {
 			console.error("Failed to build resources: " + err.message);
 			console.error(err);
@@ -120,21 +120,22 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 	}
 
 	/**
-	 * Reparse the current editor document
-	 */
-	parse() {
-		if(this._editor) {
+	 * Parse the given or current document
+	 */	
+	parse(document: TextDocument | null) {
+		if(this._editor || document) {
+			let doc = document || this._editor!.document;
 
 			// Clear the anchors list
 			this.anchors.length = 0;
 
-			const text = this._editor.document.getText();
+			const text = doc.getText();
 			let match;
 
 			// Find all anchor occurences
 			while (match = this.matcher!.exec(text)) {
-				const startPos = this._editor.document.positionAt(match.index);
-				const endPos = this._editor.document.positionAt(match.index + match[1].length);
+				const startPos = doc.positionAt(match.index);
+				const endPos = doc.positionAt(match.index + match[1].length);
 				const anchorSpan = new Range(startPos, endPos);
 				const comment = match[2].trim();
 				const decoration = { range: anchorSpan, hoverMessage: comment };
@@ -147,7 +148,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 			this.matcher!.lastIndex = 0;
 		}
 
-		this.refresh();
+		if(!document) this.refresh();
 	}
 	
 	/**
@@ -174,11 +175,13 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 		}
 
 		return new Promise(resolve => {
-			resolve(this.anchorMaps.get(this._editor!.document)!);
+			resolve(this.anchors);
 		});
 	}
 
 	addMap(document: TextDocument) {
+		if(document.uri.scheme !== 'file') return;
+
 		if(this.anchorMaps.has(document)) {
 			this.anchors = this.anchorMaps.get(document)!;
 		} else {
@@ -186,10 +189,12 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 			this.anchorMaps.set(document, this.anchors);
 		}
 
-		this.parse();
+		this.parse(document);
 	}
 
 	removeMap(editor: TextDocument) {
+		if(editor.uri.scheme !== 'file') return;
+
 		this.anchorMaps.delete(editor);
 	}
 

@@ -1,65 +1,72 @@
-# comment-anchors README
+# Comment Anchors
 
-This is the README for your extension "comment-anchors". After writing up a brief description, we recommend including the following sections.
+Place anchors within comments or string to place bookmarks within the context of your code. Anchors can be used to build a simple navigation, making it easier to navigate large files.
+
+## Changelog
+View the changelog [here](CHANGELOG.md)
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* Place anchors in comments, strings, documentation, etc.
+* Anchors can be viewed in the anchor sidebar view in the activity bar.
+* Anchor names, icon colors, and highlight colors can be customized.
+* Click an anchor in the sidebar view to scroll it into view. 
 
-For example if there is an image subfolder under your extension project workspace:
+## Usage
 
-\!\[feature X\]\(images/feature-x.png\)
+The default settings come with anchors for the following tags:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+* ANCHOR
+* TODO
+* FIXME
+* STUB
+* NOTE
+* REVIEW
 
-## Requirements
+In order to make an anchor, simply place the tag name in a string or comment, with an additional anchor message behind it.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+![Preview](media/preview.gif)
 
-## Extension Settings
+All anchor tags have their own color, which can be customized in the settings.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+![All tags](media/all-anchors.png);
 
-For example:
+##Configuration
 
-This extension contributes the following settings:
+Use `commentAnchors.parseDelay` to alter the delay in milliseconds between when you stop with typing and when the anchor parser starts. Increasing this value can result in better performance. (Default 200)
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+```
+{
+	"commentAnchors.parseDelay": 200
+}
+```
 
-## Known Issues
+Use `commentAnchors.tagHighlights.enabled` to set whether tags are highlighted. (Default true)
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+```
+{
+	"commentAnchors.tagHighlights.enabled": true
+}
+```
 
-## Release Notes
+Use `commentAnchors.tags` to configure the anchor tags. Each tag requires a `name`, `iconColor` and `highlightColor`.
 
-Users appreciate release notes as you update your extension.
+```
+"commentAnchors.tags": [
+    {
+      "tag": "ANCHOR",
+      "iconColor": "default",
+      "highlightColor": "#A8C023"
+    }
+]
+```
 
-### 1.0.0
+## Issues
 
-Initial release of ...
+Issues can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
 
-### 1.0.1
+## Contribution
 
-Fixed issue #.
+You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
 
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+#### Thanks for using Comment Anchors!
