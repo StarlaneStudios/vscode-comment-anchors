@@ -103,7 +103,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 				return;
 			}
 
-			this.matcher = new RegExp(`\\b(${tags})\\b(.*)$`, "gm");
+			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\b`, "gm");
 
 			// Perform a parse of the document
 			this.parse(null);
