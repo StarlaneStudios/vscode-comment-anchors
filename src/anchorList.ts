@@ -87,6 +87,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 				if(this._config!.tagHighlights.enabled) {
 					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType({
 						color: tag.highlightColor,
+						backgroundColor: tag.backgroundColor,
 						fontWeight: "bold",
 						overviewRulerColor: tag.highlightColor,
 						overviewRulerLane: OverviewRulerLane.Right
@@ -229,4 +230,5 @@ interface TagEntry {
 	tag: String;
 	iconColor: String;
 	highlightColor: String;
+	backgroundColor?: String;
 }

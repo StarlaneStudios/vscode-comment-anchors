@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file navigation",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.24.0"
@@ -105,6 +105,9 @@
 								"default": "default"
 							},
 							"highlightColor": {
+								"type": "string"
+							},
+							"backgroundColor": {
 								"type": "string"
 							}
 						}

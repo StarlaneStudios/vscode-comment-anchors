@@ -9,7 +9,7 @@ View the changelog [here](CHANGELOG.md)
 
 * Place anchors in comments, strings, documentation, etc.
 * Anchors can be viewed in the anchor sidebar view in the activity bar.
-* Anchor names, icon colors, and highlight colors can be customized.
+* Anchor names, icon colors, highlight colors, and background colors can be customized.
 * Click an anchor in the sidebar view to scroll it into view. 
 
 ## Usage
@@ -29,7 +29,7 @@ In order to make an anchor, simply place the tag name in a comment, with an addi
 
 ## Anchor types
 
-All anchor types have their own icon and highlight color, which can be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
+All anchor types have their own icon, highlight color, and background color, which can be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
 
 ![All tags](media/all-anchors.png)
 
@@ -51,7 +51,7 @@ Use `commentAnchors.tagHighlights.enabled` to set whether tags are highlighted. 
 }
 ```
 
-Use `commentAnchors.tags` to configure the anchor tags. Each tag requires a `name`, `iconColor` and `highlightColor`.
+Use `commentAnchors.tags` to configure the anchor tags. Each tag requires a `name`, `iconColor` and `highlightColor`, and optionally a `backgroundColor`.
 
 ```
 "commentAnchors.tags": [
@@ -65,7 +65,7 @@ Use `commentAnchors.tags` to configure the anchor tags. Each tag requires a `nam
 
 ## Issues
 
-Issues can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
+Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
 
 ## Contribution
 
