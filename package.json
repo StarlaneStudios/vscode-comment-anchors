@@ -78,12 +78,12 @@
 				"commentAnchors.tags.list": {
 					"type": "array",
 					"default": [
-						{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023"},
-						{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff"},
-						{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336"},
-						{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8"},
-						{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300"},
-						{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17"}
+						{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023", "backgroundColor": "#a54b4b"},
+						{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff", "backgroundColor": "#0066cc"},
+						{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336", "backgroundColor": "#703333"},
+						{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8", "backgroundColor": "#48309a"},
+						{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300", "backgroundColor": "#806900"},
+						{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10"}
 					],
 					"items": {
 						"type": "object",
