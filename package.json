@@ -24,7 +24,11 @@
 		"commands": [
 			{
 				"command": "commentAnchors.parse",
-				"title": "Parse the current file and look for anchors"
+				"title": "Comment Anchors: Parse the current file and look for anchors"
+			},
+			{
+				"command": "commentAnchors.toggle",
+				"title": "Comment Anchors: Toggle the visibility of tag highlights"
 			}
 		],
 		"viewsContainers": {
@@ -75,6 +79,12 @@
 					"description": "Whether to display tag names in the sidebar",
 					"scope": "window"
 				},
+				"commentAnchors.tags.displayInGutter": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to display tags in the gutter",
+					"scope": "window"
+				},
 				"commentAnchors.tags.list": {
 					"type": "array",
 					"default": [
@@ -90,7 +100,8 @@
 						"required": ["tag"],
 						"properties": {
 							"tag": {
-								"type": "string"
+								"type": "string",
+								"description": "The text to match for this tag"
 							},
 							"iconColor": {
 								"type": "string",
@@ -102,13 +113,39 @@
 									"orange",
 									"blue"
 								],
-								"default": "default"
+								"default": "default",
+								"description": "The icon for this tag in the sidebar"
 							},
 							"highlightColor": {
-								"type": "string"
+								"type": "string",
+								"description": "The foreground color applied to the anchor"
 							},
 							"backgroundColor": {
-								"type": "string"
+								"type": "string",
+								"description": "The background color applied to the anchor"
+							},
+							"styleComment": {
+								"type": "boolean",
+								"description": "When true, highlights the comment as well"
+							},
+							"borderStyle": {
+								"type": "string",
+								"description": "The style applied to the border, see https://www.w3schools.com/cssref/pr_border.asp for more information"
+							},
+							"borderRadius": {
+								"type": "number",
+								"description": "The curvature radius of the applied border (Requires borderStyle to be set)",
+								"default": 0
+							},
+							"isBold": {
+								"type": "boolean",
+								"description": "Sets whether the tag is rendered in bold",
+								"default": true
+							},
+							"isItalic": {
+								"type": "boolean",
+								"description": "Sets whether the tag is rendered in italics",
+								"default": true
 							}
 						}
 					},

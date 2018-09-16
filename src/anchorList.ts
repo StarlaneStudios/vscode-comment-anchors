@@ -1,5 +1,6 @@
 const debounce = require('debounce');
 
+import * as path from 'path';
 import Anchor from './anchor';
 import {
 	window,
@@ -17,6 +18,7 @@ import {
 	WorkspaceConfiguration,
 	ExtensionContext,
 	Disposable,
+	DecorationRenderOptions,
 	
 } from "vscode";
 
@@ -40,8 +42,8 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 	/** The current list of anchors */
 	public anchors: Anchor[] = [];
 
-	/** The list of tags and their colors */
-	public tags: Map<String, String> = new Map();
+	/** The list of tags and their settings */
+	public tags: Map<String, TagEntry> = new Map();
 
 	/** The current editor */
 	private _editor: TextEditor | undefined;
@@ -71,7 +73,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 
 	buildResources() {
 		try {
-			this._config = workspace.getConfiguration('commentAnchors');
+			const config = this._config = workspace.getConfiguration('commentAnchors');
 
 			// Construct the debounce
 			this._idleRefresh = debounce(this.parse, this._config.parseDelay);
@@ -82,16 +84,44 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 			this.anchorDecorators.clear();
 
 			this._config.tags.list.forEach((tag: TagEntry) => {
-				this.tags.set(tag.tag, tag.iconColor);
+				this.tags.set(tag.tag, tag);
 
-				if(this._config!.tagHighlights.enabled) {
-					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType({
+				if(config.tagHighlights.enabled) {
+
+					// Create base configuration
+					let highlight : DecorationRenderOptions = {
+						fontWeight: tag.isBold || tag.isBold == undefined? "bold": "normal",
+						fontStyle: tag.isItalic || tag.isItalic == undefined ? "italic": "normal",
 						color: tag.highlightColor,
 						backgroundColor: tag.backgroundColor,
-						fontWeight: "bold",
 						overviewRulerColor: tag.highlightColor,
-						overviewRulerLane: OverviewRulerLane.Right
-					}));
+						overviewRulerLane: OverviewRulerLane.Full
+					};
+
+					// Optional gutter icons
+					if(config.tags.displayInGutter) {
+						highlight = {
+							...highlight,
+							dark: {
+								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'white' : tag.iconColor}.svg`)
+							},
+							light: {
+								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'black' : tag.iconColor}.svg`)
+							}
+						}
+					}
+
+					// Optional border
+					if(tag.borderStyle) {
+						highlight = {
+							...highlight,
+							border: tag.borderStyle,
+							borderRadius: tag.borderRadius + "px"
+						}
+					}
+					
+					// Create the decoration type
+					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType(highlight));
 				}
 			});
 
@@ -103,7 +133,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 				return;
 			}
 
-			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\b`, "gm");
+			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\\b`, "gm");
 
 			// Perform a parse of the document
 			this.parse(null);
@@ -135,14 +165,17 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 
 			// Find all anchor occurences
 			while (match = this.matcher!.exec(text)) {
+				const tag : TagEntry = this.tags.get(match[1])!;
+
+				const rangeLength = tag.styleComment ? 0 : 1;
 				const startPos = doc.positionAt(match.index);
-				const endPos = doc.positionAt(match.index + match[1].length);
+				const endPos = doc.positionAt(match.index + match[rangeLength].length);
 				const anchorSpan = new Range(startPos, endPos);
 				const comment = match[2].trim();
 				const decoration = { range: anchorSpan, hoverMessage: comment };
 
 				const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
-				const anchor = new Anchor(match[1], display, decoration, this.tags.get(match[1]) || "default");
+				const anchor = new Anchor(match[1], display, decoration, tag.iconColor || "default");
 				
 				this.anchors.push(anchor);
 			}
@@ -227,8 +260,13 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
  * A tag entry in the settings
  */
 interface TagEntry {
-	tag: String;
-	iconColor: String;
-	highlightColor: String;
-	backgroundColor?: String;
+	tag: string;
+	iconColor: string;
+	highlightColor:string;
+	backgroundColor?: string;
+	styleComment?: boolean;
+	borderStyle?: string;
+	borderRadius?: number;
+	isBold?: boolean;
+	isItalic?: boolean;
 }
