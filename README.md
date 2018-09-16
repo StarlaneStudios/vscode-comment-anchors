@@ -1,6 +1,6 @@
 # Comment Anchors
 
-Place anchors within comments or string to place bookmarks within the context of your code. Anchors can be used to build a simple navigation, making it easier to navigate large files.
+Place anchors within comments or string to place bookmarks within the context of your code. Anchors can be used to track TODOs, Notes, or to build a simple navigation, making it easier to navigate large files.
 
 ## Changelog
 View the changelog [here](CHANGELOG.md)
@@ -9,8 +9,9 @@ View the changelog [here](CHANGELOG.md)
 
 * Place anchors in comments, strings, documentation, etc.
 * Anchors can be viewed in the anchor sidebar view in the activity bar.
-* Anchor names, icon colors, highlight colors, and background colors can be customized.
+* Anchor names, icon colors, highlight colors, and much more can be customized. (See below for examples)
 * Click an anchor in the sidebar view to scroll it into view. 
+* Quickly toggle tag visiblity with commands
 
 ## Usage
 
@@ -23,13 +24,15 @@ The default settings come with anchors for the following tags:
 * NOTE - An important note for a specific code section
 * REVIEW - An item that needs additional review
 
+_(NOTE: These default tags are ultimately an example, and do not add any further functionality)_
+
 In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
 
 ![Preview](media/preview.gif)
 
 ## Anchor types
 
-All anchor types have their own icon, highlight color, and background color, which can be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
+All anchor types have their own icon, highlight color, and background color, and more, which can all be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
 
 ![All tags](media/all-anchors.png)
 
@@ -51,14 +54,44 @@ Use `commentAnchors.tagHighlights.enabled` to set whether tags are highlighted. 
 }
 ```
 
-Use `commentAnchors.tags` to configure the anchor tags. Each tag requires a `name`, `iconColor` and `highlightColor`, and optionally a `backgroundColor`.
+Use `commentAnchors.tags.displayInSidebar` to set whether tags are included in the sidebar list. (Default true)
+
+```
+{
+	"commentAnchors.tags.displayInSidebar": true
+}
+```
+
+Use `commentAnchors.tags.displayInGutter` to set whether gutter icons are shown. (Default true)
+
+```
+{
+	"commentAnchors.tags.displayInGutter": true
+}
+```
+
+Use `commentAnchors.tags` to configure the anchor tags. Below is a list of properties each tag can have.
+
+**Required properties:**
+- tag - *Specifies the name of the tag*
+- iconColor - *The color used for the icon*
+- highlightColor - *The color used for highlighting the tag*
+
+**Optional properties:**
+- backgroundColor - *The color used as tag background*
+- styleComment - *Boolean indicating whether to style the entire comment, or just the tag*
+- borderStyle - *Style to be applied to the tag border (See https://www.w3schools.com/cssref/pr_border.asp)*
+- borderRadius - *The curvature radius of the border (Requires borderStyle)*
+- isBold - *Whether to apply bold formatting to the tag*
+- isItalic - *Whether to apply italicized formatting to the tag*
 
 ```
 "commentAnchors.tags": [
     {
       "tag": "ANCHOR",
       "iconColor": "default",
-      "highlightColor": "#A8C023"
+      "highlightColor": "#A8C023",
+	  "styleComment": true
     }
 ]
 ```

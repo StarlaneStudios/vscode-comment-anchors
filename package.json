@@ -12,7 +12,7 @@
 	],
 	"icon": "media/icon.png",
 	"galleryBanner": {
-		"color": "#005dc1",
+		"color": "#00a8ff",
 		"theme": "dark"
 	},
 	"homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
