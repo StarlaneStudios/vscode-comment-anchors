@@ -6,8 +6,8 @@ import * as path from 'path';
  */
 export default class EmptyList extends TreeItem {
 
-	constructor() {
-		super(`No comment anchors detected`, TreeItemCollapsibleState.None);
+	constructor(message: string) {
+		super(message, TreeItemCollapsibleState.None);
 
 		this.iconPath = {
 			light: path.join(__dirname, '..', 'res', `cross.svg`),

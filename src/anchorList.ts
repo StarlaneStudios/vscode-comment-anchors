@@ -43,8 +43,11 @@ export class AnchorListProvider implements TreeDataProvider<Anchor|EmptyList>, D
 	/** The current list of anchors */
 	public anchors: Anchor[] = [];
 
+	/** The TreeItem to use for unusable files */
+	public unusableItem: EmptyList = new EmptyList('Waiting for open editor...');
+
 	/** The TreeItem to use for empty lists */
-	public emptyItem: EmptyList = new EmptyList();
+	public emptyItem: EmptyList = new EmptyList('No comment anchors detected');
 
 	/** The list of tags and their settings */
 	public tags: Map<String, TagEntry> = new Map();
@@ -210,7 +213,7 @@ export class AnchorListProvider implements TreeDataProvider<Anchor|EmptyList>, D
 
 	getChildren(element?: Anchor|EmptyList): Thenable<Anchor[]|EmptyList[]> {
 		if(element || this._editor == undefined) {
-			return Promise.resolve([]);
+			return Promise.resolve([this.unusableItem]);
 		}
 
 		return new Promise(resolve => {
