@@ -2,6 +2,7 @@ const debounce = require('debounce');
 
 import * as path from 'path';
 import Anchor from './anchor';
+import EmptyList from './emptyList';
 import {
 	window,
 	workspace,
@@ -22,7 +23,7 @@ import {
 	
 } from "vscode";
 
-export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable {
+export class AnchorListProvider implements TreeDataProvider<Anchor|EmptyList>, Disposable {
 
 	private _onDidChangeTreeData: EventEmitter<undefined> = new EventEmitter<undefined>();
 	readonly onDidChangeTreeData: Event<undefined> = this._onDidChangeTreeData.event;
@@ -41,6 +42,9 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 
 	/** The current list of anchors */
 	public anchors: Anchor[] = [];
+
+	/** The TreeItem to use for empty lists */
+	public emptyItem: EmptyList = new EmptyList();
 
 	/** The list of tags and their settings */
 	public tags: Map<String, TagEntry> = new Map();
@@ -200,17 +204,21 @@ export class AnchorListProvider implements TreeDataProvider<Anchor>, Disposable 
 		this._onDidChangeTreeData.fire();
 	}
 
-	getTreeItem(element: Anchor): TreeItem {
+	getTreeItem(element: Anchor|EmptyList): TreeItem {
 		return element;
 	}
 
-	getChildren(element?: Anchor): Thenable<Anchor[]> {
+	getChildren(element?: Anchor|EmptyList): Thenable<Anchor[]|EmptyList[]> {
 		if(element || this._editor == undefined) {
 			return Promise.resolve([]);
 		}
 
 		return new Promise(resolve => {
-			resolve(this.anchors);
+			if(this.anchors.length == 0) {
+				resolve([this.emptyItem]);
+			} else {
+				resolve(this.anchors);
+			}
 		});
 	}
 
