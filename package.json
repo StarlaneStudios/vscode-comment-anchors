@@ -24,11 +24,17 @@
 		"commands": [
 			{
 				"command": "commentAnchors.parse",
-				"title": "Comment Anchors: Parse the current file and look for anchors"
+				"title": "Parse the current file and look for anchors",
+				"category": "Comment Anchors"
 			},
 			{
 				"command": "commentAnchors.toggle",
-				"title": "Comment Anchors: Toggle the visibility of tag highlights"
+				"title": "Toggle the visibility of tag highlights",
+				"category": "Comment Anchors"
+			},
+			{
+				"command": "commentAnchors.openFileAndRevealLine",
+				"title": "Open a file and reveal a line"
 			}
 		],
 		"viewsContainers": {
@@ -43,8 +49,12 @@
 		"views": {
 			"comment-anchors": [
 				{
-					"id": "anchorsList",
-					"name": "Anchors list"
+					"id": "fileAnchors",
+					"name": "File Anchors"
+				},
+				{
+					"id": "workspaceAnchors",
+					"name": "Workspace Anchors"
 				}
 			]
 		},
@@ -52,7 +62,7 @@
 			"view/title": [
 				{
 					"command": "commentAnchors.parse",
-					"when": "view == anchorsList",
+					"when": "view == fileAnchors",
 					"group": "operations"
 				}
 			]
@@ -73,6 +83,18 @@
 					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
 					"scope": "window"
 				},
+				"commentAnchors.workspace.matchFiles": {
+					"type": "string",
+					"default": "**/*",
+					"description": "The glob pattern of the files that will be parsed by Comment Anchors",
+					"scope": "window"
+				},
+				"commentAnchors.workspace.excludeFiles": {
+					"type": "string",
+					"default": ".{git,idea}/**/*",
+					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
+					"scope": "window"
+				},
 				"commentAnchors.tags.displayInSidebar": {
 					"type": "boolean",
 					"default": true,
@@ -88,16 +110,42 @@
 				"commentAnchors.tags.list": {
 					"type": "array",
 					"default": [
-						{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023"},
-						{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff"},
-						{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336"},
-						{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8"},
-						{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300"},
-						{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17"}
+						{
+							"tag": "ANCHOR",
+							"iconColor": "default",
+							"highlightColor": "#A8C023"
+						},
+						{
+							"tag": "TODO",
+							"iconColor": "blue",
+							"highlightColor": "#3ea8ff"
+						},
+						{
+							"tag": "FIXME",
+							"iconColor": "red",
+							"highlightColor": "#F44336"
+						},
+						{
+							"tag": "STUB",
+							"iconColor": "purple",
+							"highlightColor": "#BA68C8"
+						},
+						{
+							"tag": "NOTE",
+							"iconColor": "orange",
+							"highlightColor": "#FFB300"
+						},
+						{
+							"tag": "REVIEW",
+							"iconColor": "orange",
+							"highlightColor": "#64DD17"
+						}
 					],
 					"items": {
 						"type": "object",
-						"required": ["tag"],
+						"required": [
+							"tag"
+						],
 						"properties": {
 							"tag": {
 								"type": "string",
@@ -173,6 +221,7 @@
 		"vscode": "^1.1.6"
 	},
 	"dependencies": {
-		"debounce": "^1.1.0"
+		"debounce": "^1.1.0",
+		"escape-string-regexp": "^1.0.5"
 	}
 }

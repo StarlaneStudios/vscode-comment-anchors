@@ -4,10 +4,13 @@ import * as path from 'path';
 /**
  * Represents an empty detection
  */
-export default class EmptyList extends TreeItem {
+export default class EntryError extends TreeItem {
+
+	private message: string;
 
 	constructor(message: string) {
 		super(message, TreeItemCollapsibleState.None);
+		this.message = message;
 
 		this.iconPath = {
 			light: path.join(__dirname, '..', 'res', `cross.svg`),
@@ -16,13 +19,13 @@ export default class EmptyList extends TreeItem {
 	}
 
 	get tooltip(): string {
-		return `Place Comment Anchors in the current file to view them here!`
+		return this.message;
 	}
 
 	toString(): String {
-		return "EmptyList{}";
+		return "EntryError{}";
 	}
 
-	contextValue = 'anchor';
+	contextValue = 'error';
 
 }
