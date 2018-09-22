@@ -36,11 +36,14 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 					const cachedFile = (element as EntryCachedFile);
 					
 					cachedFile.anchors.forEach((anchor: EntryAnchor) => {
+						if(!anchor.isVisibleInWorkspace) return;
+
 						res.push(new EntryAnchor(
 							anchor.anchorTag,
 							anchor.anchorText,
 							anchor.decorator,
 							anchor.icon,
+							anchor.scope,
 							cachedFile.file
 						));
 					});
@@ -55,17 +58,29 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 
 			if(!this.provider.anchorsLoaded) {
 				success([this.provider.loading]);
-			} else if(this.provider.anchorMaps.size == 0) {
-				success([this.provider.emptyWorkspace]);
+				return;
 			}
 
 			let res: EntryCachedFile[] = [];
 
 			this.provider.anchorMaps.forEach((anchors: EntryAnchor[], document: TextDocument) => {
 				if(anchors.length == 0) return; // Skip empty files
+
+				let notVisible = true;
+
+				anchors.forEach(anchor => {
+					if(anchor.isVisibleInWorkspace) notVisible = false;
+				});
 				
-				res.push(new EntryCachedFile(workspace.rootPath!, document.uri, anchors));
+				if(!notVisible) {
+					res.push(new EntryCachedFile(workspace.rootPath!, document.uri, anchors));
+				}
 			});
+
+			if(res.length == 0) {
+				success([this.provider.emptyWorkspace]);
+				return;
+			}
 
 			success(res);
 		});

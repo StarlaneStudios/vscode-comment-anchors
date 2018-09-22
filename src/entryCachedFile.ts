@@ -12,7 +12,7 @@ export default class EntryCachedFile extends TreeItem {
 		public readonly file: Uri,
 		public readonly anchors: EntryAnchor[]
 	) {
-		super(`${EntryCachedFile.toRelative(root, file)} (${anchors.length} Anchors)`, TreeItemCollapsibleState.Expanded);
+		super(`${EntryCachedFile.toRelative(root, file)} (${EntryCachedFile.fileAnchorStats(anchors)})`, TreeItemCollapsibleState.Expanded);
 
 		this.command = {
 			title: '',
@@ -34,9 +34,37 @@ export default class EntryCachedFile extends TreeItem {
 		return this.label!;
 	}
 
-	// NOTE Might not be the best way to do
+	/**
+	 * Converts an absolute path to relative
+	 * 
+	 * NOTE Might not be the best way to do
+	 */
 	static toRelative(root: string, file: Uri) {
 		return path.relative('/' + root.replace(/\\/g, '/'), file.path);
+	}
+
+	/**
+	 * Formats a file stats string using the given anchors array
+	 */
+	static fileAnchorStats(anchors: EntryAnchor[]) {
+		let visible = 0;
+		let hidden = 0;
+
+		anchors.forEach(anchor => {
+			if(anchor.isVisibleInWorkspace) {
+				visible++;
+			} else {
+				hidden++;
+			}
+		});
+
+		let ret = visible + " Anchors";
+
+		if(hidden > 0) {
+			ret += ", " + hidden + " Hidden"
+		}
+
+		return ret;
 	}
 
 	contextValue = 'cachedFile';

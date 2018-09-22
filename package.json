@@ -113,38 +113,45 @@
 						{
 							"tag": "ANCHOR",
 							"iconColor": "default",
-							"highlightColor": "#A8C023"
+							"highlightColor": "#A8C023",
+							"scope": "file"
 						},
 						{
 							"tag": "TODO",
 							"iconColor": "blue",
-							"highlightColor": "#3ea8ff"
+							"highlightColor": "#3ea8ff",
+							"scope": "workspace"
 						},
 						{
 							"tag": "FIXME",
 							"iconColor": "red",
-							"highlightColor": "#F44336"
+							"highlightColor": "#F44336",
+							"scope": "workspace"
 						},
 						{
 							"tag": "STUB",
 							"iconColor": "purple",
-							"highlightColor": "#BA68C8"
+							"highlightColor": "#BA68C8",
+							"scope": "file"
 						},
 						{
 							"tag": "NOTE",
 							"iconColor": "orange",
-							"highlightColor": "#FFB300"
+							"highlightColor": "#FFB300",
+							"scope": "file"
 						},
 						{
 							"tag": "REVIEW",
 							"iconColor": "orange",
-							"highlightColor": "#64DD17"
+							"highlightColor": "#64DD17",
+							"scope": "workspace"
 						}
 					],
 					"items": {
 						"type": "object",
 						"required": [
-							"tag"
+							"tag",
+							"scope"
 						],
 						"properties": {
 							"tag": {
@@ -194,6 +201,15 @@
 								"type": "boolean",
 								"description": "Sets whether the tag is rendered in italics",
 								"default": true
+							},
+							"scope": {
+								"type": "string",
+								"enum": [
+									"file",
+									"workspace"
+								],
+								"description": "Defines the scope of this tag. Setting this to \"file\" makes these tags only visible in the 'File Anchors' list",
+								"default": "workspace"
 							}
 						}
 					},

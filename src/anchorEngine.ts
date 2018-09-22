@@ -106,6 +106,10 @@ export class AnchorEngine {
 			config.tags.list.forEach((tag: TagEntry) => {
 				this.tags.set(tag.tag, tag);
 
+				if(!tag.scope) {
+					tag.scope = 'workspace';
+				}
+
 				if(config.tagHighlights.enabled) {
 
 					// Create base configuration
@@ -254,7 +258,7 @@ export class AnchorEngine {
 			const decoration = { range: anchorSpan, hoverMessage: comment };
 
 			const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
-			const anchor = new EntryAnchor(match[1], display, decoration, tag.iconColor || "default");
+			const anchor = new EntryAnchor(match[1], display, decoration, tag.iconColor || "default", tag.scope!);
 
 			anchors.push(anchor);
 		}
@@ -332,7 +336,7 @@ export class AnchorEngine {
 /**
  * A tag entry in the settings
  */
-interface TagEntry {
+export interface TagEntry {
 	tag: string;
 	iconColor: string;
 	highlightColor:string;
@@ -342,4 +346,5 @@ interface TagEntry {
 	borderRadius?: number;
 	isBold?: boolean;
 	isItalic?: boolean;
+	scope?: string
 }

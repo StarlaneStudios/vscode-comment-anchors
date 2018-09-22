@@ -11,6 +11,7 @@ export default class EntryAnchor extends TreeItem {
 		public readonly anchorText: string,
 		public readonly decorator: DecorationOptions,
 		public readonly icon: String,
+		public readonly scope: string,
 		public readonly file?: Uri
 	) {
 		super(`[${decorator.range.start.line + 1}] ${anchorText}`, TreeItemCollapsibleState.None);
@@ -40,6 +41,10 @@ export default class EntryAnchor extends TreeItem {
 
 	get tooltip(): string {
 		return `${this.anchorText} (Click to navigate)`
+	}
+
+	get isVisibleInWorkspace() {
+		return this.scope == 'workspace';
 	}
 
 	toString(): String {
