@@ -56,7 +56,10 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				return;
 			}
 
-			if(!this.provider.anchorsLoaded) {
+			if(!workspace.workspaceFolders) {
+				success([this.provider.fileOnly]);
+				return;
+			} else if(!this.provider.anchorsLoaded) {
 				success([this.provider.loading]);
 				return;
 			}
@@ -73,7 +76,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				});
 				
 				if(!notVisible) {
-					res.push(new EntryCachedFile(workspace.rootPath!, document.uri, anchors));
+					res.push(new EntryCachedFile(document.uri, anchors));
 				}
 			});
 

@@ -1,4 +1,4 @@
-import {window, commands, ExtensionContext, workspace, Uri, Disposable} from 'vscode';
+import {window, commands, ExtensionContext, workspace, Uri, Disposable, TreeDataProvider, TreeItem} from 'vscode';
 import {AnchorEngine} from './anchorEngine';
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
@@ -9,13 +9,10 @@ let anchorEngine: AnchorEngine;
 // controlled by the activation events defined in package.json.
 export function activate(context: ExtensionContext) {
 	const engine = new AnchorEngine(context);
-
-	const fileProvider: FileAnchorProvider = engine.fileProvider;
-	const workspaceProvider: WorkspaceAnchorProvider = engine.workspaceProvider;
-
+	
 	// Register the ActivityBar view providers
-	window.registerTreeDataProvider('fileAnchors', fileProvider);
-	window.registerTreeDataProvider('workspaceAnchors', workspaceProvider);
+	window.registerTreeDataProvider('fileAnchors', engine.fileProvider as TreeDataProvider<TreeItem>);
+	window.registerTreeDataProvider('workspaceAnchors', engine.workspaceProvider as TreeDataProvider<TreeItem>);
 
 	// Register extension commands
 	commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);

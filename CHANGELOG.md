@@ -1,5 +1,12 @@
 # Change Log
 
+## v1.4.0
+- Added workspace anchors view
+	- Allows the viewing of all anchors within one or multiple workspaces
+	- Can be used for navigation
+	- Tags can be scoped to display for current file only
+- Fixed bugs
+
 ## v1.3.0
 - Added gutter icons
 - Added more tag customization styles

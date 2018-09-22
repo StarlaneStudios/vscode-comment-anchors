@@ -7,10 +7,7 @@ import EntryError from './entryError';
 import {
 	window,
 	workspace,
-	TreeDataProvider,
-	Event,
 	EventEmitter,
-	TreeItem,
 	TextDocumentChangeEvent,
 	TextEditor,
 	TextDocument,
@@ -19,7 +16,6 @@ import {
 	Range,
 	WorkspaceConfiguration,
 	ExtensionContext,
-	Disposable,
 	DecorationRenderOptions,
 	OutputChannel,
 	StatusBarAlignment,
@@ -51,6 +47,7 @@ export class AnchorEngine {
 	public emptyItem: EntryError = new EntryError('No comment anchors detected');
 	public emptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
 	public loading: EntryError = new EntryError('Searching for anchors...');
+	public fileOnly: EntryError = new EntryError('No open workspaces');
 
 	/** The list of tags and their settings */
 	public tags: Map<string, TagEntry> = new Map();
@@ -76,8 +73,9 @@ export class AnchorEngine {
 
 	constructor(context: ExtensionContext) {
 		window.onDidChangeActiveTextEditor(e => this.onActiveEditorChanged(e), this, context.subscriptions);
-		workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e), this, context.subscriptions);
+		workspace.onDidChangeTextDocument(e => this.onDocumentChanged(), this, context.subscriptions);
 		workspace.onDidChangeConfiguration(() => this.buildResources(), this, context.subscriptions);
+		workspace.onDidChangeWorkspaceFolders(() => this.buildResources(), this, context.subscriptions);
 
 		this._debug = window.createOutputChannel("Comment Anchors");
 
@@ -207,13 +205,18 @@ export class AnchorEngine {
 		parseStatus.show();
 
 		for(let i = 0; i < uris.length; i++) {
-			let document = await workspace.openTextDocument(uris[i]);
-			this.addMap(document);
+			try {
+				let document = await workspace.openTextDocument(uris[i]);
+				this.addMap(document);
 
-			parseCount++;
-			parsePercentage = parseCount / uris.length * 100;
+				parseCount++;
+				parsePercentage = parseCount / uris.length * 100;
 
-			parseStatus.text = `Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
+				parseStatus.text = `Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
+			} catch(err) {
+				// Thrown when document is not a text document
+				// in this case, we can simply ignore
+			}
 		};
 
 		parseStatus.text = `Comment Anchors loaded!`;
@@ -327,7 +330,7 @@ export class AnchorEngine {
 		this.refresh();
 	}
 
-	private onDocumentChanged(changeEvent: TextDocumentChangeEvent): void {
+	private onDocumentChanged(): void {
 		this._idleRefresh!();
 	}
 

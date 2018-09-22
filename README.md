@@ -2,6 +2,8 @@
 
 Place anchors within comments or string to place bookmarks within the context of your code. Anchors can be used to track TODOs, Notes, or to build a simple navigation, making it easier to navigate large files.
 
+Anchors can be viewed for the current file, or throughout the entire workspace, using an easy to use sidebar.
+
 ## Changelog
 View the changelog [here](CHANGELOG.md)
 
@@ -12,6 +14,8 @@ View the changelog [here](CHANGELOG.md)
 * Anchor names, icon colors, highlight colors, and much more can be customized. (See below for examples)
 * Click an anchor in the sidebar view to scroll it into view. 
 * Quickly toggle tag visiblity with commands
+* View anchors across your entire workspace
+* Scope anchors to be visible in your entire workspace, or just the current file
 
 ## Usage
 
@@ -24,7 +28,7 @@ The default settings come with anchors for the following tags:
 * NOTE - An important note for a specific code section
 * REVIEW - An item that needs additional review
 
-_(NOTE: These default tags are ultimately an example, and do not add any further functionality)_
+_(NOTE: These default tags are an example, and do not add any further functionality)_
 
 In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
 
@@ -35,6 +39,24 @@ In order to make an anchor, simply place the tag name in a comment, with an addi
 All anchor types have their own icon, highlight color, and background color, and more, which can all be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
 
 ![All tags](media/all-anchors.png)
+
+## Workspace anchors
+
+Besides displaying anchors found in the current file, the sidebar also displays a list of
+tags it found across all files in your workspace. These anchors are displayed per file, and can
+be used as quick navigation.
+
+The visibility of anchor tags in the workspace list can be altered using the 'scope' property on each tag (See configuration section).
+
+![Workspace Anchors](media/workspace-anchors.png)
+
+## Tag customization
+
+Comment Anchors supports a vast range of tag customization options. All tags can be modified, including the default tags. This allows you to define tags useful for your workflow.
+
+See the configuration section for a complete list of tag properties.
+
+![Workspace Anchors](media/custom-tags.png)
 
 ## Configuration
 
@@ -74,6 +96,7 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 
 **Required properties:**
 - tag - *Specifies the name of the tag*
+- scope - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list*
 - iconColor - *The color used for the icon*
 - highlightColor - *The color used for highlighting the tag*
 
@@ -87,26 +110,30 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 
 ```
 "commentAnchors.tags": [
-    {
-      "tag": "ANCHOR",
-      "iconColor": "default",
-      "highlightColor": "#A8C023",
-	  "styleComment": true
-    }
+	{
+		"tag": "ANCHOR",
+		"scope": "file",
+		"iconColor": "default",
+		"highlightColor": "#A8C023",
+		"styleComment": true
+	}
 ]
 ```
 
-## Neon tags theme
+## Tag themes
+
+### Neon
+
 In case you prefer backgrounds on all tags, here is an example setup using background colors. Simply use this JSON as the `commentAnchors.tags` configuration to use.
 
 ```
 [
-	{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023", "backgroundColor": "#49511d"},
-	{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff", "backgroundColor": "#0052a5"},
-	{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336", "backgroundColor": "#592c2c"},
-	{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8", "backgroundColor": "#48309a"},
-	{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300", "backgroundColor": "#806900"},
-	{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10"}
+	{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023", "backgroundColor": "#49511d", "scope": "file"},
+	{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff", "backgroundColor": "#0052a5", "scope": "workspace"},
+	{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336", "backgroundColor": "#592c2c", "scope": "workspace"},
+	{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8", "backgroundColor": "#48309a", "scope": "file"},
+	{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300", "backgroundColor": "#806900", "scope": "file"},
+	{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10", "scope": "workspace"}
 ]
 ```
 

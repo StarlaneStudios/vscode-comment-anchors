@@ -1,4 +1,4 @@
-import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, OutputChannel } from "vscode";
+import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, OutputChannel, workspace } from "vscode";
 import * as path from 'path';
 import EntryAnchor from "./entryAnchor";
 
@@ -8,11 +8,10 @@ import EntryAnchor from "./entryAnchor";
 export default class EntryCachedFile extends TreeItem {
 
 	constructor(
-		private readonly root: string,
 		public readonly file: Uri,
-		public readonly anchors: EntryAnchor[]
+		public readonly anchors: EntryAnchor[],
 	) {
-		super(`${EntryCachedFile.toRelative(root, file)} (${EntryCachedFile.fileAnchorStats(anchors)})`, TreeItemCollapsibleState.Expanded);
+		super(EntryCachedFile.fileAnchorStats(file, anchors), TreeItemCollapsibleState.Expanded);
 
 		this.command = {
 			title: '',
@@ -35,18 +34,9 @@ export default class EntryCachedFile extends TreeItem {
 	}
 
 	/**
-	 * Converts an absolute path to relative
-	 * 
-	 * NOTE Might not be the best way to do
-	 */
-	static toRelative(root: string, file: Uri) {
-		return path.relative('/' + root.replace(/\\/g, '/'), file.path);
-	}
-
-	/**
 	 * Formats a file stats string using the given anchors array
 	 */
-	static fileAnchorStats(anchors: EntryAnchor[]) {
+	static fileAnchorStats(file: Uri, anchors: EntryAnchor[]) {
 		let visible = 0;
 		let hidden = 0;
 
@@ -64,7 +54,27 @@ export default class EntryCachedFile extends TreeItem {
 			ret += ", " + hidden + " Hidden"
 		}
 
-		return ret;
+		let title = " (" + ret + ")";
+
+		const root = workspace.getWorkspaceFolder(file) || workspace.workspaceFolders![0];
+
+		if(root) {
+			title = path.relative(root.uri.path, file.path) + title;
+		} else {
+			title = file.path + title;
+		}
+
+		if(workspace.workspaceFolders!.length > 1) {
+			let ws = root.name;
+
+			if(ws.length > 12) {
+				ws = ws.substr(0, 12) + "…";
+			}
+
+			title = ws + " → " + title;
+		}
+
+		return title;
 	}
 
 	contextValue = 'cachedFile';
