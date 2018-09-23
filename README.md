@@ -1,8 +1,10 @@
 # Comment Anchors
 
-Place anchors within comments or string to place bookmarks within the context of your code. Anchors can be used to track TODOs, Notes, or to build a simple navigation, making it easier to navigate large files.
+Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, Notes, or to build a simple navigation, making it easier to navigate large files.
 
 Anchors can be viewed for the current file, or throughout the entire workspace, using an easy to use sidebar.
+
+Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity.
 
 ## Changelog
 View the changelog [here](CHANGELOG.md)
