@@ -107,6 +107,16 @@
 					"description": "Whether to display tags in the gutter",
 					"scope": "window"
 				},
+				"commentAnchors.tags.sortMethod": {
+					"type": "string",
+					"default": "line",
+					"enum": [
+						"type",
+						"line"
+					],
+					"description": "The method used to sort the anchors in the sidebar",
+					"scope": "window"
+				},
 				"commentAnchors.tags.list": {
 					"type": "array",
 					"default": [

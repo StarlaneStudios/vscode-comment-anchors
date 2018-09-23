@@ -41,8 +41,8 @@ export class AnchorEngine {
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
-
-	/** Possible error entries */
+	
+	// ANCHOR Possible error entries //
 	public unusableItem: EntryError = new EntryError('Waiting for open editor...');
 	public emptyItem: EntryError = new EntryError('No comment anchors detected');
 	public emptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
@@ -95,6 +95,11 @@ export class AnchorEngine {
 			this._idleRefresh = debounce(() => {
 				if(this._editor) this.parse(this._editor!.document);
 			}, config.parseDelay);
+
+			// Store the sorting method
+			if(config.tags.sortMethod && (config.tags.sortMethod == 'line' || config.tags.sortMethod == 'type')) {
+				EntryAnchor.SortMethod = config.tags.sortMethod;
+			}
 			
 			// Create a map holding the tags
 			this.tags.clear();
@@ -155,6 +160,7 @@ export class AnchorEngine {
 				return;
 			}
 
+			// ANCHOR Tag RegEx
 			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\\b`, "gm");
 
 			// Scan in all workspace files
@@ -200,6 +206,7 @@ export class AnchorEngine {
 		let parseCount: number = 0;
 		let parsePercentage: number = 0;
 
+		
 		parseStatus.tooltip = "Provided by the Comment Anchors extension";
 		parseStatus.text = `Parsing Comment Anchors... [0.0%]`;
 		parseStatus.show();
@@ -323,6 +330,16 @@ export class AnchorEngine {
 		if(!this.anchorsLoaded) return;
 
 		if(editor && !this.anchorMaps.has(editor.document)) {
+
+			// Bugfix - Replace duplicates
+			new Map<TextDocument, EntryAnchor[]>(this.anchorMaps).forEach((_, document) => {
+				if(document.uri.toString() == editor.document.uri.toString()) {
+					this._debug.appendLine("Replaced document " + document.uri.path);
+					this.anchorMaps.delete(document);
+					return false;
+				}
+			});
+
 			this.anchorMaps.set(editor.document, []);
 			this.parse(editor.document);
 		}

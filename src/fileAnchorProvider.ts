@@ -32,7 +32,7 @@ export class FileAnchorProvider implements TreeDataProvider<EntryAnchor|EntryErr
 			} else if(this.provider.currentAnchors.length == 0) {
 				resolve([this.provider.emptyItem]);
 			} else {
-				resolve(this.provider.currentAnchors);
+				resolve(EntryAnchor.sortAnchors(this.provider.currentAnchors));
 			}
 		});
 	}

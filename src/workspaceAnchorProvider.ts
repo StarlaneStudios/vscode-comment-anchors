@@ -48,7 +48,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 						));
 					});
 	
-					success(res);
+					success(EntryAnchor.sortAnchors(res));
 				} else {
 					success([]);
 				}
