@@ -69,7 +69,7 @@
 		},
 		"configuration": {
 			"type": "object",
-			"title": "Comment Anchors configuration",
+			"title": "Comment Anchors",
 			"properties": {
 				"commentAnchors.tagHighlights.enabled": {
 					"type": "boolean",
