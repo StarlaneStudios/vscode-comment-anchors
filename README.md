@@ -139,6 +139,7 @@ In case you prefer backgrounds on all tags, here is an example setup using backg
 
 ## Issues
 
+Found a problem or missing feature in Comment Anchors?
 Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
 
 ## Contribution

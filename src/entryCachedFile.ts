@@ -13,11 +13,12 @@ export default class EntryCachedFile extends TreeItem {
 	) {
 		super(EntryCachedFile.fileAnchorStats(file, anchors), TreeItemCollapsibleState.Expanded);
 
-		this.command = {
-			title: '',
-			command: 'vscode.openFolder',
-			arguments: [file]
-		};
+		// NOTE Disabled for now, makes opening/closing folders easier
+		// this.command = {
+		// 	title: '',
+		// 	command: 'vscode.openFolder',
+		// 	arguments: [file]
+		// };
 
 		this.iconPath = {
 			light: path.join(__dirname, '..', 'res', `file.svg`),
@@ -26,7 +27,7 @@ export default class EntryCachedFile extends TreeItem {
 	}
 
 	get tooltip(): string {
-		return `${this.file.path} (Click to open)`
+		return `${this.file.path}`
 	}
 
 	toString(): String {
@@ -62,6 +63,10 @@ export default class EntryCachedFile extends TreeItem {
 			title = path.relative(root.uri.path, file.path) + title;
 		} else {
 			title = file.path + title;
+		}
+
+		if(title.startsWith('..')) {
+			throw new Error("Cannot crate cached file for external documents");
 		}
 
 		if(workspace.workspaceFolders!.length > 1) {

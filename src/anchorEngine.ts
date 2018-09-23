@@ -76,6 +76,7 @@ export class AnchorEngine {
 		workspace.onDidChangeTextDocument(e => this.onDocumentChanged(), this, context.subscriptions);
 		workspace.onDidChangeConfiguration(() => this.buildResources(), this, context.subscriptions);
 		workspace.onDidChangeWorkspaceFolders(() => this.buildResources(), this, context.subscriptions);
+		workspace.onDidCloseTextDocument((e) => this.cleanUp(e), this, context.subscriptions);
 
 		this._debug = window.createOutputChannel("Comment Anchors");
 
@@ -249,6 +250,18 @@ export class AnchorEngine {
 	}
 
 	/**
+	 * Clean up external files
+	 */
+	cleanUp(document: TextDocument) {
+		if(document.uri.scheme != 'file') return;
+
+		const ws = workspace.getWorkspaceFolder(document.uri);
+		if(ws) return;
+
+		this.removeMap(document);
+	}
+
+	/**
 	 * Parse the given or current document
 	 */	
 	parse(document: TextDocument) {
@@ -334,7 +347,7 @@ export class AnchorEngine {
 			// Bugfix - Replace duplicates
 			new Map<TextDocument, EntryAnchor[]>(this.anchorMaps).forEach((_, document) => {
 				if(document.uri.toString() == editor.document.uri.toString()) {
-					this._debug.appendLine("Replaced document " + document.uri.path);
+					this._debug.appendLine("Recached document " + document.uri.path);
 					this.anchorMaps.delete(document);
 					return false;
 				}
