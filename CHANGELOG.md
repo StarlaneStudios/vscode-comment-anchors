@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.4.2
+- Fixed bad performance by excluding `node_modules` by default
+
 ## v1.4.0
 - Added workspace anchors view
 	- Allows the viewing of all anchors within one or multiple workspaces
