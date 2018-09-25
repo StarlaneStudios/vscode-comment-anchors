@@ -78,6 +78,22 @@ Use `commentAnchors.tagHighlights.enabled` to set whether tags are highlighted. 
 }
 ```
 
+Use `commentAnchors.workspace.matchFiles` to define which files are scanned by Comment Anchors. This setting can be used to greatly increase performance in your projects, as by default most files are scanned.
+
+```
+{
+	"commentAnchors.workspace.matchFiles": "**/*"
+}
+```
+
+Use `commentAnchors.workspace.excludeFiles` to define which files are excluded from being scanned by Comment Anchors. This setting can be used to greatly increase performance in your projects, as by default only few directories are excluded.
+
+```
+{
+	"commentAnchors.workspace.matchFiles": "{node_modules,.git,.idea}/**/*"
+}
+```
+
 Use `commentAnchors.tags.displayInSidebar` to set whether tags are included in the sidebar list. (Default true)
 
 ```
