@@ -144,6 +144,11 @@ In case you prefer backgrounds on all tags, here is an example setup using backg
 Found a problem or missing feature in Comment Anchors?
 Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
 
+### Bad performance?
+
+Comment Anchor scans your entire workspace for tags. This can cause bad performance when your
+workspace contains many files, such as dependency directories and logfiles. It is therefore advised to alter the `matchFiles` and `excludeFiles` settings to limit the amount of directories and files scanned.
+
 ## Contribution
 
 You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
