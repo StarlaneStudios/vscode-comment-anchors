@@ -25,7 +25,6 @@ import {
 } from "vscode";
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
-import Spinner from './progressBar';
 
 export class AnchorEngine {
 
@@ -48,6 +47,7 @@ export class AnchorEngine {
 	public errorUnusableItem: EntryError = new EntryError('Waiting for open editor...');
 	public errorEmptyItem: EntryError = new EntryError('No comment anchors detected');
 	public errorEmptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
+	public errorWorkspaceDisabled: EntryError = new EntryError('Workspace disabled');
 	public errorLoading: EntryError = new EntryError('Searching for anchors...');
 	public errorFileOnly: EntryError = new EntryError('No open workspaces');
 
@@ -172,25 +172,36 @@ export class AnchorEngine {
 
 			// Scan in all workspace files
 			const matchFiles = config.workspace.matchFiles;
-			this.anchorsLoaded = false;
 
-			workspace.findFiles(matchFiles, config.workspace.excludeFiles).then(uris => {
+			if(config.workspace.enabled) {
+				this.anchorsLoaded = false;
 
-				// Clear all existing mappings
-				this.anchorMaps.clear();
+				workspace.findFiles(matchFiles, config.workspace.excludeFiles).then(uris => {
 
-				// Resolve all matched URIs
-				this.loadWorkspace(uris).then(() => {
-					if(this._editor) {
-						this.addMap(this._editor!.document.uri);
-					}
-					
-					this.anchorsLoaded = true;
-					this.refresh();
-				}).catch(err => {
-					window.showErrorMessage("Comment Anchors failed to load: " + err.message);
+					// Clear all existing mappings
+					this.anchorMaps.clear();
+
+					// Resolve all matched URIs
+					this.loadWorkspace(uris).then(() => {
+						if(this._editor) {
+							this.addMap(this._editor!.document.uri);
+						}
+						
+						this.anchorsLoaded = true;
+						this.refresh();
+					}).catch(err => {
+						window.showErrorMessage("Comment Anchors failed to load: " + err.message);
+					});
 				});
-			});
+			} else {
+				this.anchorsLoaded = true;
+
+				if(this._editor) {
+					this.addMap(this._editor!.document.uri);
+				}
+				
+				this.refresh();
+			}
 
 			// Dispose the existing file watcher
 			if(this._watcher) {
@@ -198,16 +209,18 @@ export class AnchorEngine {
 			}
 
 			// Create a new file watcher
-			this._watcher = workspace.createFileSystemWatcher(matchFiles, true, true, false);
+			if(config.workspace.enabled) {
+				this._watcher = workspace.createFileSystemWatcher(matchFiles, true, true, false);
 
-			this._watcher.onDidDelete((file: Uri) => {
-				this.anchorMaps.forEach((_, uri) => {
-					if(uri.toString() == file.toString()) {
-						this.removeMap(uri);
-						return false;
-					}
+				this._watcher.onDidDelete((file: Uri) => {
+					this.anchorMaps.forEach((_, uri) => {
+						if(uri.toString() == file.toString()) {
+							this.removeMap(uri);
+							return false;
+						}
+					});
 				});
-			})
+			}
 		} catch(err) {
 			console.error("Failed to build resources: " + err.message);
 			console.error(err);
@@ -265,7 +278,7 @@ export class AnchorEngine {
 		if(document.uri.scheme != 'file') return;
 
 		const ws = workspace.getWorkspaceFolder(document.uri);
-		if(ws) return;
+		if(this._config!.workspace.enabled && ws) return;
 
 		this.removeMap(document.uri);
 	}

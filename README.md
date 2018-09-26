@@ -78,6 +78,14 @@ Use `commentAnchors.tagHighlights.enabled` to set whether tags are highlighted. 
 }
 ```
 
+Use `commentAnchors.workspace.enabled` to activate workspace wide anchor scanning. This will list out all files containing comment anchors in the "Workspace Anchors" view. (Default true)
+
+```
+{
+	"commentAnchors.workspace.enabled": true
+}
+```
+
 Use `commentAnchors.workspace.matchFiles` to define which files are scanned by Comment Anchors. This setting can be used to greatly increase performance in your projects, as by default most files are scanned.
 
 ```
@@ -90,7 +98,7 @@ Use `commentAnchors.workspace.excludeFiles` to define which files are excluded f
 
 ```
 {
-	"commentAnchors.workspace.excludeFiles": "{node_modules,.git,.idea}/**/*"
+	"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build}/**/*"
 }
 ```
 
@@ -107,6 +115,14 @@ Use `commentAnchors.tags.displayInGutter` to set whether gutter icons are shown.
 ```
 {
 	"commentAnchors.tags.displayInGutter": true
+}
+```
+
+Use `commentAnchors.tags.sortMethod` to set the method used to sort anchors by in the sidebar list. Set this to "line" to sort by line number (Default), or "type" to sort by tag type.
+
+```
+{
+	"commentAnchors.tags.sortMethod": "line"
 }
 ```
 

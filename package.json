@@ -83,6 +83,12 @@
 					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
 					"scope": "window"
 				},
+				"commentAnchors.workspace.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Scan the entire workspace instead of just the currently opened file",
+					"scope": "window"
+				},
 				"commentAnchors.workspace.matchFiles": {
 					"type": "string",
 					"default": "**/*",

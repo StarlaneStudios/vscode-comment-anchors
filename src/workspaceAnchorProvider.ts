@@ -58,7 +58,10 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				return;
 			}
 
-			if(!workspace.workspaceFolders) {
+			if(!this.provider._config!.workspace.enabled) {
+				success([this.provider.errorWorkspaceDisabled]);
+				return;
+			} else if(!workspace.workspaceFolders) {
 				success([this.provider.errorFileOnly]);
 				return;
 			} else if(!this.provider.anchorsLoaded) {

@@ -1,7 +1,12 @@
 # Change Log
 
 ## 1.4.2
-- Fixed bad performance by excluding `node_modules` by default
+- Added the ability to disable workspace anchors
+- Fixed bad performance by excluding `node_modules` and other folders from the workspace scan by default
+- Scanning now no longer triggers other extensions to parse all files
+- Improved matching regex
+	- Now excludes semicolons and other symbols before the comment (e.g. NOTE - Message, ANCHOR: Message)
+	- Matches are now case insensitive (Can be disabled in settings)
 
 ## v1.4.0
 - Added workspace anchors view
