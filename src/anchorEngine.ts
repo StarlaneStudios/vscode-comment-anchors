@@ -1,6 +1,7 @@
 const debounce = require('debounce');
 
 import * as path from 'path';
+import * as fs from 'fs';
 import * as escape from 'escape-string-regexp';
 import EntryAnchor from './entryAnchor';
 import EntryError from './entryError';
@@ -8,22 +9,23 @@ import {
 	window,
 	workspace,
 	EventEmitter,
-	TextDocumentChangeEvent,
 	TextEditor,
 	TextDocument,
 	TextEditorDecorationType,
 	OverviewRulerLane,
-	Range,
 	WorkspaceConfiguration,
 	ExtensionContext,
 	DecorationRenderOptions,
 	OutputChannel,
 	StatusBarAlignment,
 	Uri,
-	FileSystemWatcher
+	FileSystemWatcher,
+	DecorationOptions,
+	TextDocumentChangeEvent
 } from "vscode";
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
+import Spinner from './progressBar';
 
 export class AnchorEngine {
 
@@ -37,17 +39,17 @@ export class AnchorEngine {
 	public matcher: RegExp | undefined;
 
 	/** A cache holding all documents */
-	public anchorMaps: Map<TextDocument, EntryAnchor[]> = new Map();
+	public anchorMaps: Map<Uri, EntryAnchor[]> = new Map();
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
 	
 	// ANCHOR Possible error entries //
-	public unusableItem: EntryError = new EntryError('Waiting for open editor...');
-	public emptyItem: EntryError = new EntryError('No comment anchors detected');
-	public emptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
-	public loading: EntryError = new EntryError('Searching for anchors...');
-	public fileOnly: EntryError = new EntryError('No open workspaces');
+	public errorUnusableItem: EntryError = new EntryError('Waiting for open editor...');
+	public errorEmptyItem: EntryError = new EntryError('No comment anchors detected');
+	public errorEmptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
+	public errorLoading: EntryError = new EntryError('Searching for anchors...');
+	public errorFileOnly: EntryError = new EntryError('No open workspaces');
 
 	/** The list of tags and their settings */
 	public tags: Map<string, TagEntry> = new Map();
@@ -59,10 +61,11 @@ export class AnchorEngine {
 	public _editor: TextEditor | undefined;
 
 	/** Anchor comments config settings */
-	private _config: WorkspaceConfiguration | undefined;
+	public _config: WorkspaceConfiguration | undefined;
 
 	/** The debug output for comment anchors */
 	public _debug: OutputChannel;
+	public static output: OutputChannel;
 
 	/** The current file system watcher */
 	private _watcher: FileSystemWatcher | undefined;
@@ -73,16 +76,17 @@ export class AnchorEngine {
 
 	constructor(context: ExtensionContext) {
 		window.onDidChangeActiveTextEditor(e => this.onActiveEditorChanged(e), this, context.subscriptions);
-		workspace.onDidChangeTextDocument(e => this.onDocumentChanged(), this, context.subscriptions);
+		workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e), this, context.subscriptions);
 		workspace.onDidChangeConfiguration(() => this.buildResources(), this, context.subscriptions);
 		workspace.onDidChangeWorkspaceFolders(() => this.buildResources(), this, context.subscriptions);
 		workspace.onDidCloseTextDocument((e) => this.cleanUp(e), this, context.subscriptions);
 
 		this._debug = window.createOutputChannel("Comment Anchors");
+		AnchorEngine.output = this._debug;
 
-		if(window.activeTextEditor) {
-			this._editor = window.activeTextEditor;
-		}
+		// if(window.activeTextEditor) {
+		// 	this._editor = window.activeTextEditor;
+		// }
 
 		// Build required anchor resources
 		this.buildResources();
@@ -94,7 +98,9 @@ export class AnchorEngine {
 
 			// Construct the debounce
 			this._idleRefresh = debounce(() => {
-				if(this._editor) this.parse(this._editor!.document);
+				if(this._editor) this.parse(this._editor!.document.uri).then(() => {
+					this.refresh();
+				});
 			}, config.parseDelay);
 
 			// Store the sorting method
@@ -108,7 +114,7 @@ export class AnchorEngine {
 			this.anchorDecorators.clear();
 
 			config.tags.list.forEach((tag: TagEntry) => {
-				this.tags.set(tag.tag, tag);
+				this.tags.set(tag.tag.toUpperCase(), tag);
 
 				if(!tag.scope) {
 					tag.scope = 'workspace';
@@ -162,7 +168,7 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR Tag RegEx
-			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\\b`, "gm");
+			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\\b`, config.tags.matchCase ? "gm" : "img");
 
 			// Scan in all workspace files
 			const matchFiles = config.workspace.matchFiles;
@@ -175,9 +181,15 @@ export class AnchorEngine {
 
 				// Resolve all matched URIs
 				this.loadWorkspace(uris).then(() => {
-					this._onDidChangeTreeData.fire();
+					if(window.activeTextEditor) {
+						this._editor = window.activeTextEditor;
+					}
+					
 					this.anchorsLoaded = true;
-				})
+					this.refresh();
+				}).catch(err => {
+					window.showErrorMessage("Comment Anchors failed to load: " + err.message);
+				});
 			});
 
 			// Dispose the existing file watcher
@@ -189,9 +201,9 @@ export class AnchorEngine {
 			this._watcher = workspace.createFileSystemWatcher(matchFiles, true, true, false);
 
 			this._watcher.onDidDelete((file: Uri) => {
-				this.anchorMaps.forEach((_, document) => {
-					if(document.uri.toString() == file.toString()) {
-						this.removeMap(document);
+				this.anchorMaps.forEach((_, uri) => {
+					if(uri.toString() == file.toString()) {
+						this.removeMap(uri);
 						return false;
 					}
 				});
@@ -206,7 +218,6 @@ export class AnchorEngine {
 		var parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
 		let parseCount: number = 0;
 		let parsePercentage: number = 0;
-
 		
 		parseStatus.tooltip = "Provided by the Comment Anchors extension";
 		parseStatus.text = `Parsing Comment Anchors... [0.0%]`;
@@ -214,17 +225,15 @@ export class AnchorEngine {
 
 		for(let i = 0; i < uris.length; i++) {
 			try {
-				let document = await workspace.openTextDocument(uris[i]);
-				this.addMap(document);
-
-				parseCount++;
-				parsePercentage = parseCount / uris.length * 100;
-
-				parseStatus.text = `Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
+				await this.addMap(uris[i]);
 			} catch(err) {
-				// Thrown when document is not a text document
-				// in this case, we can simply ignore
+				// Ignore, already taken care of
 			}
+
+			parseCount++;
+			parsePercentage = parseCount / uris.length * 100;
+
+			parseStatus.text = `Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
 		};
 
 		parseStatus.text = `Comment Anchors loaded!`;
@@ -239,7 +248,7 @@ export class AnchorEngine {
 	 */
 	get currentAnchors(): EntryAnchor[] {
 		if(!this._editor) return [];
-		return this.anchorMaps.get(this._editor.document) || [];
+		return this.anchorMaps.get(this._editor.document.uri) || [];
 	}
 
 	/**
@@ -258,38 +267,58 @@ export class AnchorEngine {
 		const ws = workspace.getWorkspaceFolder(document.uri);
 		if(ws) return;
 
-		this.removeMap(document);
+		this.removeMap(document.uri);
 	}
 
 	/**
 	 * Parse the given or current document
 	 */	
-	parse(document: TextDocument) {
-		const text = document.getText();
-		let anchors = [];
-		let match;
+	parse(document: Uri) : Promise<void> {
+		return new Promise<void>(async (success, reject) => {
+			try {
+				let text = null;
 
-		// Find all anchor occurences
-		while (match = this.matcher!.exec(text)) {
-			const tag : TagEntry = this.tags.get(match[1])!;
+				workspace.textDocuments.forEach(td => {
+					if(td.uri == document) {
+						text = td.getText();
+						return false;
+					}
+				})
+				
+				if(text == null) {
+					text = await this.readDocument(document);
+				}
 
-			const rangeLength = tag.styleComment ? 0 : 1;
-			const startPos = document.positionAt(match.index);
-			const endPos = document.positionAt(match.index + match[rangeLength].length);
-			const anchorSpan = new Range(startPos, endPos);
-			const comment = match[2].trim();
-			const decoration = { range: anchorSpan, hoverMessage: comment };
+				let anchors = [];
+				let match;
 
-			const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
-			const anchor = new EntryAnchor(match[1], display, decoration, tag.iconColor || "default", tag.scope!);
+				// Find all anchor occurences
+				while (match = this.matcher!.exec(text)) {
+					const tag : TagEntry = this.tags.get(match[1].toUpperCase())!;
 
-			anchors.push(anchor);
-		}
+					const rangeLength = tag.styleComment ? 0 : 1;
+					const startPos = match.index;
+					const endPos = match.index + match[rangeLength].length;
+					const deltaText = text.substr(0, startPos);
+					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
+					
+					const comment = match[2].trim();
 
-		this.matcher!.lastIndex = 0;
-		this.anchorMaps.set(document, anchors);
+					const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
+					const anchor = new EntryAnchor(match[1], display, startPos, endPos, lineNumber, tag.iconColor || "default", tag.scope!);
 
-		if(this._editor && this._editor!.document == document) this.refresh();
+					anchors.push(anchor);
+				}
+
+				this.matcher!.lastIndex = 0;
+				this.anchorMaps.set(document, anchors);
+			} catch(err) {
+				this._debug.appendLine("Error: " + err.message);
+				reject(err);
+			} finally {
+				success();
+			}
+		});
 	}
 	
 	/**
@@ -297,14 +326,24 @@ export class AnchorEngine {
 	 */
 	refresh(): void {
 		if(this._editor && this._config!.tagHighlights.enabled) {
-			const doc = this._editor!.document;
-			const anchors = this.anchorMaps.get(doc) || [];
+			const document = this._editor!.document;
+			const doc = document.uri;
+			let anchors: EntryAnchor[] = [];
+
+			for(let entry of this.anchorMaps.entries()) {
+				if(entry[0].toString() == doc.toString()) {
+					anchors = entry[1]
+					break;
+				}
+			}
+
+			window.showInformationMessage("Refresh: " + anchors);
 
 			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: String) => {
-				this._editor!
-				.setDecorations(decorator, anchors
-					.filter(a => a.anchorTag == tag)
-					.map(a => a.decorator));
+				const decorators : DecorationOptions[] = anchors.filter(a => a.anchorTag.toUpperCase() == tag.toUpperCase())
+					.map(a => a.toDecorator(document));
+
+				this._editor!.setDecorations(decorator, decorators);
 			})
 		}
 
@@ -316,14 +355,14 @@ export class AnchorEngine {
 	 * 
 	 * @param document TextDocument
 	 */
-	addMap(document: TextDocument) {
-		if(document.uri.scheme !== 'file') return;
+	addMap(document: Uri) : Thenable<void> {
+		if(document.scheme !== 'file') return Promise.resolve();
 
 		if(!this.anchorMaps.has(document)) {
 			this.anchorMaps.set(document, []);
 		}
 
-		this.parse(document);
+		return this.parse(document);
 	}
 
 	/**
@@ -331,8 +370,8 @@ export class AnchorEngine {
 	 * 
 	 * @param editor textDocument
 	 */
-	removeMap(document: TextDocument) {
-		if(document.uri.scheme !== 'file') return;
+	removeMap(document: Uri) {
+		if(document.scheme !== 'file') return;
 
 		this.anchorMaps.delete(document);
 	}
@@ -340,30 +379,50 @@ export class AnchorEngine {
 	private onActiveEditorChanged(editor: TextEditor | undefined): void {
 		this._editor = editor;
 
+		window.showInformationMessage("Changed");
+
 		if(!this.anchorsLoaded) return;
 
-		if(editor && !this.anchorMaps.has(editor.document)) {
+		if(editor && !this.anchorMaps.has(editor.document.uri)) {
 
 			// Bugfix - Replace duplicates
-			new Map<TextDocument, EntryAnchor[]>(this.anchorMaps).forEach((_, document) => {
-				if(document.uri.toString() == editor.document.uri.toString()) {
-					this._debug.appendLine("Recached document " + document.uri.path);
+			new Map<Uri, EntryAnchor[]>(this.anchorMaps).forEach((_, document) => {
+				if(document.path.toString() == editor.document.uri.path.toString()) {
 					this.anchorMaps.delete(document);
 					return false;
 				}
 			});
 
-			this.anchorMaps.set(editor.document, []);
-			this.parse(editor.document);
+			this.anchorMaps.set(editor.document.uri, []);
+			this.parse(editor.document.uri).then(() => {
+				this.refresh();
+			});
+		} else {
+			this.refresh();
 		}
-
-		this.refresh();
 	}
 
-	private onDocumentChanged(): void {
+	private onDocumentChanged(e: TextDocumentChangeEvent): void {
+		if(!e.contentChanges) return;
 		this._idleRefresh!();
 	}
 
+	/**
+	 * Reads the document at the given Uri async
+	 * 
+	 * @param path Document uri
+	 */
+	private readDocument(path: Uri) : Thenable<string> {
+		return new Promise<string>((success, reject) => {
+			fs.readFile(path.fsPath, 'utf8', (err, data) => {
+				if(err) {
+					reject(err);
+				} else {
+					success(data);
+				}
+			});
+		});
+	}
 }
 
 /**

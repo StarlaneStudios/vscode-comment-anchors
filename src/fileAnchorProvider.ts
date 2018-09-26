@@ -26,11 +26,11 @@ export class FileAnchorProvider implements TreeDataProvider<EntryAnchor|EntryErr
 		// Return result
 		return new Promise(resolve => {
 			if(!this.provider.anchorsLoaded) {
-				resolve([this.provider.loading]);
+				resolve([this.provider.errorLoading]);
 			} else if(this.provider._editor == undefined) {
-				resolve([this.provider.unusableItem]);
+				resolve([this.provider.errorUnusableItem]);
 			} else if(this.provider.currentAnchors.length == 0) {
-				resolve([this.provider.emptyItem]);
+				resolve([this.provider.errorEmptyItem]);
 			} else {
 				resolve(EntryAnchor.sortAnchors(this.provider.currentAnchors));
 			}

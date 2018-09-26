@@ -1,5 +1,6 @@
-import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, window } from "vscode";
+import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
 import * as path from 'path';
+import { AnchorEngine } from "./anchorEngine";
 
 /**
  * Represents an Anchor found a file
@@ -12,26 +13,30 @@ export default class EntryAnchor extends TreeItem {
 	constructor(
 		public readonly anchorTag: string,
 		public readonly anchorText: string,
-		public readonly decorator: DecorationOptions,
+		public readonly startIndex: number,
+		public readonly endIndex: number,
+		public readonly lineNumber: number,
 		public readonly icon: String,
 		public readonly scope: string,
 		public readonly file?: Uri
 	) {
-		super(`[${decorator.range.start.line + 1}] ${anchorText}`, TreeItemCollapsibleState.None);
+		super("", TreeItemCollapsibleState.None);
+
+		this.label = `[${this.lineNumber}] ${anchorText}`;
 
 		this.command = file ? {
 			title: '',
 			command: 'commentAnchors.openFileAndRevealLine',
 			arguments: [{
 				uri: file,
-				lineNumber: decorator.range.start.line,
+				lineNumber: this.lineNumber - 1,
 				at: 'top'
 			}]
 		} : {
 			title: '',
 			command: 'revealLine',
 			arguments: [{
-				lineNumber: decorator.range.start.line,
+				lineNumber: this.lineNumber - 1 ,
 				at: 'top'
 			}]
 		}
@@ -50,6 +55,13 @@ export default class EntryAnchor extends TreeItem {
 		return this.scope == 'workspace';
 	}
 
+	toDecorator(document: TextDocument) : DecorationOptions {
+		const startPos = document.positionAt(this.startIndex);
+		const endPos = document.positionAt(this.endIndex);
+
+		return {hoverMessage: "Comment Anchor: " + this.anchorText, range: new Range(startPos, endPos)};
+	}
+
 	toString(): String {
 		return this.label!;
 	}
@@ -65,7 +77,7 @@ export default class EntryAnchor extends TreeItem {
 		return anchors.sort((left, right) => {
 			switch(this.SortMethod) {
 				case 'line': {
-					return left.decorator.range.start.line - right.decorator.range.start.line;
+					return left.startIndex - right.startIndex;
 				}
 				case 'type': {
 					return left.anchorTag.localeCompare(right.anchorTag);

@@ -41,7 +41,9 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 						res.push(new EntryAnchor(
 							anchor.anchorTag,
 							anchor.anchorText,
-							anchor.decorator,
+							anchor.startIndex,
+							anchor.endIndex,
+							anchor.lineNumber,
 							anchor.icon,
 							anchor.scope,
 							cachedFile.file
@@ -57,16 +59,16 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 			}
 
 			if(!workspace.workspaceFolders) {
-				success([this.provider.fileOnly]);
+				success([this.provider.errorFileOnly]);
 				return;
 			} else if(!this.provider.anchorsLoaded) {
-				success([this.provider.loading]);
+				success([this.provider.errorLoading]);
 				return;
 			}
 
 			let res: EntryCachedFile[] = [];
 
-			this.provider.anchorMaps.forEach((anchors: EntryAnchor[], document: TextDocument) => {
+			this.provider.anchorMaps.forEach((anchors: EntryAnchor[], document: Uri) => {
 				if(anchors.length == 0) return; // Skip empty files
 
 				let notVisible = true;
@@ -77,7 +79,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				
 				if(!notVisible) {
 					try {
-						res.push(new EntryCachedFile(document.uri, anchors));
+						res.push(new EntryCachedFile(document, anchors));
 					} catch(err) {
 						// Simply ignore, we do not want to push this file
 					}
@@ -85,11 +87,13 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 			});
 
 			if(res.length == 0) {
-				success([this.provider.emptyWorkspace]);
+				success([this.provider.errorEmptyWorkspace]);
 				return;
 			}
 
-			success(res);
+			success(res.sort((left, right) => {
+				return left.label!.localeCompare(right.label!)
+			}));
 		});
 	}
 

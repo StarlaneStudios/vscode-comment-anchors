@@ -33,7 +33,7 @@ export function deactivate() {
 function parseCurrentAnchors() {
 	if(!window.activeTextEditor) return;
 
-	anchorEngine.parse(window.activeTextEditor.document);
+	anchorEngine.parse(window.activeTextEditor.document.uri);
 }
 
 /**

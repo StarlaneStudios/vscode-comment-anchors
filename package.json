@@ -91,7 +91,7 @@
 				},
 				"commentAnchors.workspace.excludeFiles": {
 					"type": "string",
-					"default": "{node_modules,.git,.idea}/**/*",
+					"default": "**/{node_modules,.git,.idea}/**/*",
 					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
 					"scope": "window"
 				},
@@ -115,6 +115,12 @@
 						"line"
 					],
 					"description": "The method used to sort the anchors in the sidebar",
+					"scope": "window"
+				},
+				"commentAnchors.tags.matchCase": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true, performs case sensitive matches",
 					"scope": "window"
 				},
 				"commentAnchors.tags.list": {
@@ -248,6 +254,7 @@
 	},
 	"dependencies": {
 		"debounce": "^1.1.0",
-		"escape-string-regexp": "^1.0.5"
+		"escape-string-regexp": "^1.0.5",
+		"glob": "^7.1.3"
 	}
 }

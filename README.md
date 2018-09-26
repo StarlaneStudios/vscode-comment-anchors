@@ -90,7 +90,7 @@ Use `commentAnchors.workspace.excludeFiles` to define which files are excluded f
 
 ```
 {
-	"commentAnchors.workspace.matchFiles": "{node_modules,.git,.idea}/**/*"
+	"commentAnchors.workspace.excludeFiles": "{node_modules,.git,.idea}/**/*"
 }
 ```
 
