@@ -84,9 +84,9 @@ export class AnchorEngine {
 		this._debug = window.createOutputChannel("Comment Anchors");
 		AnchorEngine.output = this._debug;
 
-		// if(window.activeTextEditor) {
-		// 	this._editor = window.activeTextEditor;
-		// }
+		if(window.activeTextEditor) {
+			this._editor = window.activeTextEditor;
+		}
 
 		// Build required anchor resources
 		this.buildResources();
@@ -168,7 +168,7 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR Tag RegEx
-			this.matcher = new RegExp(`\\b(${tags})\\b(.*)\\b`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`\\b(${tags}).+?\\b(.*)\\b`, config.tags.matchCase ? "gm" : "img");
 
 			// Scan in all workspace files
 			const matchFiles = config.workspace.matchFiles;
@@ -181,8 +181,8 @@ export class AnchorEngine {
 
 				// Resolve all matched URIs
 				this.loadWorkspace(uris).then(() => {
-					if(window.activeTextEditor) {
-						this._editor = window.activeTextEditor;
+					if(this._editor) {
+						this.addMap(this._editor!.document.uri);
 					}
 					
 					this.anchorsLoaded = true;
@@ -328,16 +328,7 @@ export class AnchorEngine {
 		if(this._editor && this._config!.tagHighlights.enabled) {
 			const document = this._editor!.document;
 			const doc = document.uri;
-			let anchors: EntryAnchor[] = [];
-
-			for(let entry of this.anchorMaps.entries()) {
-				if(entry[0].toString() == doc.toString()) {
-					anchors = entry[1]
-					break;
-				}
-			}
-
-			window.showInformationMessage("Refresh: " + anchors);
+			const anchors =  this.anchorMaps.get(doc) || [];
 
 			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: String) => {
 				const decorators : DecorationOptions[] = anchors.filter(a => a.anchorTag.toUpperCase() == tag.toUpperCase())
@@ -358,9 +349,15 @@ export class AnchorEngine {
 	addMap(document: Uri) : Thenable<void> {
 		if(document.scheme !== 'file') return Promise.resolve();
 
-		if(!this.anchorMaps.has(document)) {
-			this.anchorMaps.set(document, []);
-		}
+		// Make sure we have no duplicates
+		this.anchorMaps.forEach((_, doc) => {
+			if(doc.path == document.path) {
+				this.anchorMaps.delete(doc);
+				return false;
+			}
+		});
+
+		this.anchorMaps.set(document, []);
 
 		return this.parse(document);
 	}
@@ -378,8 +375,6 @@ export class AnchorEngine {
 
 	private onActiveEditorChanged(editor: TextEditor | undefined): void {
 		this._editor = editor;
-
-		window.showInformationMessage("Changed");
 
 		if(!this.anchorsLoaded) return;
 
