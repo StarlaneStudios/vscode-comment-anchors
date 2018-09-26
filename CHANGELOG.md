@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.4.2
+## 1.4.3
 - Added the ability to disable workspace anchors
 - Fixed bad performance by excluding `node_modules` and other folders from the workspace scan by default
 - Scanning now no longer triggers other extensions to parse all files
