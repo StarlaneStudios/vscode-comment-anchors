@@ -52,6 +52,15 @@ The visibility of anchor tags in the workspace list can be altered using the 'sc
 
 ![Workspace Anchors](media/workspace-anchors.png)
 
+### Lazy loading
+
+Since workspace anchors are usually scanned at startup, this can increase load time for projects containing many
+files and folders. In this case you can enable lazy loading mode, which will require an additional manual trigger to start the scan.
+
+Lazy workspace loading can be enabled in the settings (See configuration section).
+
+![Lazy Loading](media/lazy-workspace.gif)
+
 ## Tag customization
 
 Comment Anchors supports a vast range of tag customization options. All tags can be modified, including the default tags. This allows you to define tags useful for your workflow.
@@ -83,6 +92,14 @@ Use `commentAnchors.workspace.enabled` to activate workspace wide anchor scannin
 ```
 {
 	"commentAnchors.workspace.enabled": true
+}
+```
+
+Use `commentAnchors.workspace.lazyLoad` to require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default false)
+
+```
+{
+	"commentAnchors.workspace.lazyLoad": false
 }
 ```
 
@@ -180,6 +197,8 @@ Issues and suggestions can be submitted in the GitHub repository [here](https://
 
 Comment Anchor scans your entire workspace for tags. This can cause bad performance when your
 workspace contains many files, such as dependency directories and logfiles. It is therefore advised to alter the `matchFiles` and `excludeFiles` settings to limit the amount of directories and files scanned.
+
+If you'd rather disable workspace anchors all together, you can disable these in the settings.
 
 ## Contribution
 

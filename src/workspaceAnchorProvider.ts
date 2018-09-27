@@ -3,12 +3,13 @@ import EntryAnchor from "./entryAnchor";
 import EntryError from "./entryError";
 import { AnchorEngine } from "./anchorEngine";
 import EntryCachedFile from "./entryCachedFile";
+import EntryScan from "./entryScan";
 
 /**
  * The type repsenting any Entry
  */
-type AnyEntry = EntryAnchor|EntryError|EntryCachedFile;
-type AnyEntryArray = EntryAnchor[]|EntryError[]|EntryCachedFile[];
+type AnyEntry = EntryAnchor|EntryError|EntryCachedFile|EntryScan;
+type AnyEntryArray = EntryAnchor[]|EntryError[]|EntryCachedFile[]|EntryScan[];
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current workspace
@@ -64,8 +65,10 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 			} else if(!workspace.workspaceFolders) {
 				success([this.provider.errorFileOnly]);
 				return;
+			} else if(this.provider._config!.workspace.lazyLoad && !this.provider.anchorsScanned) {
+				success([this.provider.statusScan])
 			} else if(!this.provider.anchorsLoaded) {
-				success([this.provider.errorLoading]);
+				success([this.provider.statusLoading]);
 				return;
 			}
 

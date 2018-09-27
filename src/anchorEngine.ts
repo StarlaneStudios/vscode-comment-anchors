@@ -25,6 +25,8 @@ import {
 } from "vscode";
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
+import EntryLoading from './entryLoading';
+import EntryScan from './entryScan';
 
 export class AnchorEngine {
 
@@ -48,14 +50,18 @@ export class AnchorEngine {
 	public errorEmptyItem: EntryError = new EntryError('No comment anchors detected');
 	public errorEmptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
 	public errorWorkspaceDisabled: EntryError = new EntryError('Workspace disabled');
-	public errorLoading: EntryError = new EntryError('Searching for anchors...');
 	public errorFileOnly: EntryError = new EntryError('No open workspaces');
+	public statusLoading: EntryLoading = new EntryLoading();
+	public statusScan: EntryScan = new EntryScan();
 
 	/** The list of tags and their settings */
 	public tags: Map<string, TagEntry> = new Map();
 
 	/** Returns true when all anchors have been loaded */
 	public anchorsLoaded: boolean = false;
+
+	/** Holds whether a scan has been performed since rebuild */
+	public anchorsScanned: boolean = false;
 
 	/** The current editor */
 	public _editor: TextEditor | undefined;
@@ -94,6 +100,7 @@ export class AnchorEngine {
 
 	buildResources() {
 		try {
+			this.anchorsScanned = false;
 			const config = this._config = workspace.getConfiguration('commentAnchors');
 
 			// Construct the debounce
@@ -171,28 +178,8 @@ export class AnchorEngine {
 			this.matcher = new RegExp(`\\b(${tags}).+?\\b(.*)\\b`, config.tags.matchCase ? "gm" : "img");
 
 			// Scan in all workspace files
-			const matchFiles = config.workspace.matchFiles;
-
-			if(config.workspace.enabled) {
-				this.anchorsLoaded = false;
-
-				workspace.findFiles(matchFiles, config.workspace.excludeFiles).then(uris => {
-
-					// Clear all existing mappings
-					this.anchorMaps.clear();
-
-					// Resolve all matched URIs
-					this.loadWorkspace(uris).then(() => {
-						if(this._editor) {
-							this.addMap(this._editor!.document.uri);
-						}
-						
-						this.anchorsLoaded = true;
-						this.refresh();
-					}).catch(err => {
-						window.showErrorMessage("Comment Anchors failed to load: " + err.message);
-					});
-				});
+			if(config.workspace.enabled && !config.workspace.lazyLoad) {
+				this.initiateWorkspaceScan();
 			} else {
 				this.anchorsLoaded = true;
 
@@ -210,7 +197,7 @@ export class AnchorEngine {
 
 			// Create a new file watcher
 			if(config.workspace.enabled) {
-				this._watcher = workspace.createFileSystemWatcher(matchFiles, true, true, false);
+				this._watcher = workspace.createFileSystemWatcher(config.workspace.matchFiles, true, true, false);
 
 				this._watcher.onDidDelete((file: Uri) => {
 					this.anchorMaps.forEach((_, uri) => {
@@ -227,7 +214,35 @@ export class AnchorEngine {
 		}
 	}
 
-	async loadWorkspace(uris: Uri[]) {
+	public initiateWorkspaceScan() {
+		const config = this._config!;
+		this.anchorsScanned = true;
+		this.anchorsLoaded = false;
+
+		// Find all files located in this workspace
+		workspace.findFiles(config.workspace.matchFiles, config.workspace.excludeFiles).then(uris => {
+
+			// Clear all existing mappings
+			this.anchorMaps.clear();
+
+			// Resolve all matched URIs
+			this.loadWorkspace(uris).then(() => {
+				if(this._editor) {
+					this.addMap(this._editor!.document.uri);
+				}
+				
+				this.anchorsLoaded = true;
+				this.refresh();
+			}).catch(err => {
+				window.showErrorMessage("Comment Anchors failed to load: " + err.message);
+			});
+		});
+
+		// Update workspace tree
+		this._onDidChangeTreeData.fire();
+	}
+
+	private async loadWorkspace(uris: Uri[]) {
 		var parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
 		let parseCount: number = 0;
 		let parsePercentage: number = 0;
@@ -259,7 +274,7 @@ export class AnchorEngine {
 	/**
 	 * Returns the anchors in the current document
 	 */
-	get currentAnchors(): EntryAnchor[] {
+	public get currentAnchors(): EntryAnchor[] {
 		if(!this._editor) return [];
 		return this.anchorMaps.get(this._editor.document.uri) || [];
 	}
@@ -274,11 +289,11 @@ export class AnchorEngine {
 	/**
 	 * Clean up external files
 	 */
-	cleanUp(document: TextDocument) {
+	public cleanUp(document: TextDocument) {
 		if(document.uri.scheme != 'file') return;
 
 		const ws = workspace.getWorkspaceFolder(document.uri);
-		if(this._config!.workspace.enabled && ws) return;
+		if(this._config!.workspace.enabled && ws && this.anchorsScanned) return;
 
 		this.removeMap(document.uri);
 	}
@@ -286,7 +301,7 @@ export class AnchorEngine {
 	/**
 	 * Parse the given or current document
 	 */	
-	parse(document: Uri) : Promise<void> {
+	public parse(document: Uri) : Promise<void> {
 		return new Promise<void>(async (success, reject) => {
 			try {
 				let text = null;
@@ -359,7 +374,7 @@ export class AnchorEngine {
 	 * 
 	 * @param document TextDocument
 	 */
-	addMap(document: Uri) : Thenable<void> {
+	public addMap(document: Uri) : Thenable<void> {
 		if(document.scheme !== 'file') return Promise.resolve();
 
 		// Make sure we have no duplicates
@@ -380,7 +395,7 @@ export class AnchorEngine {
 	 * 
 	 * @param editor textDocument
 	 */
-	removeMap(document: Uri) {
+	public removeMap(document: Uri) {
 		if(document.scheme !== 'file') return;
 
 		this.anchorMaps.delete(document);

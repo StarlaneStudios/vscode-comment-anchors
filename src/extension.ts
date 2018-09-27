@@ -18,6 +18,7 @@ export function activate(context: ExtensionContext) {
 	commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);
 	commands.registerCommand("commentAnchors.toggle", toggleVisibilitySetting);
 	commands.registerCommand("commentAnchors.openFileAndRevealLine", openFileAndRevealLine);
+	commands.registerCommand("commentAnchors.launchWorkspaceScan", launchWorkspaceScan);
 
 	// Store a reference to the engine
 	anchorEngine = engine;
@@ -34,6 +35,13 @@ function parseCurrentAnchors() {
 	if(!window.activeTextEditor) return;
 
 	anchorEngine.parse(window.activeTextEditor.document.uri);
+}
+
+/**
+ * Luanch the workspace scan
+ */
+function launchWorkspaceScan() {
+	anchorEngine.initiateWorkspaceScan();
 }
 
 /**

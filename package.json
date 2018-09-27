@@ -35,6 +35,10 @@
 			{
 				"command": "commentAnchors.openFileAndRevealLine",
 				"title": "Open a file and reveal a line"
+			},
+			{
+				"command": "commentAnchors.launchWorkspaceScan",
+				"title": "Initiate a workspace scan"
 			}
 		],
 		"viewsContainers": {
@@ -89,6 +93,12 @@
 					"description": "Scan the entire workspace instead of just the currently opened file",
 					"scope": "window"
 				},
+				"commentAnchors.workspace.lazyLoad": {
+					"type": "boolean",
+					"default": false,
+					"description": "Require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default false)",
+					"scope": "window"
+				},
 				"commentAnchors.workspace.matchFiles": {
 					"type": "string",
 					"default": "**/*",
@@ -97,7 +107,7 @@
 				},
 				"commentAnchors.workspace.excludeFiles": {
 					"type": "string",
-					"default": "**/{node_modules,.git,.idea,target,out,build}/**/*",
+					"default": "**/{node_modules,.git,.idea,target,out,build,vendor}/**/*",
 					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
 					"scope": "window"
 				},
