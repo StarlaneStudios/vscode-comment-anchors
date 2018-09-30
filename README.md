@@ -230,7 +230,7 @@ with their hex code.
 | Emerald       | #2ecc71 | rgb(46,204,113)  |
 | Yellow        | #f4d13d | rgb(244,209,61)  |
 
-You can use these colors as tag `highlightColor` to match tag colors with tag colors.
+You can use these colors as value for the `highlightColor` property on tags, to make the highlight color fit with the icon color.
 
 ## Issues
 
