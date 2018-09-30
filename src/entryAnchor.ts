@@ -1,6 +1,5 @@
 import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
 import * as path from 'path';
-import { AnchorEngine } from "./anchorEngine";
 
 /**
  * Represents an Anchor found a file
@@ -9,6 +8,11 @@ export default class EntryAnchor extends TreeItem {
 
 	/** The sorting method to use, defaults to line */
 	public static SortMethod = "line";
+
+	/**
+	 * Child anchors, only present when this anchor is a region type
+	 */
+	private childAnchors: EntryAnchor[] = [];
 
 	constructor(
 		public readonly anchorTag: string,
@@ -55,11 +59,20 @@ export default class EntryAnchor extends TreeItem {
 		return this.scope == 'workspace';
 	}
 
-	toDecorator(document: TextDocument) : DecorationOptions {
+	get children() {
+		return this.childAnchors;
+	}
+
+	decorateDocument(document: TextDocument, options: DecorationOptions[]) {
 		const startPos = document.positionAt(this.startIndex);
 		const endPos = document.positionAt(this.endIndex);
 
-		return {hoverMessage: "Comment Anchor: " + this.anchorText, range: new Range(startPos, endPos)};
+		options.push({hoverMessage: "Comment Anchor: " + this.anchorText, range: new Range(startPos, endPos)});
+	}
+
+	addChild(child: EntryAnchor) {
+		this.collapsibleState = TreeItemCollapsibleState.Collapsed;
+		this.childAnchors.push(child);
 	}
 
 	toString(): String {

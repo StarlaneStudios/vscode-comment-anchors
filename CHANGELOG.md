@@ -1,5 +1,16 @@
 # Change Log
 
+## 1.5.0
+- Added anchor regions
+	- Region tags are defined by setting `isRegion` to `true`
+	- Defined with a start and end tag
+	- Collapsible in the anchor list and in the editor
+	- Support for placing regions within regions
+	- Provided default region tag "SECTION"
+- Greatly improved matching of tags
+- Added new icon colors (teal, pink, blurple, emerald)
+	- Added icon hex codes to the extension documentation
+
 ## 1.4.3
 - Added the ability to disable workspace anchors
 - Fixed bad performance by excluding `node_modules` and other folders from the workspace scan by default

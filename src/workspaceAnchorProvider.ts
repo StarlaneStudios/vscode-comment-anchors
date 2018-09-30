@@ -36,7 +36,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 	
 					const cachedFile = (element as EntryCachedFile);
 					
-					cachedFile.anchors.forEach((anchor: EntryAnchor) => {
+					WorkspaceAnchorProvider.flattenAnchors(cachedFile.anchors).forEach((anchor: EntryAnchor) => {
 						if(!anchor.isVisibleInWorkspace) return;
 
 						res.push(new EntryAnchor(
@@ -101,6 +101,22 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				return left.label!.localeCompare(right.label!)
 			}));
 		});
+	}
+
+	static flattenAnchors(anchors: EntryAnchor[]) : EntryAnchor[] {
+		let list: EntryAnchor[] = [];
+
+		function crawlList(anchors: EntryAnchor[]) {
+			anchors.forEach(anchor => {
+				list.push(anchor);
+
+				crawlList(anchor.children);
+			});
+		}
+
+		crawlList(anchors);
+
+		return list;
 	}
 
 }

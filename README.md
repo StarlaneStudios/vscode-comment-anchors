@@ -1,10 +1,10 @@
 # Comment Anchors
 
-Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, Notes, or to build a simple navigation, making it easier to navigate large files.
+Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, write Notes, create foldable section, or to build a simple navigation, making it easier to navigate large files.
 
 Anchors can be viewed for the current file, or throughout the entire workspace, using an easy to use sidebar.
 
-Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity.
+Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of featured!
 
 ## Changelog
 View the changelog [here](CHANGELOG.md)
@@ -18,6 +18,7 @@ View the changelog [here](CHANGELOG.md)
 * Quickly toggle tag visiblity with commands
 * View anchors across your entire workspace
 * Scope anchors to be visible in your entire workspace, or just the current file
+* Create foldable sections using region anchors
 
 ## Usage
 
@@ -29,6 +30,7 @@ The default settings come with anchors for the following tags:
 * STUB - Used for generated default snippets
 * NOTE - An important note for a specific code section
 * REVIEW - An item that needs additional review
+* SECTION - Used to define a region (See 'Hierarchical anchors')
 
 _(NOTE: These default tags are an example, and do not add any further functionality)_
 
@@ -61,6 +63,17 @@ Lazy workspace loading can be enabled in the settings (See configuration section
 
 ![Lazy Loading](media/lazy-workspace.gif)
 
+## Hierarchical anchors
+Region Anchors allow you to group relevant Comment Anchors together in regions, which can be
+folded in both the sidebar and the editor. These anchors act nearly identical to regular anchors,
+however they require an "end tag" to be specified, which is simply a tag of the same type, prefixed with an exclamation symbol.
+
+![Hierarchical Anchors](media/folding.gif)
+
+In order to mark a tag as Region Tag, set the `isRegion` property to `true` in the tags configuration (See configuration section).
+
+A default region tag is provided, called "SECTION"
+
 ## Tag customization
 
 Comment Anchors supports a vast range of tag customization options. All tags can be modified, including the default tags. This allows you to define tags useful for your workflow.
@@ -68,6 +81,16 @@ Comment Anchors supports a vast range of tag customization options. All tags can
 See the configuration section for a complete list of tag properties.
 
 ![Workspace Anchors](media/custom-tags.png)
+
+## Commands
+
+\> **List configured anchor tags**
+
+Displays all configured tags in a preview tab, useful for when you are creating your own tags.
+
+\> **Toggle the visibility of comment anchors**
+
+Toggles the visibibility of comment anchors (Duh!). Note that his command will update your settings in order to toggle the visibility.
 
 ## Configuration
 
@@ -115,7 +138,7 @@ Use `commentAnchors.workspace.excludeFiles` to define which files are excluded f
 
 ```
 {
-	"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build}/**/*"
+	"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build,vendor}/**/*"
 }
 ```
 
@@ -158,6 +181,7 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 - borderRadius - *The curvature radius of the border (Requires borderStyle)*
 - isBold - *Whether to apply bold formatting to the tag*
 - isItalic - *Whether to apply italicized formatting to the tag*
+- isRegion - *Mark this anchor as a region anchor*
 
 ```
 "commentAnchors.tags": [
@@ -187,6 +211,26 @@ In case you prefer backgrounds on all tags, here is an example setup using backg
 	{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10", "scope": "workspace"}
 ]
 ```
+
+## Icon colors
+Comment Anchors provides an array of different icon colors. Here is a list of anchors together
+with their hex code.
+
+| Color         | Hex     | RGB              |
+| :------------ |--------:| ----------------:|
+| Default (B&W) | #A8C023 | rgb(176,201,36)  |
+| Blue          | #3ea8ff | rgb(62,168,255)  |
+| Blurple       | #7d5afc | rgb(125,90,252)  |
+| Red           | #F44336 | rgb(244,67,54)   |
+| Purple        | #BA68C8 | rgb(186,104,200) |
+| Teal          | #00cec9 | rgb(0,206,201)   |
+| Orange        | #ffa100 | rgb(255,161,0)   |
+| Green         | #64DD17 | rgb(100,221,23)  |
+| Pink          | #e84393 | rgb(232,67,147)  |
+| Emerald       | #2ecc71 | rgb(46,204,113)  |
+| Yellow        | #f4d13d | rgb(244,209,61)  |
+
+You can use these colors as tag `highlightColor` to match tag colors with tag colors.
 
 ## Issues
 

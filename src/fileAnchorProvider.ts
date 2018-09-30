@@ -22,7 +22,13 @@ export class FileAnchorProvider implements TreeDataProvider<EntryAnchor|EntryErr
 	}
 
 	getChildren(element?: EntryAnchor|EntryError): Thenable<EntryAnchor[]|EntryError[]|EntryLoading[]> {
-		if(element) return Promise.resolve([]);
+		if(element) {
+			if(element instanceof EntryAnchor && element.children) {
+				return Promise.resolve(element.children);
+			}
+
+			return Promise.resolve([]);
+		}
 
 		// Return result
 		return new Promise(resolve => {

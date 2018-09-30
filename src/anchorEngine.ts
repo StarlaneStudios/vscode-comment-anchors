@@ -21,14 +21,23 @@ import {
 	Uri,
 	FileSystemWatcher,
 	DecorationOptions,
-	TextDocumentChangeEvent
+	TextDocumentChangeEvent,
+	languages,
+	FoldingRange,
+	FoldingRangeKind,
+	Disposable,
+	ViewColumn
 } from "vscode";
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
 import EntryLoading from './entryLoading';
 import EntryScan from './entryScan';
+import EntryAnchorRegion from './entryAnchorRegion';
 
 export class AnchorEngine {
+
+	/** The context of Comment Anchors */
+	public context: ExtensionContext;
 
 	/** Then event emitter in charge of refreshing the file trees */
 	public _onDidChangeTreeData: EventEmitter<undefined> = new EventEmitter<undefined>();
@@ -41,6 +50,12 @@ export class AnchorEngine {
 
 	/** A cache holding all documents */
 	public anchorMaps: Map<Uri, EntryAnchor[]> = new Map();
+
+	/** List of folds created by anchor regions */
+	public foldMaps: Map<Uri, FoldingRange[]> = new Map();
+
+	/** The disposable reference for the folding provider */
+	private foldProvider: Disposable
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
@@ -71,7 +86,7 @@ export class AnchorEngine {
 
 	/** The debug output for comment anchors */
 	public _debug: OutputChannel;
-	public static output: OutputChannel;
+	public static output: Function;
 
 	/** The current file system watcher */
 	private _watcher: FileSystemWatcher | undefined;
@@ -81,6 +96,8 @@ export class AnchorEngine {
 	public readonly workspaceProvider = new WorkspaceAnchorProvider(this);
 
 	constructor(context: ExtensionContext) {
+		this.context = context;
+
 		window.onDidChangeActiveTextEditor(e => this.onActiveEditorChanged(e), this, context.subscriptions);
 		workspace.onDidChangeTextDocument(e => this.onDocumentChanged(e), this, context.subscriptions);
 		workspace.onDidChangeConfiguration(() => this.buildResources(), this, context.subscriptions);
@@ -88,7 +105,7 @@ export class AnchorEngine {
 		workspace.onDidCloseTextDocument((e) => this.cleanUp(e), this, context.subscriptions);
 
 		this._debug = window.createOutputChannel("Comment Anchors");
-		AnchorEngine.output = this._debug;
+		AnchorEngine.output = (m: string) => this._debug.appendLine("[Comment Anchors] " + m);
 
 		if(window.activeTextEditor) {
 			this._editor = window.activeTextEditor;
@@ -96,6 +113,17 @@ export class AnchorEngine {
 
 		// Build required anchor resources
 		this.buildResources();
+
+		// Register a folding provider
+		this.foldProvider = this.createFoldingProvider();
+	}
+
+	createFoldingProvider() {
+		return languages.registerFoldingRangeProvider({language: '*'}, {
+			provideFoldingRanges: (document: TextDocument) => {
+				return this.foldMaps.get(document.uri);
+			}
+		});
 	}
 
 	buildResources() {
@@ -166,8 +194,19 @@ export class AnchorEngine {
 				}
 			});
 
+			// Fetch an array of tags
+			let matchTags = Array.from(this.tags.keys());
+
+			// Generate region end tags
+			this.tags.forEach((entry, tag) => {
+				this._debug.appendLine(JSON.stringify(entry));
+				if(entry.isRegion) {
+					matchTags.push('!' + tag);
+				}
+			});
+
 			// Create a matcher for the tags
-			const tags = Array.from(this.tags.keys()).map(tag => escape(tag)).join('|');
+			const tags = matchTags.map(tag => escape(tag)).join('|');
 
 			if(tags.length === 0) {
 				window.showErrorMessage("Invalid tag(s) defined");
@@ -175,7 +214,9 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR Tag RegEx
-			this.matcher = new RegExp(`\\b(${tags}).+?\\b(.*)\\b`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`[\\/#*=\\- ](${tags})($| +|: +| +- +)(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
+
+			AnchorEngine.output("Using matcher " + this.matcher);
 
 			// Scan in all workspace files
 			if(config.workspace.enabled && !config.workspace.lazyLoad) {
@@ -317,29 +358,89 @@ export class AnchorEngine {
 					text = await this.readDocument(document);
 				}
 
-				let anchors = [];
+				let currRegions: EntryAnchorRegion[] = [];
+				let anchors: EntryAnchor[] = [];
+				let folds: FoldingRange[] = [];
 				let match;
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
-					const tag : TagEntry = this.tags.get(match[1].toUpperCase())!;
+					const tag : TagEntry = this.tags.get(match[1].toUpperCase().replace('!', ''))!;
+					const isRegionStart = tag.isRegion;
+					const isRegionEnd = match[1].startsWith('!');
+					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+
+					// Handle the closing of a region
+					if(isRegionEnd) {
+						if(!currRegion) continue;
+
+						const deltaText = text.substr(0, match.index + 1);
+						const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
+
+						currRegion.setEndTag({
+							startIndex: match.index + 1,
+							endIndex: match.index + 1 + match[1].length,
+							lineNumber: lineNumber
+						})
+
+						currRegions.pop();
+
+						folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment))
+						continue;
+					}
 
 					const rangeLength = tag.styleComment ? 0 : 1;
-					const startPos = match.index;
-					const endPos = match.index + match[rangeLength].length;
+					const startPos = match.index + 1;
+					const endPos = startPos + match[rangeLength].length;
 					const deltaText = text.substr(0, startPos);
 					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 					
-					const comment = match[2].trim();
-
+					const comment = (match[4] || '').trim();
 					const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
-					const anchor = new EntryAnchor(match[1], display, startPos, endPos, lineNumber, tag.iconColor || "default", tag.scope!);
 
-					anchors.push(anchor);
+					let anchor : EntryAnchor;
+
+					if(isRegionStart) {
+						// Create a new region anchor
+						anchor = new EntryAnchorRegion(
+							match[1],
+							display,
+							startPos,
+							endPos,
+							lineNumber,
+							tag.iconColor || "default",
+							tag.scope!
+						);
+					} else {
+						// Create a new regular anchor
+						anchor = new EntryAnchor(
+							match[1],
+							display,
+							startPos,
+							endPos,
+							lineNumber,
+							tag.iconColor || "default",
+							tag.scope!
+						);
+					}
+				
+					// Push this region onto the stack
+					if(isRegionStart) {
+						currRegions.push(anchor as EntryAnchorRegion);
+					}
+
+					// Place this anchor on root or child level
+					if(currRegion) {
+						currRegion.addChild(anchor);
+					} else {
+						anchors.push(anchor);
+					}
+
 				}
 
 				this.matcher!.lastIndex = 0;
 				this.anchorMaps.set(document, anchors);
+				this.foldMaps.set(document, folds);
 			} catch(err) {
 				this._debug.appendLine("Error: " + err.message);
 				reject(err);
@@ -357,17 +458,38 @@ export class AnchorEngine {
 			const document = this._editor!.document;
 			const doc = document.uri;
 			const anchors =  this.anchorMaps.get(doc) || [];
+			const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
+			
+			// Create a mapping between tags and decorators
+			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
+				tags.set(tag.toUpperCase(), [decorator, []]);
+			});
 
-			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: String) => {
-				const decorators : DecorationOptions[] = anchors.filter(a => a.anchorTag.toUpperCase() == tag.toUpperCase())
-					.map(a => a.toDecorator(document));
+			// Create a function to handle decorating
+			const applyDecorators = (anchors: EntryAnchor[]) => {
+				anchors.forEach(anchor => {
+					anchor.decorateDocument(document, tags.get(anchor.anchorTag.toUpperCase())![1]);
 
-				this._editor!.setDecorations(decorator, decorators);
-			})
+					if(anchor.children) {
+						applyDecorators(anchor.children);
+					}
+				});
+			}
+			
+			// Start by decorating the root list
+			applyDecorators(anchors);
+
+			// Apply all decorators to the document
+			tags.forEach((decorator) => {
+				this._editor!.setDecorations(decorator[0], decorator[1]);
+			});
 		}
 
 		this._onDidChangeTreeData.fire();
+		if(this.foldProvider) this.foldProvider.dispose();
+		this.foldProvider = this.createFoldingProvider();
 	}
+	
 
 	/**
 	 * Add a TextDocument mapping to the engine
@@ -461,5 +583,6 @@ export interface TagEntry {
 	borderRadius?: number;
 	isBold?: boolean;
 	isItalic?: boolean;
-	scope?: string
+	scope?: string,
+	isRegion?: boolean;
 }
