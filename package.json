@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file and workspace navigation",
-	"version": "1.4.3",
+	"version": "1.5.0",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.24.0"
