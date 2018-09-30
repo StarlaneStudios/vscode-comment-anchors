@@ -195,12 +195,18 @@
 						"type": "object",
 						"required": [
 							"tag",
-							"scope"
+							"scope",
+							"highlightColor"
 						],
 						"properties": {
 							"tag": {
 								"type": "string",
 								"description": "The text to match for this tag"
+							},
+							"enabled": {
+								"type": "boolean",
+								"default": true,
+								"description": "Enable or disable this tag"
 							},
 							"iconColor": {
 								"type": "string",
@@ -262,7 +268,7 @@
 							}
 						}
 					},
-					"description": "List of comment anchor tags",
+					"description": "List of additional custom Comment Anchor tags",
 					"scope": "window"
 				}
 			}

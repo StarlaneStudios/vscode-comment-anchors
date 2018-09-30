@@ -33,6 +33,7 @@ import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
 import EntryLoading from './entryLoading';
 import EntryScan from './entryScan';
 import EntryAnchorRegion from './entryAnchorRegion';
+import registerDefaults from './defaultTags';
 
 export class AnchorEngine {
 
@@ -148,8 +149,21 @@ export class AnchorEngine {
 			this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
 			this.anchorDecorators.clear();
 
+			// Register default tags
+			registerDefaults(this.tags);
+
+			// Add custom tags
 			config.tags.list.forEach((tag: TagEntry) => {
+				if(tag.enabled === false) {
+					this.tags.delete(tag.tag.toUpperCase());
+					return;
+				}
+
 				this.tags.set(tag.tag.toUpperCase(), tag);
+			});
+
+			// Configure all tags
+			Array.from(this.tags.values()).forEach((tag: TagEntry) => {
 
 				if(!tag.scope) {
 					tag.scope = 'workspace';
@@ -198,8 +212,7 @@ export class AnchorEngine {
 			let matchTags = Array.from(this.tags.keys());
 
 			// Generate region end tags
-			this.tags.forEach((entry, tag) => {
-				this._debug.appendLine(JSON.stringify(entry));
+			this.tags.forEach((entry, tag) => { 
 				if(entry.isRegion) {
 					matchTags.push('!' + tag);
 				}
@@ -250,8 +263,8 @@ export class AnchorEngine {
 				});
 			}
 		} catch(err) {
-			console.error("Failed to build resources: " + err.message);
-			console.error(err);
+			AnchorEngine.output("Failed to build resources: " + err.message);
+			AnchorEngine.output(err);
 		}
 	}
 
@@ -275,7 +288,8 @@ export class AnchorEngine {
 				this.anchorsLoaded = true;
 				this.refresh();
 			}).catch(err => {
-				window.showErrorMessage("Comment Anchors failed to load: " + err.message);
+				window.showErrorMessage("Comment Anchors failed to load: " + err);
+				AnchorEngine.output(err);
 			});
 		});
 
@@ -575,7 +589,8 @@ export class AnchorEngine {
  */
 export interface TagEntry {
 	tag: string;
-	iconColor: string;
+	enabled?: boolean;
+	iconColor?: string;
 	highlightColor:string;
 	backgroundColor?: string;
 	styleComment?: boolean;
