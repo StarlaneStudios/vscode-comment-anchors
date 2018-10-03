@@ -1,4 +1,4 @@
-![Comment Anchors](media/logo.png)
+![Comment Anchors](media/extension_logo.png)
 
 Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, write Notes, create foldable section, or to build a simple navigation, making it easier to navigate large files.
 
