@@ -140,8 +140,21 @@
 				},
 				"commentAnchors.tags.matchCase": {
 					"type": "boolean",
-					"default": false,
-					"description": "When true, performs case sensitive matches",
+					"default": true,
+					"description": "When true, performs case sensitive matches on tags",
+					"scope": "window"
+				},
+				"commentAnchors.tags.separators": {
+					"type": "array",
+					"default": [
+						" ",
+						": ",
+						" - "
+					],
+					"items": {
+						"type": "string"
+					},
+					"description": "List of separators that can be placed between tags and comments",
 					"scope": "window"
 				},
 				"commentAnchors.tags.list": {

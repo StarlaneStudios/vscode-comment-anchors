@@ -226,8 +226,13 @@ export class AnchorEngine {
 				return;
 			}
 
+			// Construct a list of separators [ +|: +| +- +]
+			const separators = config.tags.separators.map((s: string) => {
+				return escape(s).replace(/ /g, ' +');
+			}).join('|');
+
 			// ANCHOR Tag RegEx
-			this.matcher = new RegExp(`[\\/#*=\\- ](${tags})($| +|: +| +- +)(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`[\\/#*=\\- ](${tags})($|${separators})(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
