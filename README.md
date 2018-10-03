@@ -1,4 +1,4 @@
-# Comment Anchors
+![Comment Anchors](media/logo.png)
 
 Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, write Notes, create foldable section, or to build a simple navigation, making it easier to navigate large files.
 
@@ -6,10 +6,7 @@ Anchors can be viewed for the current file, or throughout the entire workspace, 
 
 Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of featured!
 
-## Changelog
-View the changelog [here](CHANGELOG.md)
-
-## Features
+# Extension features
 
 * Place anchors in comments, strings, documentation, etc.
 * Anchors can be viewed in the anchor sidebar view in the activity bar.
@@ -20,7 +17,7 @@ View the changelog [here](CHANGELOG.md)
 * Scope anchors to be visible in your entire workspace, or just the current file
 * Create foldable sections using region anchors
 
-## Usage
+# Usage
 
 The default settings come with anchors for the following tags:
 
@@ -88,7 +85,7 @@ Comment Anchors can be autocompleted by IntelliSense. Simply start typing an anc
 
 ![IntelliSense](media/intelli-sense.png)
 
-## Commands
+# Commands
 
 \> **List configured anchor tags**
 
@@ -98,7 +95,7 @@ Displays all configured tags in a preview tab, useful for when you are creating 
 
 Toggles the visibibility of comment anchors (Duh!). Note that his command will update your settings in order to toggle the visibility.
 
-## Configuration
+# Configuration
 
 Use `commentAnchors.parseDelay` to alter the delay in milliseconds between when you stop with typing and when the anchor parser starts. Increasing this value can result in better performance. (Default 200)
 
@@ -273,22 +270,21 @@ with their hex code.
 
 You can use these colors as value for the `highlightColor` property on tags, to make the highlight color fit with the icon color.
 
-## Issues
+# Issues
 
 Found a problem or missing feature in Comment Anchors?
 Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
 
 If you prefer more direct help, you can join the [Exodius Studios Discord](https://discord.gg/exaQDX2) where you can find most developers of this extension.
 
-### Bad performance?
+## Poor performance?
 
 Comment Anchor scans your entire workspace for tags. This can cause bad performance when your
 workspace contains many files, such as dependency directories and logfiles. It is therefore advised to alter the `matchFiles` and `excludeFiles` settings to limit the amount of directories and files scanned.
 
 If you'd rather disable workspace anchors all together, you can disable these in the settings.
-
 ## Contribution
 
 You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
 
-#### Thanks for using Comment Anchors! ❤️
+### **Thanks for using Comment Anchors! ❤️**
