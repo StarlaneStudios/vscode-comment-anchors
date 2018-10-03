@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.6.0
+- Added setting to modify separators
+	- "Separators" are the characters you are allowed to place between a tag and its message
+	- By default, ` `, `: ` and ` - ` are allowed
+	- It is adviced to remove " " from the list when disabling case matching, as otherwise many false positives can be detected by accident
+- Added IntelliSense autocompletion for anchors
+- Fixed issues involving editor folding
+- Added setting to change where the editor scrolls to when navigating to an anchor
+- **Possibly breaking:** Tag matching is now Case Sensitive by default 
+
 ## 1.5.0
 - Added anchor regions
 	- Region tags are defined by setting `isRegion` to `true`

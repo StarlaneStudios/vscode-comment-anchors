@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file and workspace navigation",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.24.0"
@@ -90,6 +90,17 @@
 					"type": "number",
 					"default": 200,
 					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
+					"scope": "window"
+				},
+				"commentAnchors.scrollPosition": {
+					"type": "string",
+					"default": "top",
+					"enum": [
+						"top",
+						"center",
+						"bottom"
+					],
+					"description": "Where to position the anchor when scrolled to",
 					"scope": "window"
 				},
 				"commentAnchors.workspace.enabled": {

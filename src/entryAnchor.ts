@@ -9,6 +9,9 @@ export default class EntryAnchor extends TreeItem {
 	/** The sorting method to use, defaults to line */
 	public static SortMethod = "line";
 
+	/** The position of the anchor when scrolled to */
+	public static ScrollPosition = "top";
+
 	/**
 	 * Child anchors, only present when this anchor is a region type
 	 */
@@ -34,14 +37,14 @@ export default class EntryAnchor extends TreeItem {
 			arguments: [{
 				uri: file,
 				lineNumber: this.lineNumber - 1,
-				at: 'top'
+				at: EntryAnchor.ScrollPosition
 			}]
 		} : {
 			title: '',
 			command: 'revealLine',
 			arguments: [{
-				lineNumber: this.lineNumber - 1 ,
-				at: 'top'
+				lineNumber: this.lineNumber - 1,
+				at: EntryAnchor.ScrollPosition
 			}]
 		}
 

@@ -82,6 +82,12 @@ See the configuration section for a complete list of tag properties.
 
 ![Workspace Anchors](media/custom-tags.png)
 
+## IntelliSense support
+
+Comment Anchors can be autocompleted by IntelliSense. Simply start typing an anchor name, or the text "Anchor". This will promt you with a list of anchors to insert.
+
+![IntelliSense](media/intelli-sense.png)
+
 ## Commands
 
 \> **List configured anchor tags**
@@ -99,6 +105,14 @@ Use `commentAnchors.parseDelay` to alter the delay in milliseconds between when 
 ```
 {
 	"commentAnchors.parseDelay": 200
+}
+```
+
+Use `commentAnchors.scrollPosition` to alter where to position the anchor when scrolled to (Default top)
+
+```
+{
+	"commentAnchors.scrollPosition": "top"
 }
 ```
 
@@ -163,6 +177,18 @@ Use `commentAnchors.tags.sortMethod` to set the method used to sort anchors by i
 ```
 {
 	"commentAnchors.tags.sortMethod": "line"
+}
+```
+
+Use `commentAnchors.tags.separators` to set the list of accepted separators
+
+```
+{
+	"commentAnchors.tags.separators": [
+		" ",
+		": ",
+		" - "
+	]
 }
 ```
 

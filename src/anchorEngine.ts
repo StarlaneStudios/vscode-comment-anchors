@@ -25,8 +25,13 @@ import {
 	languages,
 	FoldingRange,
 	FoldingRangeKind,
-	Disposable,
-	ViewColumn
+	Position,
+	CancellationToken,
+	CompletionContext,
+	ProviderResult,
+	CompletionItem,
+	CompletionList,
+	CompletionItemKind
 } from "vscode";
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
@@ -54,9 +59,6 @@ export class AnchorEngine {
 
 	/** List of folds created by anchor regions */
 	public foldMaps: Map<Uri, FoldingRange[]> = new Map();
-
-	/** The disposable reference for the folding provider */
-	private foldProvider: Disposable
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
@@ -115,16 +117,45 @@ export class AnchorEngine {
 		// Build required anchor resources
 		this.buildResources();
 
-		// Register a folding provider
-		this.foldProvider = this.createFoldingProvider();
+		// Register editor providers
+		this.registerProviders();
 	}
 
-	createFoldingProvider() {
-		return languages.registerFoldingRangeProvider({language: '*'}, {
+	registerProviders()	{
+
+		// EDITOR FOLDING
+		languages.registerFoldingRangeProvider({language: '*'}, {
 			provideFoldingRanges: (document: TextDocument) => {
 				return this.foldMaps.get(document.uri);
 			}
 		});
+
+		// TEXT COMPLETION
+		const tags = Array.from(this.tags.keys());
+		const launchers = tags.map(s => s[0]);
+
+		// Add region end symbol if region anchors are present
+		if(tags.filter(t => this.tags.get(t)!.isRegion).length) {
+			launchers.push('!');
+		}
+
+		languages.registerCompletionItemProvider({language: '*'}, {
+			provideCompletionItems: () : ProviderResult<CompletionList> => {
+				const ret = new CompletionList();
+				const separator = this._config!.tags.separators[0];
+
+				for(let tag of this.tags.values()) {
+					let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Event);
+
+					item.documentation = `Insert a ${tag.tag} Comment Anchor`;
+					item.insertText = tag.tag + separator;
+
+					ret.items.push(item)
+				}
+
+				return ret;
+			}
+		}, ...launchers);
 	}
 
 	buildResources() {
@@ -142,6 +173,11 @@ export class AnchorEngine {
 			// Store the sorting method
 			if(config.tags.sortMethod && (config.tags.sortMethod == 'line' || config.tags.sortMethod == 'type')) {
 				EntryAnchor.SortMethod = config.tags.sortMethod;
+			}
+
+			// Store the scroll position
+			if(config.scrollPosition) {
+				EntryAnchor.ScrollPosition = config.scrollPosition;
 			}
 			
 			// Create a map holding the tags
@@ -222,7 +258,7 @@ export class AnchorEngine {
 			const tags = matchTags.map(tag => escape(tag)).join('|');
 
 			if(tags.length === 0) {
-				window.showErrorMessage("Invalid tag(s) defined");
+				window.showErrorMessage("At least one tag must be defined");
 				return;
 			}
 
@@ -230,6 +266,11 @@ export class AnchorEngine {
 			const separators = config.tags.separators.map((s: string) => {
 				return escape(s).replace(/ /g, ' +');
 			}).join('|');
+
+			if(separators.length === 0) {
+				window.showErrorMessage("At least one separator must be defined");
+				return;
+			}
 
 			// ANCHOR Tag RegEx
 			this.matcher = new RegExp(`[\\/#*=\\- ](${tags})($|${separators})(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
@@ -505,8 +546,6 @@ export class AnchorEngine {
 		}
 
 		this._onDidChangeTreeData.fire();
-		if(this.foldProvider) this.foldProvider.dispose();
-		this.foldProvider = this.createFoldingProvider();
 	}
 	
 
