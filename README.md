@@ -32,8 +32,6 @@ The default settings come with anchors for the following tags:
 * REVIEW - An item that needs additional review
 * SECTION - Used to define a region (See 'Hierarchical anchors')
 
-_(NOTE: These default tags are an example, and do not add any further functionality)_
-
 In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
 
 ![Preview](media/preview.gif)
@@ -43,6 +41,8 @@ In order to make an anchor, simply place the tag name in a comment, with an addi
 All anchor types have their own icon, highlight color, and background color, and more, which can all be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
 
 ![All tags](media/all-anchors.png)
+
+In case you want to disable one or more default tags, simply set the `enabled` property to `false` (See configuration section).
 
 ## Workspace anchors
 
@@ -182,6 +182,7 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 - isBold - *Whether to apply bold formatting to the tag*
 - isItalic - *Whether to apply italicized formatting to the tag*
 - isRegion - *Mark this anchor as a region anchor*
+- enabled - *Allows the disabling of default (and custom) tags*
 
 ```
 "commentAnchors.tags": [
@@ -191,7 +192,20 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 		"iconColor": "default",
 		"highlightColor": "#A8C023",
 		"styleComment": true
-	}
+	},
+	...
+]
+```
+
+You can use the `enabled` property to disable one or more default tags like so:
+
+```
+"commentAnchors.tags": [
+	{
+		"tag": "NOTE",
+		"enabled": false
+	},
+	...
 ]
 ```
 
@@ -208,7 +222,8 @@ In case you prefer backgrounds on all tags, here is an example setup using backg
 	{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336", "backgroundColor": "#592c2c", "scope": "workspace"},
 	{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8", "backgroundColor": "#48309a", "scope": "file"},
 	{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300", "backgroundColor": "#806900", "scope": "file"},
-	{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10", "scope": "workspace"}
+	{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10", "scope": "workspace"},
+	{"tag": "SECTION", "iconColor": "blurple", "highlightColor": "#896afc", "backgroundColor": "#2a186b", "scope": "workspace"}
 ]
 ```
 
@@ -236,6 +251,8 @@ You can use these colors as value for the `highlightColor` property on tags, to 
 
 Found a problem or missing feature in Comment Anchors?
 Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
+
+If you prefer more direct help, you can join the [Exodius Studios Discord](https://discord.gg/exaQDX2) where you can find most developers of this extension.
 
 ### Bad performance?
 
