@@ -31,7 +31,8 @@ import {
 	ProviderResult,
 	CompletionItem,
 	CompletionList,
-	CompletionItemKind
+	CompletionItemKind,
+	Disposable
 } from "vscode";
 import { FileAnchorProvider } from './fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
@@ -94,6 +95,9 @@ export class AnchorEngine {
 	/** The current file system watcher */
 	private _watcher: FileSystemWatcher | undefined;
 
+	/** List of build subscriptions */
+	private _subscriptions: Disposable[] = [];
+
 	/** Initialize the various providers */
 	public readonly fileProvider = new FileAnchorProvider(this);
 	public readonly workspaceProvider = new WorkspaceAnchorProvider(this);
@@ -116,19 +120,18 @@ export class AnchorEngine {
 
 		// Build required anchor resources
 		this.buildResources();
-
-		// Register editor providers
-		this.registerProviders();
 	}
 
 	registerProviders()	{
 
 		// EDITOR FOLDING
-		languages.registerFoldingRangeProvider({language: '*'}, {
-			provideFoldingRanges: (document: TextDocument) => {
-				return this.foldMaps.get(document.uri);
-			}
-		});
+		if(this._config!.editorFolding) {
+			this._subscriptions.push(languages.registerFoldingRangeProvider({language: '*'}, {
+				provideFoldingRanges: (document: TextDocument) => {
+					return this.foldMaps.get(document.uri) || [];
+				}
+			}));
+		}
 
 		// TEXT COMPLETION
 		const tags = Array.from(this.tags.keys());
@@ -139,7 +142,7 @@ export class AnchorEngine {
 			launchers.push('!');
 		}
 
-		languages.registerCompletionItemProvider({language: '*'}, {
+		this._subscriptions.push(languages.registerCompletionItemProvider({language: '*'}, {
 			provideCompletionItems: () : ProviderResult<CompletionList> => {
 				const ret = new CompletionList();
 				const separator = this._config!.tags.separators[0];
@@ -155,7 +158,7 @@ export class AnchorEngine {
 
 				return ret;
 			}
-		}, ...launchers);
+		}, ...launchers));
 	}
 
 	buildResources() {
@@ -169,6 +172,13 @@ export class AnchorEngine {
 					this.refresh();
 				});
 			}, config.parseDelay);
+
+			// Disable previous build resources
+			this._subscriptions.forEach(s => s.dispose());
+			this._subscriptions = [];
+
+			// Register editor providers
+			this.registerProviders();
 
 			// Store the sorting method
 			if(config.tags.sortMethod && (config.tags.sortMethod == 'line' || config.tags.sortMethod == 'type')) {
@@ -190,12 +200,16 @@ export class AnchorEngine {
 
 			// Add custom tags
 			config.tags.list.forEach((tag: TagEntry) => {
+				let def = this.tags.get(tag.tag.toUpperCase()) || {};
+
 				if(tag.enabled === false) {
 					this.tags.delete(tag.tag.toUpperCase());
 					return;
 				}
 
-				this.tags.set(tag.tag.toUpperCase(), tag);
+				const opts = {...def, ...tag};
+
+				this.tags.set(tag.tag.toUpperCase(), opts);
 			});
 
 			// Configure all tags
@@ -273,7 +287,7 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR Tag RegEx
-			this.matcher = new RegExp(`[\\/#*=\\- ](${tags})($|${separators})(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`([\\/#"'*=\\- ]|^)(${tags})($|${separators})(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -425,10 +439,15 @@ export class AnchorEngine {
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
-					const tag : TagEntry = this.tags.get(match[1].toUpperCase().replace('!', ''))!;
+					const tag : TagEntry = this.tags.get(match[2].toUpperCase().replace('!', ''))!;
 					const isRegionStart = tag.isRegion;
-					const isRegionEnd = match[1].startsWith('!');
+					const isRegionEnd = match[2].startsWith('!');
 					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+
+					// Offset empty prefix
+					if(!match[1].length) {
+						match.index--;
+					}
 
 					// Handle the closing of a region
 					if(isRegionEnd) {
@@ -439,7 +458,7 @@ export class AnchorEngine {
 
 						currRegion.setEndTag({
 							startIndex: match.index + 1,
-							endIndex: match.index + 1 + match[1].length,
+							endIndex: match.index + 1 + match[2].length,
 							lineNumber: lineNumber
 						})
 
@@ -449,21 +468,21 @@ export class AnchorEngine {
 						continue;
 					}
 
-					const rangeLength = tag.styleComment ? 0 : 1;
+					const rangeLength = tag.styleComment ? match[0].length : match[2].length;
 					const startPos = match.index + 1;
-					const endPos = startPos + match[rangeLength].length;
+					const endPos = startPos + rangeLength;
 					const deltaText = text.substr(0, startPos);
 					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 					
-					const comment = (match[4] || '').trim();
-					const display = this._config!.tags.displayInSidebar ? match[1] + ": " + comment : comment;
+					const comment = (match[5] || '').trim();
+					const display = this._config!.tags.displayInSidebar ? match[2] + ": " + comment : comment;
 
 					let anchor : EntryAnchor;
 
 					if(isRegionStart) {
 						// Create a new region anchor
 						anchor = new EntryAnchorRegion(
-							match[1],
+							match[2],
 							display,
 							startPos,
 							endPos,
@@ -474,7 +493,7 @@ export class AnchorEngine {
 					} else {
 						// Create a new regular anchor
 						anchor = new EntryAnchor(
-							match[1],
+							match[2],
 							display,
 							startPos,
 							endPos,
@@ -503,6 +522,7 @@ export class AnchorEngine {
 				this.foldMaps.set(document, folds);
 			} catch(err) {
 				this._debug.appendLine("Error: " + err.message);
+				this._debug.appendLine(err.stack);
 				reject(err);
 			} finally {
 				success();

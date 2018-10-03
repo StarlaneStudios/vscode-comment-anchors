@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file and workspace navigation",
-	"version": "1.5.1",
+	"version": "1.5.2",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.24.0"
@@ -101,6 +101,12 @@
 						"bottom"
 					],
 					"description": "Where to position the anchor when scrolled to",
+					"scope": "window"
+				},
+				"commentAnchors.editorFolding": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether the enable editor folding. This feature is known to conflict with some language extensions",
 					"scope": "window"
 				},
 				"commentAnchors.workspace.enabled": {

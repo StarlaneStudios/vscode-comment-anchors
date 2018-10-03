@@ -6,6 +6,8 @@ Anchors can be viewed for the current file, or throughout the entire workspace, 
 
 Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of featured!
 
+Changelog can be found [here](CHANGELOG.md)
+
 # Extension features
 
 * Place anchors in comments, strings, documentation, etc.
@@ -110,6 +112,14 @@ Use `commentAnchors.scrollPosition` to alter where to position the anchor when s
 ```
 {
 	"commentAnchors.scrollPosition": "top"
+}
+```
+
+Use `commentAnchors.editorFolding` to enable editor folding. This feature is known to cause issues with folding in few language extensions. (Default true)
+
+```
+{
+	"commentAnchors.editorFolding": true
 }
 ```
 
