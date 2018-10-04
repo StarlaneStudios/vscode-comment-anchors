@@ -229,7 +229,7 @@ export class AnchorEngine {
 					};
 
 					// Optional gutter icons
-					if(config.tags.displayInGutter) {
+					if(config.tags.displayInGutter && tag.iconColor !== 'none') {
 						highlight = {
 							...highlight,
 							dark: {

@@ -251,10 +251,11 @@
 									"blue",
 									"blurple",
 									"emerald",
-									"yellow"
+									"yellow",
+									"none"
 								],
-								"default": "default",
-								"description": "The icon for this tag in the sidebar"
+								"default": "none",
+								"description": "The icon for this tag in the sidebar. Set to null to disable"
 							},
 							"highlightColor": {
 								"type": "string",
