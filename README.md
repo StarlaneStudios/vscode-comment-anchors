@@ -293,7 +293,8 @@ Comment Anchor scans your entire workspace for tags. This can cause bad performa
 workspace contains many files, such as dependency directories and logfiles. It is therefore advised to alter the `matchFiles` and `excludeFiles` settings to limit the amount of directories and files scanned.
 
 If you'd rather disable workspace anchors all together, you can disable these in the settings.
-## Contribution
+
+# Contribution
 
 You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
 
