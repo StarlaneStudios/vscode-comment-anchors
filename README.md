@@ -8,7 +8,7 @@ Comment Anchors provides many configuration options, allowing you to tailor this
 
 Changelog can be found [here](CHANGELOG.md)
 
-# Extension features
+# Feature breakdown
 
 * Place anchors in comments, strings, documentation, etc.
 * Anchors can be viewed in the anchor sidebar view in the activity bar.

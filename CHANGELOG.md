@@ -8,6 +8,7 @@
 - Added IntelliSense autocompletion for anchors
 - Fixed issues involving editor folding
 - Added setting to change where the editor scrolls to when navigating to an anchor
+- Added setting to disable editor folding (May fix fold issues in some languages)
 - **Possibly breaking:** Tag matching is now Case Sensitive by default 
 
 ## 1.5.0

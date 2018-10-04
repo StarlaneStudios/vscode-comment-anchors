@@ -141,21 +141,21 @@ export class AnchorEngine {
 		if(tags.filter(t => this.tags.get(t)!.isRegion).length) {
 			launchers.push('!');
 		}
-
+		
 		this._subscriptions.push(languages.registerCompletionItemProvider({language: '*'}, {
 			provideCompletionItems: () : ProviderResult<CompletionList> => {
 				const ret = new CompletionList();
 				const separator = this._config!.tags.separators[0];
-
+				
 				for(let tag of this.tags.values()) {
 					let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Event);
-
+					
 					item.documentation = `Insert a ${tag.tag} Comment Anchor`;
 					item.insertText = tag.tag + separator;
-
+					
 					ret.items.push(item)
 				}
-
+				
 				return ret;
 			}
 		}, ...launchers));
@@ -176,9 +176,6 @@ export class AnchorEngine {
 			// Disable previous build resources
 			this._subscriptions.forEach(s => s.dispose());
 			this._subscriptions = [];
-
-			// Register editor providers
-			this.registerProviders();
 
 			// Store the sorting method
 			if(config.tags.sortMethod && (config.tags.sortMethod == 'line' || config.tags.sortMethod == 'type')) {
@@ -322,6 +319,9 @@ export class AnchorEngine {
 					});
 				});
 			}
+
+			// Register editor providers
+			this.registerProviders();
 		} catch(err) {
 			AnchorEngine.output("Failed to build resources: " + err.message);
 			AnchorEngine.output(err);
