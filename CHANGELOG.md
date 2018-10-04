@@ -4,7 +4,7 @@
 - Added setting to modify separators
 	- "Separators" are the characters you are allowed to place between a tag and its message
 	- By default, ` `, `: ` and ` - ` are allowed
-	- It is adviced to remove " " from the list when disabling case matching, as otherwise many false positives can be detected by accident
+	- It is advised to remove " " from the list when disabling case matching, as otherwise many false positives may be detected by accident
 - Added IntelliSense autocompletion for anchors
 - Fixed issues involving editor folding
 - Added setting to change where the editor scrolls to when navigating to an anchor
