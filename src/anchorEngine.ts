@@ -1,5 +1,14 @@
 const debounce = require('debounce');
 
+// Utility used for awaiting a timeout
+const asyncDelay = (delay: number) : Promise<void> => {
+	return new Promise((success) => {
+		setTimeout(() => {
+			success();
+		}, delay);
+	});
+}
+
 import * as path from 'path';
 import * as fs from 'fs';
 import * as escape from 'escape-string-regexp';
@@ -120,6 +129,8 @@ export class AnchorEngine {
 
 		// Build required anchor resources
 		this.buildResources();
+
+		
 	}
 
 	registerProviders()	{
@@ -283,14 +294,16 @@ export class AnchorEngine {
 				return;
 			}
 
-			// ANCHOR Tag RegEx
-			this.matcher = new RegExp(`([\\/#"'*=\\- ]|^)(${tags})($|${separators})(\\b(.*)\\b|\\S*$)`, config.tags.matchCase ? "gm" : "img");
+			// ANCHOR: Tag RegEx
+			this.matcher = new RegExp(`([\\/#"'*=\\- ]|^)(${tags})($|${separators})"?((.*)(\\b|")|\\S*$)`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
 			// Scan in all workspace files
 			if(config.workspace.enabled && !config.workspace.lazyLoad) {
-				this.initiateWorkspaceScan();
+				setTimeout(() => {
+					this.initiateWorkspaceScan();
+				}, 5);
 			} else {
 				this.anchorsLoaded = true;
 
@@ -363,10 +376,18 @@ export class AnchorEngine {
 		let parsePercentage: number = 0;
 		
 		parseStatus.tooltip = "Provided by the Comment Anchors extension";
-		parseStatus.text = `Parsing Comment Anchors... [0.0%]`;
+		parseStatus.text = `$(telescope) Parsing Comment Anchors... [0.0%]`;
 		parseStatus.show();
 
 		for(let i = 0; i < uris.length; i++) {
+
+			// Await a timeout for every 100 documents parsed. This allows
+			// all files to be slowly parsed without completely blocking
+			// the main thread for the entire process.
+			if(i % 100 == 0) {
+				await asyncDelay(5);
+			}
+
 			try {
 				await this.addMap(uris[i]);
 			} catch(err) {
@@ -376,7 +397,7 @@ export class AnchorEngine {
 			parseCount++;
 			parsePercentage = parseCount / uris.length * 100;
 
-			parseStatus.text = `Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
+			parseStatus.text = `$(telescope) Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
 		};
 
 		parseStatus.text = `Comment Anchors loaded!`;
