@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.6.1
+- Allow anchor comments to be wrapped in double quotes
+	- `// ANCHOR: "Like this!"`
+	- Currently the only way to allow non-english comments to be parsed by Comment Anchors
+- Prevent workspace scanning from blocking other extensions
+
 ## 1.6.0
 - Added setting to modify separators
 	- "Separators" are the characters you are allowed to place between a tag and its message
