@@ -179,6 +179,14 @@ Use `commentAnchors.tags.displayInGutter` to set whether gutter icons are shown.
 }
 ```
 
+Use `commentAnchors.tags.rulerStyle` to set the appearance in the overview ruler (Default "center")
+
+```
+{
+	"commentAnchors.tags.rulerStyle": "center"
+}
+```
+
 Use `commentAnchors.tags.sortMethod` to set the method used to sort anchors by in the sidebar list. Set this to "line" to sort by line number (Default), or "type" to sort by tag type.
 
 ```

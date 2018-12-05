@@ -220,6 +220,19 @@ export class AnchorEngine {
 				this.tags.set(tag.tag.toUpperCase(), opts);
 			});
 
+			// Lane style
+			let laneStyle: OverviewRulerLane;
+
+			if(config.tags.rulerStyle == "left") {
+				laneStyle = OverviewRulerLane.Left;
+			} else if(config.tags.rulerStyle == "right") {
+				laneStyle = OverviewRulerLane.Right;
+			} else if(config.tags.rulerStyle == "center") {
+				laneStyle = OverviewRulerLane.Center;
+			} else {
+				laneStyle = OverviewRulerLane.Full;
+			}
+
 			// Configure all tags
 			Array.from(this.tags.values()).forEach((tag: TagEntry) => {
 
@@ -236,7 +249,8 @@ export class AnchorEngine {
 						color: tag.highlightColor,
 						backgroundColor: tag.backgroundColor,
 						overviewRulerColor: tag.highlightColor,
-						overviewRulerLane: OverviewRulerLane.Full
+						overviewRulerLane: laneStyle,
+						borderSpacing: "8px"
 					};
 
 					// Optional gutter icons

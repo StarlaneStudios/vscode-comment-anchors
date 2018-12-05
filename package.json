@@ -161,6 +161,18 @@
 					"description": "When true, performs case sensitive matches on tags",
 					"scope": "window"
 				},
+				"commentAnchors.tags.rulerStyle": {
+					"type": "string",
+					"enum": [
+						"center",
+						"left",
+						"right",
+						"full"
+					],
+					"default": "center",
+					"description": "The display of tags in the ruler lane",
+					"scope": "window"
+				},
 				"commentAnchors.tags.separators": {
 					"type": "array",
 					"default": [
