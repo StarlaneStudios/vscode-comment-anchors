@@ -249,8 +249,7 @@ export class AnchorEngine {
 						color: tag.highlightColor,
 						backgroundColor: tag.backgroundColor,
 						overviewRulerColor: tag.highlightColor,
-						overviewRulerLane: laneStyle,
-						borderSpacing: "8px"
+						overviewRulerLane: laneStyle
 					};
 
 					// Optional gutter icons

@@ -161,6 +161,12 @@
 					"description": "When true, performs case sensitive matches on tags",
 					"scope": "window"
 				},
+				"commentAnchors.tags.displayHierarchyInWorkspace": {
+					"type": "boolean",
+					"default": true,
+					"description": "When true, displays hierarchical anchors in the workspace list",
+					"scope": "window"
+				},
 				"commentAnchors.tags.rulerStyle": {
 					"type": "string",
 					"enum": [

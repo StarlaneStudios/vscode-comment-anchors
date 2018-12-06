@@ -1,4 +1,4 @@
-import { DecorationOptions, TextDocument, Range, Uri } from "vscode";
+import { DecorationOptions, TextDocument, Range, Uri, window } from "vscode";
 import EntryAnchor from "./entryAnchor";
 
 /**
@@ -51,6 +51,39 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		const endPos = document.positionAt(this.closeEndIndex);
 
 		options.push({hoverMessage: "Comment Anchor End Region: " + this.anchorText, range: new Range(startPos, endPos)});
+	}
+
+	toString() {
+		return "EntryAnchorRegion(" + this.label! + ")";
+	}
+
+	copy(copyChilds: boolean) : EntryAnchorRegion {
+		let copy = new EntryAnchorRegion(
+			this.anchorTag,
+			this.anchorText,
+			this.startIndex,
+			this.endIndex,
+			this.lineNumber,
+			this.icon,
+			this.scope,
+			this.file
+		);
+
+		if(this.closeStartIndex >= 0) {
+			copy.setEndTag({
+				startIndex: this.closeStartIndex,
+				endIndex: this.closeEndIndex,
+				lineNumber: this.closeLineNumber
+			})
+		}
+
+		if(copyChilds) {
+			this.children.forEach(child => {
+				copy.addChild(child.copy(copyChilds));
+			});
+		}
+
+		return copy;
 	}
 
 }

@@ -79,7 +79,28 @@ export default class EntryAnchor extends TreeItem {
 	}
 
 	toString(): String {
-		return this.label!;
+		return "EntryAnchor(" + this.label! + ")";
+	}
+
+	copy(copyChilds: boolean) : EntryAnchor {
+		let copy = new EntryAnchor(
+			this.anchorTag,
+			this.anchorText,
+			this.startIndex,
+			this.endIndex,
+			this.lineNumber,
+			this.icon,
+			this.scope,
+			this.file
+		);
+
+		if(copyChilds) {
+			this.children.forEach(child => {
+				copy.addChild(child.copy(copyChilds));
+			});
+		}
+
+		return copy;
 	}
 
 	contextValue = 'anchor';

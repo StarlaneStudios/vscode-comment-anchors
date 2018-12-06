@@ -1,9 +1,10 @@
-import { TreeDataProvider, Event, TreeItem, TextDocument, workspace, Uri } from "vscode";
+import { TreeDataProvider, Event, TreeItem, TextDocument, workspace, Uri, window } from "vscode";
 import EntryAnchor from "./entryAnchor";
 import EntryError from "./entryError";
 import { AnchorEngine } from "./anchorEngine";
 import EntryCachedFile from "./entryCachedFile";
 import EntryScan from "./entryScan";
+import EntryAnchorRegion from "./entryAnchorRegion";
 
 /**
  * The type repsenting any Entry
@@ -31,25 +32,27 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 	getChildren(element?: AnyEntry): Thenable<AnyEntryArray> {
 		return new Promise((success) => {
 			if(element) {
-				if(element instanceof EntryCachedFile) {
+				if(element instanceof EntryAnchor && element.children) {
+					success(element.children);
+					return;
+				} else if(element instanceof EntryCachedFile) {
 					let res: EntryAnchor[] = [];
 	
 					const cachedFile = (element as EntryCachedFile);
 					
-					WorkspaceAnchorProvider.flattenAnchors(cachedFile.anchors).forEach((anchor: EntryAnchor) => {
-						if(!anchor.isVisibleInWorkspace) return;
+					if(this.provider._config!.tags.displayHierarchyInWorkspace) {
+						cachedFile.anchors.forEach((anchor: EntryAnchor) => {
+							if(!anchor.isVisibleInWorkspace) return;
+	
+							res.push(anchor.copy(true));
+						});
+					} else {
+						WorkspaceAnchorProvider.flattenAnchors(cachedFile.anchors).forEach((anchor: EntryAnchor) => {
+							if(!anchor.isVisibleInWorkspace) return;
 
-						res.push(new EntryAnchor(
-							anchor.anchorTag,
-							anchor.anchorText,
-							anchor.startIndex,
-							anchor.endIndex,
-							anchor.lineNumber,
-							anchor.icon,
-							anchor.scope,
-							cachedFile.file
-						));
-					});
+							res.push(anchor.copy(false));
+						});
+					}
 	
 					success(EntryAnchor.sortAnchors(res));
 				} else {
@@ -103,6 +106,11 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 		});
 	}
 
+	/**
+	 * Flattens hierarchical anchors into a single array
+	 * 
+	 * @param anchors Array to flatten
+	 */
 	static flattenAnchors(anchors: EntryAnchor[]) : EntryAnchor[] {
 		let list: EntryAnchor[] = [];
 
