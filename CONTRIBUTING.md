@@ -1,6 +1,13 @@
 ## How to contribute to Comment-Anchors
+Welcome to the Comment Anchors Contribution guide! ⚓
+Thank you for showing interest in supporting and maintaining the project.
 
-Before anything else - make sure to install yarn for the project. Npm install -g yarn then yarn install to install all of its depdendenices. We do use yarn for the project which is required. 
+Before you start, make sure to install yarn for the project.
+
+```
+$ npm install -g yarn
+$ yarn install
+```
 
 ## Submitting changes
 
@@ -31,17 +38,19 @@ Changes that are cosmetic in nature and do not add anything substantial to the s
 
 #### **Do you intend to add a new feature or change an existing one?**
 
-* Suggest your change in our discord - (https://discord.gg/jCDCU2W) in #comment-anchors and start writing code.
+* Optionally, suggest your change in [our community Discord](https://discord.gg/jCDCU2W), in the #comment-anchors channel, and start writing code in a local fork.
 
 * Do not open an issue on GitHub until you have collected positive feedback about the change. GitHub issues are primarily intended for bug reports and fixes.
 
 #### **Do you have questions about the source code?**
 
-* Ask any question about how to use Comment Anchors in our discord - (https://discord.gg/jCDCU2W) in the channel #comment-anchors.
+* Ask any question about how to use Comment Anchors in [our community Discord](https://discord.gg/jCDCU2W), in the channel #comment-anchors.
 
+* Open an issue ticket, clearly specifying your question, however it is still recommended to ask on our discord first.
 
-Comment-Anchors is a volunteer effort. We encourage you to pitch in and [join the team]!
+Comment-Anchors is a volunteer effort. We encourage you to pitch in and join!
+This repository is maintained by the Exodius Studios team.
 
-Thanks! :heart: :heart: :heart:
+Thanks! :heart:
 
-Exodius Studios Team
+~Exodius Studios Team
