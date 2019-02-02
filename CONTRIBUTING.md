@@ -1,15 +1,16 @@
 ## How to contribute to Comment-Anchors
 
+Before anything else - make sure to install yarn for the project. Npm install -g yarn then yarn install to install all of its depdendenices. We do use yarn for the project which is required. 
+
 ## Submitting changes
 
-Please send a [GitHub Pull Request to Comment-anchors](https://github.com/ExodiusStudios/vscode-comment-anchors/pull/new/master) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, make sure to commit what you have patched/added. Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit).
+Please send a [GitHub Pull Request to Comment-anchors](https://github.com/ExodiusStudios/vscode-comment-anchors/pull/new/master) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, make sure to commit what you have patched/added. Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). 
 
 Always write a clear log message for your commits. One-line messages are fine for small changes, but bigger changes should look like this:
 
     $ git commit -m "A brief summary of the commit
     > 
     > A paragraph describing what changed and its impact."
-
 
 #### **Did you find a bug?**
 
