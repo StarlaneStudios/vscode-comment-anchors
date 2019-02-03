@@ -487,7 +487,8 @@ export class AnchorEngine {
 				let folds: FoldingRange[] = [];
 				let match;
 				
-				const endTag = this._config!!.tags.endTag;
+				const config = this._config!!;
+				const endTag = config.tags.endTag;
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
@@ -527,7 +528,7 @@ export class AnchorEngine {
 					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 					
 					const comment = (match[5] || '').trim();
-					const display = this._config!.tags.displayInSidebar ? match[2] + ": " + comment : comment;
+					const display = config.tags.displayInSidebar ? match[2] + ": " + comment : comment;
 
 					let anchor : EntryAnchor;
 
@@ -551,7 +552,8 @@ export class AnchorEngine {
 							endPos,
 							lineNumber,
 							tag.iconColor || "default",
-							tag.scope!
+							tag.scope!,
+							config.tags.displayLineNumber
 						);
 					}
 				

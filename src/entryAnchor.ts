@@ -25,11 +25,12 @@ export default class EntryAnchor extends TreeItem {
 		public readonly lineNumber: number,
 		public readonly icon: String,
 		public readonly scope: string,
+		public readonly showLine: Boolean,
 		public readonly file?: Uri
 	) {
 		super("", TreeItemCollapsibleState.None);
 
-		this.label = `[${this.lineNumber}] ${anchorText}`;
+		this.label = showLine ? `[${this.lineNumber}] ${anchorText}` : anchorText;
 
 		this.command = file ? {
 			title: '',
@@ -91,6 +92,7 @@ export default class EntryAnchor extends TreeItem {
 			this.lineNumber,
 			this.icon,
 			this.scope,
+			this.showLine,
 			this.file
 		);
 

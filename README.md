@@ -179,6 +179,14 @@ Use `commentAnchors.tags.displayInGutter` to set whether gutter icons are shown.
 }
 ```
 
+Use `commentAnchors.tags.displayLineNumber` to set whether line numbers are displayed in the sidebar (Default true)
+
+```
+{
+	"commentAnchors.tags.displayLineNumber": true
+}
+```
+
 Use `commentAnchors.tags.rulerStyle` to set the appearance in the overview ruler (Default "center")
 
 ```

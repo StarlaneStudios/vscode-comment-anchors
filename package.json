@@ -145,6 +145,12 @@
 					"description": "Whether to display tags in the gutter",
 					"scope": "window"
 				},
+				"commentAnchors.tags.displayLineNumber": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to display tag names in the sidebar",
+					"scope": "window"
+				},
 				"commentAnchors.tags.sortMethod": {
 					"type": "string",
 					"default": "line",
