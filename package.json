@@ -174,6 +174,12 @@
 					"description": "List of separators that can be placed between tags and comments",
 					"scope": "window"
 				},
+				"commentAnchors.tags.endTag": {
+					"type": "string",
+					"default": "!",
+					"description": "Specify a custom region end tag",
+					"scope": "window"
+				},
 				"commentAnchors.tags.list": {
 					"type": "array",
 					"default": [

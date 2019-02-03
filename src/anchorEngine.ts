@@ -147,11 +147,14 @@ export class AnchorEngine {
 		// TEXT COMPLETION
 		const tags = Array.from(this.tags.keys());
 		const launchers = tags.map(s => s[0]);
+		const endTag = this._config!!.tags.endTag;
 
 		// Add region end symbol if region anchors are present
 		if(tags.filter(t => this.tags.get(t)!.isRegion).length) {
-			launchers.push('!');
+			launchers.push(endTag[0]);
 		}
+
+		this._debug.appendLine(`launchers: ${launchers}`);
 		
 		this._subscriptions.push(languages.registerCompletionItemProvider({language: '*'}, {
 			provideCompletionItems: () : ProviderResult<CompletionList> => {
@@ -164,7 +167,16 @@ export class AnchorEngine {
 					item.documentation = `Insert a ${tag.tag} Comment Anchor`;
 					item.insertText = tag.tag + separator;
 					
-					ret.items.push(item)
+					ret.items.push(item);
+
+					if(tag.isRegion) {
+						let endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Event);
+					
+						endItem.documentation = `Insert a ${endTag + tag.tag} Comment Anchor`;
+						endItem.insertText = endTag + tag.tag + separator;
+						
+						ret.items.push(endItem);
+					}
 				}
 				
 				return ret;
@@ -270,9 +282,13 @@ export class AnchorEngine {
 			let matchTags = Array.from(this.tags.keys());
 
 			// Generate region end tags
+			const endTag = this._config.tags.endTag;
+
+			this._debug.appendLine("endTag: " + endTag);
+			
 			this.tags.forEach((entry, tag) => { 
 				if(entry.isRegion) {
-					matchTags.push('!' + tag);
+					matchTags.push(endTag + tag);
 				}
 			});
 
@@ -457,12 +473,14 @@ export class AnchorEngine {
 				let anchors: EntryAnchor[] = [];
 				let folds: FoldingRange[] = [];
 				let match;
+				
+				const endTag = this._config!!.tags.endTag;
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
-					const tag : TagEntry = this.tags.get(match[2].toUpperCase().replace('!', ''))!;
+					const tag : TagEntry = this.tags.get(match[2].toUpperCase().replace(endTag, ''))!;
 					const isRegionStart = tag.isRegion;
-					const isRegionEnd = match[2].startsWith('!');
+					const isRegionEnd = match[2].startsWith(endTag);
 					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
 
 					// Offset empty prefix
