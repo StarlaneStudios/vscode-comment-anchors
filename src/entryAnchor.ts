@@ -26,7 +26,9 @@ export default class EntryAnchor extends TreeItem {
 		public readonly icon: String,
 		public readonly scope: string,
 		public readonly showLine: Boolean,
-		public readonly file?: Uri
+		public readonly file?: Uri,
+		public readonly seq?: number,
+		public readonly group?: string
 	) {
 		super("", TreeItemCollapsibleState.None);
 
@@ -93,7 +95,9 @@ export default class EntryAnchor extends TreeItem {
 			this.icon,
 			this.scope,
 			this.showLine,
-			this.file
+			this.file,
+			this.seq,
+			this.group
 		);
 
 		if(copyChilds) {

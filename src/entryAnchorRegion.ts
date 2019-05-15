@@ -18,7 +18,9 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		public readonly lineNumber: number,
 		public readonly icon: String,
 		public readonly scope: string,
-		public readonly file?: Uri
+		public readonly file?: Uri,
+		public readonly seq?: number,
+		public readonly group?: string
 	) {
 		super(
 			anchorTag,
@@ -28,7 +30,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
 			lineNumber,
 			icon,
 			scope,
-			file
+			file === undefined
 		);
 
 		this.label = `[${this.lineNumber} - ?] ${this.anchorText}`;
@@ -66,7 +68,9 @@ export default class EntryAnchorRegion extends EntryAnchor {
 			this.lineNumber,
 			this.icon,
 			this.scope,
-			this.file
+			this.file,
+			this.seq,
+			this.group
 		);
 
 		if(this.closeStartIndex >= 0) {

@@ -16,6 +16,7 @@ export function activate(context: ExtensionContext) {
 	// Register the ActivityBar view providers
 	window.registerTreeDataProvider('fileAnchors', engine.fileProvider as TreeDataProvider<TreeItem>);
 	window.registerTreeDataProvider('workspaceAnchors', engine.workspaceProvider as TreeDataProvider<TreeItem>);
+	window.registerTreeDataProvider('epicAnchors', engine.epicProvider as TreeDataProvider<TreeItem>);
 
 	// Register extension commands
 	commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);

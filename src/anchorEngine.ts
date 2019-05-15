@@ -49,6 +49,8 @@ import EntryLoading from './entryLoading';
 import EntryScan from './entryScan';
 import EntryAnchorRegion from './entryAnchorRegion';
 import registerDefaults from './defaultTags';
+import { EpicAnchorProvider } from './epicAnchorProvider';
+import EntryEpic from './entryEpic';
 
 export class AnchorEngine {
 
@@ -110,6 +112,7 @@ export class AnchorEngine {
 	/** Initialize the various providers */
 	public readonly fileProvider = new FileAnchorProvider(this);
 	public readonly workspaceProvider = new WorkspaceAnchorProvider(this);
+	public readonly epicProvider = new EpicAnchorProvider(this);
 
 	constructor(context: ExtensionContext) {
 		this.context = context;
@@ -324,7 +327,7 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR: Tag RegEx
-			this.matcher = new RegExp(`([\\/#"'*=\\- ]|^)(${tags})($|${separators})"?((.*)(\\b|")|\\S*$)`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`([\\/#"'*=\\- ]|^)(${tags})(\\[.*\\])?($|${separators})"?((.*)(\\b|")|\\S*$)`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -463,10 +466,16 @@ export class AnchorEngine {
 		this.removeMap(document.uri);
 	}
 
+	public parseAttributes(raw: String): Map<string,string> {
+		if(!raw) return new Map()
+		return new Map<string,string>(raw.substr(1, raw.length - 2).split(',').map(attr=>[attr.split('=')[0], attr.split('=')[1]]))
+	}
+
 	/**
 	 * Parse the given or current document
 	 */	
 	public parse(document: Uri) : Promise<void> {
+		console.log('parse', document)
 		return new Promise<void>(async (success, reject) => {
 			try {
 				let text = null;
@@ -493,6 +502,7 @@ export class AnchorEngine {
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
 					const tag : TagEntry = this.tags.get(match[2].toUpperCase().replace(endTag, ''))!;
+					const attrs: Map<string, string> = this.parseAttributes(match[3])
 					const isRegionStart = tag.isRegion;
 					const isRegionEnd = match[2].startsWith(endTag);
 					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
@@ -520,7 +530,6 @@ export class AnchorEngine {
 						folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment))
 						continue;
 					}
-
 					const rangeLength = tag.styleComment ? match[0].length : match[2].length;
 					const startPos = match.index + 1;
 					const endPos = startPos + rangeLength;
@@ -530,6 +539,9 @@ export class AnchorEngine {
 					const comment = (match[5] || '').trim();
 					const display = config.tags.displayInSidebar ? match[2] + ": " + comment : comment;
 
+					const group  = attrs.get('group') 
+					const seq =  parseInt(attrs.get('seq')!)
+					
 					let anchor : EntryAnchor;
 
 					if(isRegionStart) {
@@ -541,7 +553,10 @@ export class AnchorEngine {
 							endPos,
 							lineNumber,
 							tag.iconColor || "default",
-							tag.scope!
+							tag.scope!,
+							document,
+							seq || lineNumber,
+							group
 						);
 					} else {
 						// Create a new regular anchor
@@ -553,7 +568,10 @@ export class AnchorEngine {
 							lineNumber,
 							tag.iconColor || "default",
 							tag.scope!,
-							config.tags.displayLineNumber
+							config.tags.displayLineNumber,
+							document,
+							seq || lineNumber,
+							group
 						);
 					}
 				
@@ -573,7 +591,7 @@ export class AnchorEngine {
 
 				this.matcher!.lastIndex = 0;
 				this.anchorMaps.set(document, anchors);
-				this.foldMaps.set(document, folds);
+				this.foldMaps.set(document, folds);		
 			} catch(err) {
 				this._debug.appendLine("Error: " + err.message);
 				this._debug.appendLine(err.stack);
@@ -718,4 +736,12 @@ export interface TagEntry {
 	isItalic?: boolean;
 	scope?: string,
 	isRegion?: boolean;
+	isSequential?: boolean;
+	isGrouped?: boolean;
+}
+
+
+export interface TagAttributes {
+	seq?: number;
+	group?: string;
 }

@@ -64,6 +64,10 @@
 				{
 					"id": "workspaceAnchors",
 					"name": "Workspace Anchors"
+				},
+				{
+					"id": "epicAnchors",
+					"name": "Epic Anchors"
 				}
 			]
 		},
