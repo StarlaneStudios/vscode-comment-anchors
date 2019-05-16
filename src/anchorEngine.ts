@@ -466,9 +466,14 @@ export class AnchorEngine {
 		this.removeMap(document.uri);
 	}
 
-	public parseAttributes(raw: String): Map<string,string> {
+	public parseAttributes(raw: String): Map<string, string> {
 		if(!raw) return new Map()
-		return new Map<string,string>(raw.substr(1, raw.length - 2).split(',').map(attr=>[attr.split('=')[0], attr.split('=')[1]]))
+		const attrs = new Map<string, string>()
+		raw.substr(1, raw.length - 2).split(',').forEach(attr => {
+			const args = attr.split('=')
+			attrs.set(args[0], args[1])
+		})
+		return attrs //new Map<string,string>(raw.substr(1, raw.length - 2).split(',').map(attr=>[attr.split('=')[0], attr.split('=')[1]]))
 	}
 
 	/**
