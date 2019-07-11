@@ -215,7 +215,7 @@ Use `commentAnchors.tags.separators` to set the list of accepted separators
 }
 ```
 
-Use `commentAnchors.tags` to configure the anchor tags. Below is a list of properties each tag can have.
+Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of properties each tag can have.
 
 **Required properties:**
 - tag - *Specifies the name of the tag*
@@ -234,7 +234,7 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 - enabled - *Allows the disabling of default (and custom) tags*
 
 ```
-"commentAnchors.tags": [
+"commentAnchors.tags.list": [
 	{
 		"tag": "ANCHOR",
 		"scope": "file",
@@ -249,7 +249,7 @@ Use `commentAnchors.tags` to configure the anchor tags. Below is a list of prope
 You can use the `enabled` property to disable one or more default tags like so:
 
 ```
-"commentAnchors.tags": [
+"commentAnchors.tags.list": [
 	{
 		"tag": "NOTE",
 		"enabled": false
@@ -262,7 +262,7 @@ You can use the `enabled` property to disable one or more default tags like so:
 
 ### Neon
 
-In case you prefer backgrounds on all tags, here is an example setup using background colors. Simply use this JSON as the `commentAnchors.tags` configuration to use.
+In case you prefer backgrounds on all tags, here is an example setup using background colors. Simply use this JSON as the `commentAnchors.tags.list` configuration to use.
 
 ```
 [
