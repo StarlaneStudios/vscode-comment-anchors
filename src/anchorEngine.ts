@@ -253,6 +253,7 @@ export class AnchorEngine {
 				}
 
 				if(config.tagHighlights.enabled) {
+                    let iconSize = config.gutterIconSize
 
 					// Create base configuration
 					let highlight : DecorationRenderOptions = {
@@ -269,10 +270,12 @@ export class AnchorEngine {
 						highlight = {
 							...highlight,
 							dark: {
-								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'white' : tag.iconColor}.svg`)
+								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'white' : tag.iconColor}.svg`),
+                                gutterIconSize: iconSize
 							},
 							light: {
-								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'black' : tag.iconColor}.svg`)
+								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'black' : tag.iconColor}.svg`),
+                                gutterIconSize: iconSize
 							}
 						}
 					}

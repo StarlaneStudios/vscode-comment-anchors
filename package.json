@@ -1,360 +1,365 @@
 {
-	"name": "comment-anchors",
-	"displayName": "Comment Anchors",
-	"description": "Place anchor tags within comments for easy file & workspace navigation.",
-	"version": "1.6.1",
-	"publisher": "ExodiusStudios",
-	"engines": {
-		"vscode": "^1.24.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"icon": "media/icon.png",
-	"galleryBanner": {
-		"color": "#246687",
-		"theme": "dark"
-	},
-	"homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
-	"repository": {
-		"url": "https://github.com/ExodiusStudios/vscode-comment-anchors",
-		"type": "git"
-	},
-	"contributes": {
-		"commands": [
-			{
-				"command": "commentAnchors.parse",
-				"title": "Parse the current file and look for anchors",
-				"category": "Comment Anchors"
-			},
-			{
-				"command": "commentAnchors.toggle",
-				"title": "Toggle the visibility of comment anchors",
-				"category": "Comment Anchors"
-			},
-			{
-				"command": "commentAnchors.listTags",
-				"title": "List configured anchor tags",
-				"category": "Comment Anchors"
-			},
-			{
-				"command": "commentAnchors.openFileAndRevealLine",
-				"title": "Open a file and reveal a line"
-			},
-			{
-				"command": "commentAnchors.launchWorkspaceScan",
-				"title": "Initiate a workspace scan"
-			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "comment-anchors",
-					"title": "Comment Anchors",
-					"icon": "res/icon.svg"
-				}
-			]
-		},
-		"views": {
-			"comment-anchors": [
-				{
-					"id": "fileAnchors",
-					"name": "File Anchors"
-				},
-				{
-					"id": "workspaceAnchors",
-					"name": "Workspace Anchors"
-				}
-			]
-		},
-		"menus": {
-			"view/title": [
-				{
-					"command": "commentAnchors.parse",
-					"when": "view == fileAnchors",
-					"group": "operations"
-				}
-			]
-		},
-		"configuration": {
-			"type": "object",
-			"title": "Comment Anchors",
-			"properties": {
-				"commentAnchors.tagHighlights.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether to highlight the anchor tags",
-					"scope": "window"
-				},
-				"commentAnchors.parseDelay": {
-					"type": "number",
-					"default": 200,
-					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
-					"scope": "window"
-				},
-				"commentAnchors.scrollPosition": {
-					"type": "string",
-					"default": "top",
-					"enum": [
-						"top",
-						"center",
-						"bottom"
-					],
-					"description": "Where to position the anchor when scrolled to",
-					"scope": "window"
-				},
-				"commentAnchors.editorFolding": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether the enable editor folding. This feature is known to conflict with some language extensions",
-					"scope": "window"
-				},
-				"commentAnchors.workspace.enabled": {
-					"type": "boolean",
-					"default": true,
-					"description": "Scan the entire workspace instead of just the currently opened file",
-					"scope": "window"
-				},
-				"commentAnchors.workspace.lazyLoad": {
-					"type": "boolean",
-					"default": false,
-					"description": "Require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default false)",
-					"scope": "window"
-				},
-				"commentAnchors.workspace.matchFiles": {
-					"type": "string",
-					"default": "**/*",
-					"description": "The glob pattern of the files that will be parsed by Comment Anchors",
-					"scope": "window"
-				},
-				"commentAnchors.workspace.excludeFiles": {
-					"type": "string",
-					"default": "**/{node_modules,.git,.idea,target,out,build,vendor}/**/*",
-					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
-					"scope": "window"
-				},
-				"commentAnchors.tags.displayInSidebar": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether to display tag names in the sidebar",
-					"scope": "window"
-				},
-				"commentAnchors.tags.displayInGutter": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether to display tags in the gutter",
-					"scope": "window"
-				},
-				"commentAnchors.tags.displayLineNumber": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether to display tag names in the sidebar",
-					"scope": "window"
-				},
-				"commentAnchors.tags.sortMethod": {
-					"type": "string",
-					"default": "line",
-					"enum": [
-						"type",
-						"line"
-					],
-					"description": "The method used to sort the anchors in the sidebar",
-					"scope": "window"
-				},
-				"commentAnchors.tags.matchCase": {
-					"type": "boolean",
-					"default": true,
-					"description": "When true, performs case sensitive matches on tags",
-					"scope": "window"
-				},
-				"commentAnchors.tags.displayHierarchyInWorkspace": {
-					"type": "boolean",
-					"default": true,
-					"description": "When true, displays hierarchical anchors in the workspace list",
-					"scope": "window"
-				},
-				"commentAnchors.tags.rulerStyle": {
-					"type": "string",
-					"enum": [
-						"center",
-						"left",
-						"right",
-						"full"
-					],
-					"default": "center",
-					"description": "The display of tags in the ruler lane",
-					"scope": "window"
-				},
-				"commentAnchors.tags.separators": {
-					"type": "array",
-					"default": [
-						" ",
-						": ",
-						" - "
-					],
-					"items": {
-						"type": "string"
-					},
-					"description": "List of separators that can be placed between tags and comments",
-					"scope": "window"
-				},
-				"commentAnchors.tags.endTag": {
-					"type": "string",
-					"default": "!",
-					"description": "Specify a custom region end tag",
-					"scope": "window"
-				},
-				"commentAnchors.tags.list": {
-					"type": "array",
-					"default": [
-						{
-							"tag": "ANCHOR",
-							"iconColor": "default",
-							"highlightColor": "#A8C023",
-							"scope": "file"
-						},
-						{
-							"tag": "TODO",
-							"iconColor": "blue",
-							"highlightColor": "#3ea8ff",
-							"scope": "workspace"
-						},
-						{
-							"tag": "FIXME",
-							"iconColor": "red",
-							"highlightColor": "#F44336",
-							"scope": "workspace"
-						},
-						{
-							"tag": "STUB",
-							"iconColor": "purple",
-							"highlightColor": "#BA68C8",
-							"scope": "file"
-						},
-						{
-							"tag": "NOTE",
-							"iconColor": "orange",
-							"highlightColor": "#FFB300",
-							"scope": "file"
-						},
-						{
-							"tag": "REVIEW",
-							"iconColor": "green",
-							"highlightColor": "#64DD17",
-							"scope": "workspace"
-						},
-						{
-							"tag": "SECTION",
-							"iconColor": "blurple",
-							"highlightColor": "#896afc",
-							"scope": "workspace",
-							"isRegion": true
-						}
-					],
-					"items": {
-						"type": "object",
-						"required": [
-							"tag",
-							"scope",
-							"highlightColor"
-						],
-						"properties": {
-							"tag": {
-								"type": "string",
-								"description": "The text to match for this tag"
-							},
-							"enabled": {
-								"type": "boolean",
-								"default": true,
-								"description": "Enable or disable this tag"
-							},
-							"iconColor": {
-								"type": "string",
-								"enum": [
-									"default",
-									"red",
-									"purple",
-									"teal",
-									"green",
-									"orange",
-									"pink",
-									"blue",
-									"blurple",
-									"emerald",
-									"yellow",
-									"none"
-								],
-								"default": "none",
-								"description": "The icon for this tag in the sidebar. Set to null to disable"
-							},
-							"highlightColor": {
-								"type": "string",
-								"description": "The foreground color applied to the anchor"
-							},
-							"backgroundColor": {
-								"type": "string",
-								"description": "The background color applied to the anchor"
-							},
-							"styleComment": {
-								"type": "boolean",
-								"description": "When true, highlights the comment as well"
-							},
-							"borderStyle": {
-								"type": "string",
-								"description": "The style applied to the border, see https://www.w3schools.com/cssref/pr_border.asp for more information"
-							},
-							"borderRadius": {
-								"type": "number",
-								"description": "The curvature radius of the applied border (Requires borderStyle to be set)",
-								"default": 0
-							},
-							"isBold": {
-								"type": "boolean",
-								"description": "Sets whether the tag is rendered in bold",
-								"default": true
-							},
-							"isItalic": {
-								"type": "boolean",
-								"description": "Sets whether the tag is rendered in italics",
-								"default": true
-							},
-							"scope": {
-								"type": "string",
-								"enum": [
-									"file",
-									"workspace"
-								],
-								"description": "Defines the scope of this tag. Setting this to \"file\" makes these tags only visible in the 'File Anchors' list",
-								"default": "workspace"
-							}
-						}
-					},
-					"description": "List of additional custom Comment Anchor tags",
-					"scope": "window"
-				}
-			}
-		}
-	},
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/extension",
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
-	},
-	"devDependencies": {
-		"@types/debounce": "^1.0.0",
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^7.0.43",
-		"typescript": "^2.6.1",
-		"vscode": "^1.1.6"
-	},
-	"dependencies": {
-		"debounce": "^1.1.0",
-		"escape-string-regexp": "^1.0.5",
-		"opn": "^5.4.0"
-	}
+    "name": "comment-anchors",
+    "displayName": "Comment Anchors",
+    "description": "Place anchor tags within comments for easy file & workspace navigation.",
+    "version": "1.6.1",
+    "publisher": "ExodiusStudios",
+    "engines": {
+        "vscode": "^1.24.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "icon": "media/icon.png",
+    "galleryBanner": {
+        "color": "#246687",
+        "theme": "dark"
+    },
+    "homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
+    "repository": {
+        "url": "https://github.com/ExodiusStudios/vscode-comment-anchors",
+        "type": "git"
+    },
+    "contributes": {
+        "commands": [
+            {
+                "command": "commentAnchors.parse",
+                "title": "Parse the current file and look for anchors",
+                "category": "Comment Anchors"
+            },
+            {
+                "command": "commentAnchors.toggle",
+                "title": "Toggle the visibility of comment anchors",
+                "category": "Comment Anchors"
+            },
+            {
+                "command": "commentAnchors.listTags",
+                "title": "List configured anchor tags",
+                "category": "Comment Anchors"
+            },
+            {
+                "command": "commentAnchors.openFileAndRevealLine",
+                "title": "Open a file and reveal a line"
+            },
+            {
+                "command": "commentAnchors.launchWorkspaceScan",
+                "title": "Initiate a workspace scan"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "comment-anchors",
+                    "title": "Comment Anchors",
+                    "icon": "res/icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "comment-anchors": [
+                {
+                    "id": "fileAnchors",
+                    "name": "File Anchors"
+                },
+                {
+                    "id": "workspaceAnchors",
+                    "name": "Workspace Anchors"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "commentAnchors.parse",
+                    "when": "view == fileAnchors",
+                    "group": "operations"
+                }
+            ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "Comment Anchors",
+            "properties": {
+                "commentAnchors.gutterIconSize": {
+                    "type": "string",
+                    "default": "100%",
+                    "description": "change gutter icon size"
+                },
+                "commentAnchors.tagHighlights.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to highlight the anchor tags",
+                    "scope": "window"
+                },
+                "commentAnchors.parseDelay": {
+                    "type": "number",
+                    "default": 200,
+                    "description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
+                    "scope": "window"
+                },
+                "commentAnchors.scrollPosition": {
+                    "type": "string",
+                    "default": "top",
+                    "enum": [
+                        "top",
+                        "center",
+                        "bottom"
+                    ],
+                    "description": "Where to position the anchor when scrolled to",
+                    "scope": "window"
+                },
+                "commentAnchors.editorFolding": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether the enable editor folding. This feature is known to conflict with some language extensions",
+                    "scope": "window"
+                },
+                "commentAnchors.workspace.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Scan the entire workspace instead of just the currently opened file",
+                    "scope": "window"
+                },
+                "commentAnchors.workspace.lazyLoad": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default false)",
+                    "scope": "window"
+                },
+                "commentAnchors.workspace.matchFiles": {
+                    "type": "string",
+                    "default": "**/*",
+                    "description": "The glob pattern of the files that will be parsed by Comment Anchors",
+                    "scope": "window"
+                },
+                "commentAnchors.workspace.excludeFiles": {
+                    "type": "string",
+                    "default": "**/{node_modules,.git,.idea,target,out,build,vendor}/**/*",
+                    "description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.displayInSidebar": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to display tag names in the sidebar",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.displayInGutter": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to display tags in the gutter",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.displayLineNumber": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to display tag names in the sidebar",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.sortMethod": {
+                    "type": "string",
+                    "default": "line",
+                    "enum": [
+                        "type",
+                        "line"
+                    ],
+                    "description": "The method used to sort the anchors in the sidebar",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.matchCase": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When true, performs case sensitive matches on tags",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.displayHierarchyInWorkspace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When true, displays hierarchical anchors in the workspace list",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.rulerStyle": {
+                    "type": "string",
+                    "enum": [
+                        "center",
+                        "left",
+                        "right",
+                        "full"
+                    ],
+                    "default": "center",
+                    "description": "The display of tags in the ruler lane",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.separators": {
+                    "type": "array",
+                    "default": [
+                        " ",
+                        ": ",
+                        " - "
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of separators that can be placed between tags and comments",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.endTag": {
+                    "type": "string",
+                    "default": "!",
+                    "description": "Specify a custom region end tag",
+                    "scope": "window"
+                },
+                "commentAnchors.tags.list": {
+                    "type": "array",
+                    "default": [
+                        {
+                            "tag": "ANCHOR",
+                            "iconColor": "default",
+                            "highlightColor": "#A8C023",
+                            "scope": "file"
+                        },
+                        {
+                            "tag": "TODO",
+                            "iconColor": "blue",
+                            "highlightColor": "#3ea8ff",
+                            "scope": "workspace"
+                        },
+                        {
+                            "tag": "FIXME",
+                            "iconColor": "red",
+                            "highlightColor": "#F44336",
+                            "scope": "workspace"
+                        },
+                        {
+                            "tag": "STUB",
+                            "iconColor": "purple",
+                            "highlightColor": "#BA68C8",
+                            "scope": "file"
+                        },
+                        {
+                            "tag": "NOTE",
+                            "iconColor": "orange",
+                            "highlightColor": "#FFB300",
+                            "scope": "file"
+                        },
+                        {
+                            "tag": "REVIEW",
+                            "iconColor": "green",
+                            "highlightColor": "#64DD17",
+                            "scope": "workspace"
+                        },
+                        {
+                            "tag": "SECTION",
+                            "iconColor": "blurple",
+                            "highlightColor": "#896afc",
+                            "scope": "workspace",
+                            "isRegion": true
+                        }
+                    ],
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "tag",
+                            "scope",
+                            "highlightColor"
+                        ],
+                        "properties": {
+                            "tag": {
+                                "type": "string",
+                                "description": "The text to match for this tag"
+                            },
+                            "enabled": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Enable or disable this tag"
+                            },
+                            "iconColor": {
+                                "type": "string",
+                                "enum": [
+                                    "default",
+                                    "red",
+                                    "purple",
+                                    "teal",
+                                    "green",
+                                    "orange",
+                                    "pink",
+                                    "blue",
+                                    "blurple",
+                                    "emerald",
+                                    "yellow",
+                                    "none"
+                                ],
+                                "default": "none",
+                                "description": "The icon for this tag in the sidebar. Set to null to disable"
+                            },
+                            "highlightColor": {
+                                "type": "string",
+                                "description": "The foreground color applied to the anchor"
+                            },
+                            "backgroundColor": {
+                                "type": "string",
+                                "description": "The background color applied to the anchor"
+                            },
+                            "styleComment": {
+                                "type": "boolean",
+                                "description": "When true, highlights the comment as well"
+                            },
+                            "borderStyle": {
+                                "type": "string",
+                                "description": "The style applied to the border, see https://www.w3schools.com/cssref/pr_border.asp for more information"
+                            },
+                            "borderRadius": {
+                                "type": "number",
+                                "description": "The curvature radius of the applied border (Requires borderStyle to be set)",
+                                "default": 0
+                            },
+                            "isBold": {
+                                "type": "boolean",
+                                "description": "Sets whether the tag is rendered in bold",
+                                "default": true
+                            },
+                            "isItalic": {
+                                "type": "boolean",
+                                "description": "Sets whether the tag is rendered in italics",
+                                "default": true
+                            },
+                            "scope": {
+                                "type": "string",
+                                "enum": [
+                                    "file",
+                                    "workspace"
+                                ],
+                                "description": "Defines the scope of this tag. Setting this to \"file\" makes these tags only visible in the 'File Anchors' list",
+                                "default": "workspace"
+                            }
+                        }
+                    },
+                    "description": "List of additional custom Comment Anchor tags",
+                    "scope": "window"
+                }
+            }
+        }
+    },
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./out/extension",
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "@types/debounce": "^1.0.0",
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^7.0.43",
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6"
+    },
+    "dependencies": {
+        "debounce": "^1.1.0",
+        "escape-string-regexp": "^1.0.5",
+        "opn": "^5.4.0"
+    }
 }
