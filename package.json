@@ -103,12 +103,6 @@
 					"description": "Where to position the anchor when scrolled to",
 					"scope": "window"
 				},
-				"commentAnchors.editorFolding": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether the enable editor folding. This feature is known to conflict with some language extensions",
-					"scope": "window"
-				},
 				"commentAnchors.workspace.enabled": {
 					"type": "boolean",
 					"default": true,

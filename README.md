@@ -115,14 +115,6 @@ Use `commentAnchors.scrollPosition` to alter where to position the anchor when s
 }
 ```
 
-Use `commentAnchors.editorFolding` to enable editor folding. This feature is known to cause issues with folding in few language extensions. (Default true)
-
-```
-{
-	"commentAnchors.editorFolding": true
-}
-```
-
 Use `commentAnchors.tagHighlights.enabled` to set whether tags are highlighted. (Default true)
 
 ```

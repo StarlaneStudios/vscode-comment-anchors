@@ -34,15 +34,11 @@ import {
 	languages,
 	FoldingRange,
 	FoldingRangeKind,
-	Position,
-	CancellationToken,
-	CompletionContext,
 	ProviderResult,
 	CompletionItem,
 	CompletionList,
 	CompletionItemKind,
-	Disposable
-} from "vscode";
+	Disposable} from "vscode";
 import { FileAnchorProvider } from './provider/fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './provider/workspaceAnchorProvider';
 import EntryLoading from './anchor/entryLoading';
@@ -134,15 +130,6 @@ export class AnchorEngine {
 	}
 
 	registerProviders()	{
-
-		// EDITOR FOLDING
-		if(this._config!.editorFolding) {
-			this._subscriptions.push(languages.registerFoldingRangeProvider({language: '*'}, {
-				provideFoldingRanges: (document: TextDocument) => {
-					return this.foldMaps.get(document.uri) || [];
-				}
-			}));
-		}
 
 		// TEXT COMPLETION
 		const tags = Array.from(this.tags.keys());
