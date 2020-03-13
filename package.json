@@ -88,7 +88,7 @@
 				},
 				"commentAnchors.parseDelay": {
 					"type": "number",
-					"default": 200,
+					"default": 500,
 					"description": "The delay between stopping with typing and anchors being reloaded. When you experience hangs or freezes, it is recommended to increase this value",
 					"scope": "window"
 				},
