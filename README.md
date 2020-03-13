@@ -6,14 +6,14 @@ Anchors can be viewed for the current file, or throughout the entire workspace, 
 
 Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of featured!
 
-Changelog can be found [here](CHANGELOG.md)
+The changelog can be found [here](CHANGELOG.md)
 
 # Feature breakdown
 
-* Place anchors in comments, strings, documentation, etc.
-* Anchors can be viewed in the anchor sidebar view in the activity bar.
-* Anchor names, icon colors, highlight colors, and much more can be customized. (See below for examples)
-* Click an anchor in the sidebar view to scroll it into view. 
+* Place anchors in any file for any language
+* Anchors can be viewed in the anchor list in the activity bar
+* Anchor names, colors, highlight colors, and much more can be customized (See below for examples)
+* Click an anchor in the anchor list to scroll it into view
 * Quickly toggle tag visiblity with commands
 * View anchors across your entire workspace
 * Scope anchors to be visible in your entire workspace, or just the current file
@@ -258,27 +258,8 @@ You can use the `enabled` property to disable one or more default tags like so:
 ]
 ```
 
-## Tag themes
-
-### Neon
-
-In case you prefer backgrounds on all tags, here is an example setup using background colors. Simply use this JSON as the `commentAnchors.tags.list` configuration to use.
-
-```
-[
-	{"tag": "ANCHOR", "iconColor": "default", "highlightColor": "#A8C023", "backgroundColor": "#49511d", "scope": "file"},
-	{"tag": "TODO", "iconColor": "blue", "highlightColor": "#3ea8ff", "backgroundColor": "#0052a5", "scope": "workspace"},
-	{"tag": "FIXME", "iconColor": "red", "highlightColor": "#F44336", "backgroundColor": "#592c2c", "scope": "workspace"},
-	{"tag": "STUB", "iconColor": "purple", "highlightColor": "#BA68C8", "backgroundColor": "#48309a", "scope": "file"},
-	{"tag": "NOTE", "iconColor": "orange", "highlightColor": "#FFB300", "backgroundColor": "#806900", "scope": "file"},
-	{"tag": "REVIEW", "iconColor": "orange", "highlightColor": "#64DD17", "backgroundColor": "#3c7c10", "scope": "workspace"},
-	{"tag": "SECTION", "iconColor": "blurple", "highlightColor": "#896afc", "backgroundColor": "#2a186b", "scope": "workspace"}
-]
-```
-
 ## Icon colors
-Comment Anchors provides an array of different icon colors. Here is a list of anchors together
-with their hex code.
+Comment Anchors provides an array of different icon colors you can use for your anchors. Since these icons have to be made upfront, they cannot be generated from your tag color. This table should help you find the right color to use for each icon.
 
 | Color         | Hex     | RGB              |
 | :------------ |--------:| ----------------:|
