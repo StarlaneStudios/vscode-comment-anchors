@@ -140,6 +140,14 @@ to disable this setting for large workspaces. (Default true)
 }
 ```
 
+Use `commentAnchors.workspace.maxFiles` to change how many workspace files will be indexed and displayed in the workspace anchors list. (Default 50) 
+
+```
+{
+	"commentAnchors.workspace.maxFiles": 50
+}
+```
+
 Use `commentAnchors.workspace.matchFiles` to define which files are scanned by Comment Anchors. This setting can be used to greatly increase performance in your projects, as by default most files are scanned.
 
 ```

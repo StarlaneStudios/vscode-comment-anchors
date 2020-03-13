@@ -1,12 +1,14 @@
 # Change Log
 
 ## 1.7.0
-- Changes some default settings
+- Changed some default settings to improve performance
 - Workspace lazy loading is now enabled by default
 - Fixed issues in the documentation
 - Added `displayInRuler` setting to disable anchors displaying in the scrollbar ruler
 - Added `provideAutoCompletion` setting to disable auto completion support
+- Added `maxFiles` setting to change how many workspace files will be indexed 
 - Improved the sidebar anchor icon to fit better with the default VSCode icons
+- Simplified the searching regex in order to improve anchor recognition
 - Removed editor folding due to the many issues it caused
 
 ## 1.6.1
