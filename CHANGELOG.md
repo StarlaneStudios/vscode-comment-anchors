@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.7.0
+- Changes some default settings
+- Workspace lazy loading is now enabled by default
+- Fixed issues in the documentation
+- Added `displayInRuler` setting to disable anchors displaying in the scrollbar ruler
+- Improved the sidebar anchor icon to fit better with the default VSCode icons
+- Removed editor folding due to the many issues it caused
+
 ## 1.6.1
 - Allow anchor comments to be wrapped in double quotes
 	- `// ANCHOR: "Like this!"`

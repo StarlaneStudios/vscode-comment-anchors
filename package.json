@@ -127,6 +127,12 @@
 					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
 					"scope": "window"
 				},
+				"commentAnchors.tags.provideAutoCompletion": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to provide auto completion entries for anchors",
+					"scope": "window"
+				},
 				"commentAnchors.tags.displayInSidebar": {
 					"type": "boolean",
 					"default": true,

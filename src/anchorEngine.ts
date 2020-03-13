@@ -124,50 +124,44 @@ export class AnchorEngine {
 
 		// Build required anchor resources
 		this.buildResources();
-
-		
 	}
 
 	registerProviders()	{
+		const config = this._config!!;
 
-		// TEXT COMPLETION
-		const tags = Array.from(this.tags.keys());
-		const launchers = tags.map(s => s[0]);
-		const endTag = this._config!!.tags.endTag;
+		// Provide auto completion
+		if(config.tags.provideAutoCompletion) {
+			const endTag = config.tags.endTag;
 
-		// Add region end symbol if region anchors are present
-		if(tags.filter(t => this.tags.get(t)!.isRegion).length) {
-			launchers.push(endTag[0]);
-		}
-
-		AnchorEngine.output(`launchers: ${launchers}`);
-		
-		this._subscriptions.push(languages.registerCompletionItemProvider({language: '*'}, {
-			provideCompletionItems: () : ProviderResult<CompletionList> => {
-				const ret = new CompletionList();
-				const separator = this._config!.tags.separators[0];
-				
-				for(let tag of this.tags.values()) {
-					let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Event);
+			const provider = languages.registerCompletionItemProvider({language: '*'}, {
+				provideCompletionItems: () : ProviderResult<CompletionList> => {
+					const ret = new CompletionList();
+					const separator = config.tags.separators[0];
 					
-					item.documentation = `Insert a ${tag.tag} Comment Anchor`;
-					item.insertText = tag.tag + separator;
-					
-					ret.items.push(item);
-
-					if(tag.isRegion) {
-						let endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Event);
-					
-						endItem.documentation = `Insert a ${endTag + tag.tag} Comment Anchor`;
-						endItem.insertText = endTag + tag.tag + separator;
+					for(let tag of this.tags.values()) {
+						let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Event);
 						
-						ret.items.push(endItem);
+						item.documentation = `Insert a ${tag.tag} Comment Anchor`;
+						item.insertText = tag.tag + separator;
+						
+						ret.items.push(item);
+
+						if(tag.isRegion) {
+							let endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Event);
+						
+							endItem.documentation = `Insert a ${endTag + tag.tag} Comment Anchor`;
+							endItem.insertText = endTag + tag.tag + separator;
+							
+							ret.items.push(endItem);
+						}
 					}
+					
+					return ret;
 				}
-				
-				return ret;
-			}
-		}, ...launchers));
+			});
+			
+			this._subscriptions.push(provider);
+		}
 	}
 
 	buildResources() {
