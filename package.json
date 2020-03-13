@@ -194,9 +194,9 @@
 				"commentAnchors.tags.separators": {
 					"type": "array",
 					"default": [
-						" ",
+						" - ",
 						": ",
-						" - "
+						" "
 					],
 					"items": {
 						"type": "string"

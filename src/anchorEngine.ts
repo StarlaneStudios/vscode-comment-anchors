@@ -308,7 +308,7 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR: Tag RegEx
-			this.matcher = new RegExp(`([\\/#"'*=\\- ]|^)(${tags})($|${separators})"?((.*)(\\b|")|\\S*$)`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`[^\\w](${tags})((${separators}).*)?$`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -316,7 +316,7 @@ export class AnchorEngine {
 			if(config.workspace.enabled && !config.workspace.lazyLoad) {
 				setTimeout(() => {
 					this.initiateWorkspaceScan();
-				}, 5);
+				}, 500);
 			} else {
 				this.anchorsLoaded = true;
 
@@ -389,15 +389,15 @@ export class AnchorEngine {
 		let parsePercentage: number = 0;
 		
 		parseStatus.tooltip = "Provided by the Comment Anchors extension";
-		parseStatus.text = `$(telescope) Parsing Comment Anchors... [0.0%]`;
+		parseStatus.text = `$(telescope) Initializing...`;
 		parseStatus.show();
 
 		for(let i = 0; i < uris.length; i++) {
 
-			// Await a timeout for every 100 documents parsed. This allows
+			// Await a timeout for every 10 documents parsed. This allows
 			// all files to be slowly parsed without completely blocking
 			// the main thread for the entire process.
-			if(i % 100 == 0) {
+			if(i % 10 == 0) {
 				await asyncDelay(5);
 			}
 
@@ -410,7 +410,7 @@ export class AnchorEngine {
 			parseCount++;
 			parsePercentage = parseCount / uris.length * 100;
 
-			parseStatus.text = `$(telescope) Parsing Comment Anchors... [${parsePercentage.toFixed(1)}%]`;
+			parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(1)}%)`;
 		};
 
 		parseStatus.text = `Comment Anchors loaded!`;
@@ -476,15 +476,16 @@ export class AnchorEngine {
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
-					const tag : TagEntry = this.tags.get(match[2].toUpperCase().replace(endTag, ''))!;
+					const tagName = match[1].toUpperCase().replace(endTag, '');
+					const tag : TagEntry = this.tags.get(tagName)!;
 					const isRegionStart = tag.isRegion;
-					const isRegionEnd = match[2].startsWith(endTag);
+					const isRegionEnd = match[1].startsWith(endTag);
 					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
 
 					// Offset empty prefix
-					if(!match[1].length) {
-						match.index--;
-					}
+					// if(!match[1].length) {
+					// 	match.index--;
+					// }
 
 					// Handle the closing of a region
 					if(isRegionEnd) {
@@ -495,7 +496,7 @@ export class AnchorEngine {
 
 						currRegion.setEndTag({
 							startIndex: match.index + 1,
-							endIndex: match.index + 1 + match[2].length,
+							endIndex: match.index + 1 + match[1].length,
 							lineNumber: lineNumber
 						})
 
@@ -505,21 +506,21 @@ export class AnchorEngine {
 						continue;
 					}
 
-					const rangeLength = tag.styleComment ? match[0].length : match[2].length;
+					const rangeLength = tag.styleComment ? match[0].length : tag.tag.length;
 					const startPos = match.index + 1;
 					const endPos = startPos + rangeLength;
 					const deltaText = text.substr(0, startPos);
 					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 					
-					const comment = (match[5] || '').trim();
-					const display = config.tags.displayInSidebar ? match[2] + ": " + comment : comment;
+					const comment = (match[2] || '').trim();
+					const display = config.tags.displayInSidebar ? tag.tag + ": " + comment : comment;
 
 					let anchor : EntryAnchor;
 
+					// Create a regular or region anchor
 					if(isRegionStart) {
-						// Create a new region anchor
 						anchor = new EntryAnchorRegion(
-							match[2],
+							tag.tag,
 							display,
 							startPos,
 							endPos,
@@ -528,9 +529,8 @@ export class AnchorEngine {
 							tag.scope!
 						);
 					} else {
-						// Create a new regular anchor
 						anchor = new EntryAnchor(
-							match[2],
+							tag.tag,
 							display,
 							startPos,
 							endPos,
