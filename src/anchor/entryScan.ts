@@ -7,7 +7,7 @@ import EntryBase from "./entryBase";
 export default class EntryScan extends EntryBase {
 
 	constructor() {
-		super("Click to start Workspace Scan", TreeItemCollapsibleState.None);
+		super("Click to start scanning", TreeItemCollapsibleState.None);
 
 		this.iconPath = {
 			light: this.loadIcon('launch'),
