@@ -350,11 +350,11 @@
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^7.0.43",
 		"typescript": "^2.6.1",
-		"vscode": "^1.1.6"
+		"vscode": "^1.1.36"
 	},
 	"dependencies": {
-		"debounce": "^1.1.0",
-		"escape-string-regexp": "^1.0.5",
-		"opn": "^5.4.0"
+		"debounce": "^1.2.0",
+		"escape-string-regexp": "^2.0.0",
+		"opn": "^6.0.0"
 	}
 }
