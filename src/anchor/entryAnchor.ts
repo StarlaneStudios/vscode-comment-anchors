@@ -18,15 +18,15 @@ export default class EntryAnchor extends TreeItem {
 	private childAnchors: EntryAnchor[] = [];
 
 	constructor(
-		public readonly anchorTag: string,
-		public readonly anchorText: string,
-		public readonly startIndex: number,
-		public readonly endIndex: number,
-		public readonly lineNumber: number,
-		public readonly icon: String,
-		public readonly scope: string,
-		public readonly showLine: Boolean,
-		public readonly file?: Uri
+		public readonly anchorTag: string,		// The tag e.g. "ANCHOR"
+		public readonly anchorText: string,		// The text after the anchor tag
+		public readonly startIndex: number,		// The start column of the anchor
+		public readonly endIndex: number,		// The end column of the tag
+		public readonly lineNumber: number,		// The line number the tag was found on
+		public readonly icon: String,			// The associated icon
+		public readonly scope: string,			// The anchor scope
+		public readonly showLine: Boolean,		// Whether to display line numbers
+		public readonly file?: Uri				// The file this anchor is in
 	) {
 		super("", TreeItemCollapsibleState.None);
 
@@ -55,8 +55,10 @@ export default class EntryAnchor extends TreeItem {
 		};
 	}
 
+	contextValue = 'anchor';
+
 	get tooltip(): string {
-		return `${this.anchorText} (Click to navigate)`
+		return `${this.anchorText} (Click to reveal)`
 	}
 
 	get isVisibleInWorkspace() {
@@ -104,8 +106,6 @@ export default class EntryAnchor extends TreeItem {
 
 		return copy;
 	}
-
-	contextValue = 'anchor';
 
 	/**
 	 * Sort anchors based on the currently defined sort method

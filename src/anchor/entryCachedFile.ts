@@ -3,7 +3,7 @@ import * as path from 'path';
 import EntryAnchor from "./entryAnchor";
 
 /**
- * Represents an Anchor found a file
+ * Represents a workspace file holding one or more anchors
  */
 export default class EntryCachedFile extends TreeItem {
 
@@ -12,13 +12,6 @@ export default class EntryCachedFile extends TreeItem {
 		public readonly anchors: EntryAnchor[],
 	) {
 		super(EntryCachedFile.fileAnchorStats(file, anchors), TreeItemCollapsibleState.Expanded);
-
-		// NOTE Disabled for now, makes opening/closing folders easier
-		// this.command = {
-		// 	title: '',
-		// 	command: 'vscode.openFolder',
-		// 	arguments: [file]
-		// };
 
 		this.iconPath = {
 			light: path.join(__dirname, '..', 'res', `file.svg`),

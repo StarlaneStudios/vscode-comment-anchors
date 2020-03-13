@@ -2,7 +2,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import * as path from 'path';
 
 /**
- * Represents an empty detection
+ * Represents a caught error
  */
 export default class EntryError extends TreeItem {
 

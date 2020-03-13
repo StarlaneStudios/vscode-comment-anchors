@@ -2,7 +2,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import * as path from 'path';
 
 /**
- * Represents an empty detection
+ * Represents a pending workspace scan
  */
 export default class EntryScan extends TreeItem {
 

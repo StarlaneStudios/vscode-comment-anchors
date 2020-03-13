@@ -28,6 +28,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
 			lineNumber,
 			icon,
 			scope,
+			false, // Line numbers are handled differently
 			file
 		);
 
