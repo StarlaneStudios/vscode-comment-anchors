@@ -1,11 +1,12 @@
 import { TreeItem, TreeItemCollapsibleState, Uri, workspace } from "vscode";
-import * as path from 'path';
 import EntryAnchor from "./entryAnchor";
+import EntryBase from "./entryBase";
+import * as path from 'path';
 
 /**
  * Represents a workspace file holding one or more anchors
  */
-export default class EntryCachedFile extends TreeItem {
+export default class EntryCachedFile extends EntryBase {
 
 	constructor(
 		public readonly file: Uri,
@@ -14,8 +15,8 @@ export default class EntryCachedFile extends TreeItem {
 		super(EntryCachedFile.fileAnchorStats(file, anchors), TreeItemCollapsibleState.Expanded);
 
 		this.iconPath = {
-			light: path.join(__dirname, '..', 'res', `file.svg`),
-			dark: path.join(__dirname, '..', 'res', `file.svg`)
+			light: this.loadIcon('file'),
+			dark: this.loadIcon('file')
 		};
 	}
 
@@ -23,7 +24,7 @@ export default class EntryCachedFile extends TreeItem {
 		return `${this.file.path}`
 	}
 
-	toString(): String {
+	toString():string {
 		return this.label!;
 	}
 

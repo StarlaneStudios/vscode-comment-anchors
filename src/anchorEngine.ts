@@ -93,15 +93,14 @@ export class AnchorEngine {
 	/** Anchor comments config settings */
 	public _config: WorkspaceConfiguration | undefined;
 
-	/** The debug output for comment anchors */
-	public _debug: OutputChannel;
-	public static output: Function;
-
 	/** The current file system watcher */
 	private _watcher: FileSystemWatcher | undefined;
 
 	/** List of build subscriptions */
 	private _subscriptions: Disposable[] = [];
+
+	/** The debug output for comment anchors */
+	public static output: (msg: string) => void;
 
 	/** Initialize the various providers */
 	public readonly fileProvider = new FileAnchorProvider(this);
@@ -116,8 +115,8 @@ export class AnchorEngine {
 		workspace.onDidChangeWorkspaceFolders(() => this.buildResources(), this, context.subscriptions);
 		workspace.onDidCloseTextDocument((e) => this.cleanUp(e), this, context.subscriptions);
 
-		this._debug = window.createOutputChannel("Comment Anchors");
-		AnchorEngine.output = (m: string) => this._debug.appendLine("[Comment Anchors] " + m);
+		const outputChannel = window.createOutputChannel("Comment Anchors");
+		AnchorEngine.output = (m: string) => outputChannel.appendLine("[Comment Anchors] " + m);
 
 		if(window.activeTextEditor) {
 			this._editor = window.activeTextEditor;
@@ -141,7 +140,7 @@ export class AnchorEngine {
 			launchers.push(endTag[0]);
 		}
 
-		this._debug.appendLine(`launchers: ${launchers}`);
+		AnchorEngine.output(`launchers: ${launchers}`);
 		
 		this._subscriptions.push(languages.registerCompletionItemProvider({language: '*'}, {
 			provideCompletionItems: () : ProviderResult<CompletionList> => {
@@ -219,7 +218,7 @@ export class AnchorEngine {
 				this.tags.set(tag.tag.toUpperCase(), opts);
 			});
 
-			// Lane style
+			// Detect the lane style
 			let laneStyle: OverviewRulerLane;
 
 			if(config.tags.rulerStyle == "left") {
@@ -246,10 +245,14 @@ export class AnchorEngine {
 						fontWeight: tag.isBold || tag.isBold == undefined? "bold": "normal",
 						fontStyle: tag.isItalic || tag.isItalic == undefined ? "italic": "normal",
 						color: tag.highlightColor,
-						backgroundColor: tag.backgroundColor,
-						overviewRulerColor: tag.highlightColor,
-						overviewRulerLane: laneStyle
+						backgroundColor: tag.backgroundColor
 					};
+
+					// Optionally insert rulers
+					if(config.tags.displayInRuler) {
+						highlight.overviewRulerColor = tag.highlightColor;
+						highlight.overviewRulerLane = laneStyle;
+					}
 
 					// Optional gutter icons
 					if(config.tags.displayInGutter && tag.iconColor !== 'none') {
@@ -284,7 +287,7 @@ export class AnchorEngine {
 			// Generate region end tags
 			const endTag = this._config.tags.endTag;
 
-			this._debug.appendLine("endTag: " + endTag);
+			AnchorEngine.output("endTag: " + endTag);
 			
 			this.tags.forEach((entry, tag) => { 
 				if(entry.isRegion) {
@@ -562,8 +565,8 @@ export class AnchorEngine {
 				this.anchorMaps.set(document, anchors);
 				this.foldMaps.set(document, folds);
 			} catch(err) {
-				this._debug.appendLine("Error: " + err.message);
-				this._debug.appendLine(err.stack);
+				AnchorEngine.output("Error: " + err.message);
+				AnchorEngine.output(err.stack);
 				reject(err);
 			} finally {
 				success();

@@ -1,5 +1,5 @@
 import { ExtensionContext, window } from "vscode";
-import * as pkg from '../package.json';
+import * as pkg from '../../package.json';
 import * as opn from 'opn';
 
 export default class UpdateMonitor {

@@ -1,17 +1,17 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import * as path from 'path';
+import EntryBase from "./entryBase";
 
 /**
  * Represents a pending workspace scan
  */
-export default class EntryScan extends TreeItem {
+export default class EntryScan extends EntryBase {
 
 	constructor() {
 		super("Click to start Workspace Scan", TreeItemCollapsibleState.None);
 
 		this.iconPath = {
-			light: path.join(__dirname, '..', 'res', `launch.svg`),
-			dark: path.join(__dirname, '..', 'res', `launch.svg`)
+			light: this.loadIcon('launch'),
+			dark: this.loadIcon('launch'),
 		};
 
 		this.command = {
@@ -24,7 +24,7 @@ export default class EntryScan extends TreeItem {
 		return this.label!;
 	}
 
-	toString(): String {
+	toString():string {
 		return "EntryLaunch{}";
 	}
 

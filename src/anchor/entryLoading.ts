@@ -1,17 +1,17 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import * as path from 'path';
+import EntryBase from "./entryBase";
 
 /**
  * Represents an active workspace scan
  */
-export default class EntryLoading extends TreeItem {
+export default class EntryLoading extends EntryBase {
 
 	constructor() {
 		super("Searching for anchors...", TreeItemCollapsibleState.None);
 
 		this.iconPath = {
-			light: path.join(__dirname, '..', 'res', `load.svg`),
-			dark: path.join(__dirname, '..', 'res', `load.svg`)
+			light: this.loadIcon('load'),
+			dark: this.loadIcon('load')
 		};
 	}
 
@@ -19,7 +19,7 @@ export default class EntryLoading extends TreeItem {
 		return this.label!;
 	}
 
-	toString(): String {
+	toString():string {
 		return "EntryLoading{}";
 	}
 

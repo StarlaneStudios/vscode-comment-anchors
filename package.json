@@ -139,6 +139,24 @@
 					"description": "Whether to display tags in the gutter",
 					"scope": "window"
 				},
+				"commentAnchors.tags.displayInRuler": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to display tags in the scrollbar ruler",
+					"scope": "window"
+				},
+				"commentAnchors.tags.rulerStyle": {
+					"type": "string",
+					"enum": [
+						"center",
+						"left",
+						"right",
+						"full"
+					],
+					"default": "left",
+					"description": "The display of tags in the ruler lane",
+					"scope": "window"
+				},
 				"commentAnchors.tags.displayLineNumber": {
 					"type": "boolean",
 					"default": true,
@@ -165,18 +183,6 @@
 					"type": "boolean",
 					"default": true,
 					"description": "When true, displays hierarchical anchors in the workspace list",
-					"scope": "window"
-				},
-				"commentAnchors.tags.rulerStyle": {
-					"type": "string",
-					"enum": [
-						"center",
-						"left",
-						"right",
-						"full"
-					],
-					"default": "center",
-					"description": "The display of tags in the ruler lane",
 					"scope": "window"
 				},
 				"commentAnchors.tags.separators": {

@@ -1,10 +1,10 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import * as path from 'path';
+import EntryBase from "./entryBase";
 
 /**
  * Represents a caught error
  */
-export default class EntryError extends TreeItem {
+export default class EntryError extends EntryBase {
 
 	private message: string;
 
@@ -13,8 +13,8 @@ export default class EntryError extends TreeItem {
 		this.message = message;
 
 		this.iconPath = {
-			light: path.join(__dirname, '..', 'res', `cross.svg`),
-			dark: path.join(__dirname, '..', 'res', `cross.svg`)
+			light: this.loadIcon('cross'),
+			dark: this.loadIcon('cross')
 		};
 	}
 
@@ -22,7 +22,7 @@ export default class EntryError extends TreeItem {
 		return this.message;
 	}
 
-	toString(): String {
+	toString():string {
 		return "EntryError{}";
 	}
 

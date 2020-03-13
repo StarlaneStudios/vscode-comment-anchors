@@ -1,10 +1,11 @@
 import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
-import * as path from 'path';
+import EntryBase from "./entryBase";
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents an Anchor found a file
  */
-export default class EntryAnchor extends TreeItem {
+export default class EntryAnchor extends EntryBase {
 
 	/** The sorting method to use, defaults to line */
 	public static SortMethod = "line";
@@ -23,7 +24,7 @@ export default class EntryAnchor extends TreeItem {
 		public readonly startIndex: number,		// The start column of the anchor
 		public readonly endIndex: number,		// The end column of the tag
 		public readonly lineNumber: number,		// The line number the tag was found on
-		public readonly icon: String,			// The associated icon
+		public readonly icon: string,			// The associated icon
 		public readonly scope: string,			// The anchor scope
 		public readonly showLine: Boolean,		// Whether to display line numbers
 		public readonly file?: Uri				// The file this anchor is in
@@ -50,8 +51,8 @@ export default class EntryAnchor extends TreeItem {
 		}
 
 		this.iconPath = {
-			light: path.join(__dirname, '..', 'res', `anchor_${icon == 'default' ? 'black' : icon}.svg`),
-			dark: path.join(__dirname, '..', 'res', `anchor_${icon == 'default' ? 'white' : icon}.svg`)
+			light: this.loadIcon('anchor_' + (icon == 'default' ? 'black' : icon)),
+			dark: this.loadIcon('anchor_' + (icon == 'default' ? 'white' : icon))
 		};
 	}
 
@@ -81,7 +82,7 @@ export default class EntryAnchor extends TreeItem {
 		this.childAnchors.push(child);
 	}
 
-	toString(): String {
+	toString():string {
 		return "EntryAnchor(" + this.label! + ")";
 	}
 

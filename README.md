@@ -172,6 +172,14 @@ Use `commentAnchors.tags.displayInGutter` to set whether gutter icons are shown.
 }
 ```
 
+Use `commentAnchors.tags.displayInRuler` to set whether icons are represented by colored bars in the scrollbar ruler. (Default true)
+
+```
+{
+	"commentAnchors.tags.displayInRuler": true
+}
+```
+
 Use `commentAnchors.tags.displayLineNumber` to set whether line numbers are displayed in the sidebar (Default true)
 
 ```
