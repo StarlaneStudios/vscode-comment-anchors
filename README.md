@@ -156,6 +156,14 @@ Use `commentAnchors.workspace.excludeFiles` to define which files are excluded f
 }
 ```
 
+Use `commentAnchors.tags.provideAutoCompletion` to enable autocompletion support for anchor tags. (Default true)
+
+```
+{
+	"commentAnchors.tags.provideAutoCompletion": true
+}
+```
+
 Use `commentAnchors.tags.displayInSidebar` to set whether tags are included in the sidebar list. (Default true)
 
 ```

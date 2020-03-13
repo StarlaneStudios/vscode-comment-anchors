@@ -5,6 +5,7 @@
 - Workspace lazy loading is now enabled by default
 - Fixed issues in the documentation
 - Added `displayInRuler` setting to disable anchors displaying in the scrollbar ruler
+- Added `provideAutoCompletion` setting to disable auto completion support
 - Improved the sidebar anchor icon to fit better with the default VSCode icons
 - Removed editor folding due to the many issues it caused
 
