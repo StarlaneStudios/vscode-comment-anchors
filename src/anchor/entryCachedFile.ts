@@ -1,4 +1,4 @@
-import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, OutputChannel, workspace } from "vscode";
+import { TreeItem, TreeItemCollapsibleState, Uri, workspace } from "vscode";
 import * as path from 'path';
 import EntryAnchor from "./entryAnchor";
 

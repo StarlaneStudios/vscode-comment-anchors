@@ -1,4 +1,4 @@
-import { DecorationOptions, TextDocument, Range, Uri, window } from "vscode";
+import { DecorationOptions, TextDocument, Range, Uri } from "vscode";
 import EntryAnchor from "./entryAnchor";
 
 /**

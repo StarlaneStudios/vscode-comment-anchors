@@ -1,4 +1,4 @@
-import { TreeItem, TreeItemCollapsibleState, DecorationOptions } from "vscode";
+import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import * as path from 'path';
 
 /**

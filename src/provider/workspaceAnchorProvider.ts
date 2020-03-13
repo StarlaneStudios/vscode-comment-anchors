@@ -1,10 +1,9 @@
-import { TreeDataProvider, Event, TreeItem, TextDocument, workspace, Uri, window } from "vscode";
+import { TreeDataProvider, Event, TreeItem, workspace, Uri } from "vscode";
 import EntryAnchor from "../anchor/entryAnchor";
 import EntryError from "../anchor/entryError";
 import { AnchorEngine } from "../anchorEngine";
 import EntryCachedFile from "../anchor/entryCachedFile";
 import EntryScan from "../anchor/entryScan";
-import EntryAnchorRegion from "../anchor/entryAnchorRegion";
 
 /**
  * The type repsenting any Entry
