@@ -384,7 +384,8 @@ export class AnchorEngine {
 	}
 
 	private async loadWorkspace(uris: Uri[]) {
-		var parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
+		const maxFiles = this._config!.workspace.maxFiles || 100;
+		let parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
 		let parseCount: number = 0;
 		let parsePercentage: number = 0;
 		
@@ -392,7 +393,7 @@ export class AnchorEngine {
 		parseStatus.text = `$(telescope) Initializing...`;
 		parseStatus.show();
 
-		for(let i = 0; i < uris.length; i++) {
+		for(let i = 0; i < uris.length && parseCount < maxFiles; i++) {
 
 			// Await a timeout for every 10 documents parsed. This allows
 			// all files to be slowly parsed without completely blocking
@@ -402,17 +403,22 @@ export class AnchorEngine {
 			}
 
 			try {
-				await this.addMap(uris[i]);
+				let found = await this.addMap(uris[i]);
+
+				// Only update states when a file containing anchors
+				// was found and parsed.
+				if(found) {
+					parseCount++;
+					parsePercentage = parseCount / uris.length * 100;
+
+					parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(1)}%)`;
+				}
 			} catch(err) {
 				// Ignore, already taken care of
 			}
-
-			parseCount++;
-			parsePercentage = parseCount / uris.length * 100;
-
-			parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(1)}%)`;
 		};
 
+		// Scanning has now completed
 		parseStatus.text = `Comment Anchors loaded!`;
 
 		setTimeout(() => {
@@ -449,9 +455,13 @@ export class AnchorEngine {
 
 	/**
 	 * Parse the given or current document
+	 * 
+	 * @returns true when anchors were found
 	 */	
-	public parse(document: Uri) : Promise<void> {
-		return new Promise<void>(async (success, reject) => {
+	public parse(document: Uri) : Promise<boolean> {
+		return new Promise(async (success, reject) => {
+			let anchorsFound = false;
+
 			try {
 				let text = null;
 
@@ -486,6 +496,9 @@ export class AnchorEngine {
 					// if(!match[1].length) {
 					// 	match.index--;
 					// }
+
+					// We have found at least one anchor
+					anchorsFound = true;
 
 					// Handle the closing of a region
 					if(isRegionEnd) {
@@ -563,7 +576,7 @@ export class AnchorEngine {
 				AnchorEngine.output(err.stack);
 				reject(err);
 			} finally {
-				success();
+				success(anchorsFound);
 			}
 		});
 	}
@@ -612,8 +625,11 @@ export class AnchorEngine {
 	 * 
 	 * @param document TextDocument
 	 */
-	public addMap(document: Uri) : Thenable<void> {
-		if(document.scheme !== 'file') return Promise.resolve();
+	public addMap(document: Uri) : Thenable<boolean> {
+		// TODO Look into the possibility of other schemas to be accepted, as it may be limiting functionality.
+		if(document.scheme !== 'file') {
+			return Promise.resolve(false);
+		}
 
 		// Make sure we have no duplicates
 		this.anchorMaps.forEach((_, doc) => {

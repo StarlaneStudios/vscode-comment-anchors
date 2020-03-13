@@ -115,6 +115,12 @@
 					"description": "Require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default true)",
 					"scope": "window"
 				},
+				"commentAnchors.workspace.maxFiles": {
+					"type": "integer",
+					"default": 50,
+					"description": "The maximum amount of files that will be parsed. Higher values may cause performance degration in large projects. (Default 50)",
+					"scope": "window"
+				},
 				"commentAnchors.workspace.matchFiles": {
 					"type": "string",
 					"default": "**/*",
