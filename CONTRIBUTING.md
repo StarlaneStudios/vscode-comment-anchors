@@ -32,10 +32,6 @@ Always write a clear log message for your commits. One-line messages are fine fo
 
 * Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
 
-#### **Did you fix whitespace, format code, or make a purely cosmetic patch?**
-
-Changes that are cosmetic in nature and do not add anything substantial to the stability, functionality, or testability of Rails will generally not be accepted (read more about [our rationales behind this decision](https://github.com/rails/rails/pull/13771#issuecomment-32746700)).
-
 #### **Do you intend to add a new feature or change an existing one?**
 
 * Optionally, suggest your change in [our community Discord](https://discord.gg/jCDCU2W), in the #comment-anchors channel, and start writing code in a local fork.
@@ -44,7 +40,7 @@ Changes that are cosmetic in nature and do not add anything substantial to the s
 
 #### **Do you have questions about the source code?**
 
-* Ask any question about how to use Comment Anchors in [our community Discord](https://discord.gg/jCDCU2W), in the channel #comment-anchors.
+* Ask any question about how to use the Comment Anchors source in our discord, preferably in the channel #comment-anchors.
 
 * Open an issue ticket, clearly specifying your question, however it is still recommended to ask on our discord first.
 
