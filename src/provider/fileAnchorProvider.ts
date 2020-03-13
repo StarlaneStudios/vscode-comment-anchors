@@ -1,8 +1,8 @@
 import { TreeDataProvider, Event, TreeItem } from "vscode";
-import EntryAnchor from "./entryAnchor";
-import EntryError from "./entryError";
-import { AnchorEngine } from "./anchorEngine";
-import EntryLoading from "./entryLoading";
+import EntryAnchor from "../anchor/entryAnchor";
+import EntryError from "../anchor/entryError";
+import { AnchorEngine } from "../anchorEngine";
+import EntryLoading from "../anchor/entryLoading";
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current file

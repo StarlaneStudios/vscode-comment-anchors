@@ -1,4 +1,4 @@
-import { TagEntry } from "./anchorEngine";
+import { TagEntry } from "../anchorEngine";
 
 /**
  * Register default tags to a tagMap

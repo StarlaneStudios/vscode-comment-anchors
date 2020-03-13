@@ -12,8 +12,8 @@ const asyncDelay = (delay: number) : Promise<void> => {
 import * as path from 'path';
 import * as fs from 'fs';
 import * as escape from 'escape-string-regexp';
-import EntryAnchor from './entryAnchor';
-import EntryError from './entryError';
+import EntryAnchor from './anchor/entryAnchor';
+import EntryError from './anchor/entryError';
 import {
 	window,
 	workspace,
@@ -43,12 +43,12 @@ import {
 	CompletionItemKind,
 	Disposable
 } from "vscode";
-import { FileAnchorProvider } from './fileAnchorProvider';
-import { WorkspaceAnchorProvider } from './workspaceAnchorProvider';
-import EntryLoading from './entryLoading';
-import EntryScan from './entryScan';
-import EntryAnchorRegion from './entryAnchorRegion';
-import registerDefaults from './defaultTags';
+import { FileAnchorProvider } from './provider/fileAnchorProvider';
+import { WorkspaceAnchorProvider } from './provider/workspaceAnchorProvider';
+import EntryLoading from './anchor/entryLoading';
+import EntryScan from './anchor/entryScan';
+import EntryAnchorRegion from './anchor/entryAnchorRegion';
+import registerDefaults from './util/defaultTags';
 
 export class AnchorEngine {
 

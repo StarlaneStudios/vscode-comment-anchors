@@ -1,7 +1,7 @@
 import {window, commands, ExtensionContext, workspace, Uri, Disposable, TreeDataProvider, TreeItem} from 'vscode';
 import {AnchorEngine} from './anchorEngine';
 import openAnchorList from './anchorListView';
-import UpdateMonitor from './updateMonitor';
+import UpdateMonitor from './util/updateMonitor';
 
 let anchorEngine: AnchorEngine;
 
