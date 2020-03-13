@@ -111,8 +111,8 @@
 				},
 				"commentAnchors.workspace.lazyLoad": {
 					"type": "boolean",
-					"default": false,
-					"description": "Require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default false)",
+					"default": true,
+					"description": "Require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default true)",
 					"scope": "window"
 				},
 				"commentAnchors.workspace.matchFiles": {

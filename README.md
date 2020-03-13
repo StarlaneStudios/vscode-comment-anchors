@@ -131,11 +131,12 @@ Use `commentAnchors.workspace.enabled` to activate workspace wide anchor scannin
 }
 ```
 
-Use `commentAnchors.workspace.lazyLoad` to require a manual trigger to start the workspace scan. Useful for when you want to reduce load time. (Default false)
+Use `commentAnchors.workspace.lazyLoad` to delay the loading of workspace anchors until a manual confirmation is given. It is discouraged
+to disable this setting for large workspaces. (Default true)
 
 ```
 {
-	"commentAnchors.workspace.lazyLoad": false
+	"commentAnchors.workspace.lazyLoad": true
 }
 ```
 
