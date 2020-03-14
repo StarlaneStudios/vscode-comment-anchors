@@ -535,7 +535,7 @@ export class AnchorEngine {
 							let skip = [' ', '-', '>'];
 							let end = display.length - 1;
 
-							while(skip.includes(display[end])) {
+							while(skip.indexOf(display[end]) >= 0) {
 								endPos--;
 								end--;
 							}
@@ -547,7 +547,7 @@ export class AnchorEngine {
 							let skip = [' ', '*', '/'];
 							let end = display.length - 1;
 
-							while(skip.includes(display[end])) {
+							while(skip.indexOf(display[end]) >= 0) {
 								endPos--;
 								end--;
 							}
