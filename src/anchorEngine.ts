@@ -539,7 +539,8 @@ export class AnchorEngine {
 							endPos,
 							lineNumber,
 							tag.iconColor || "default",
-							tag.scope!
+							tag.scope!,
+							document
 						);
 					} else {
 						anchor = new EntryAnchor(
@@ -550,7 +551,8 @@ export class AnchorEngine {
 							lineNumber,
 							tag.iconColor || "default",
 							tag.scope!,
-							config.tags.displayLineNumber
+							config.tags.displayLineNumber,
+							document
 						);
 					}
 				
@@ -656,6 +658,8 @@ export class AnchorEngine {
 	}
 
 	private onActiveEditorChanged(editor: TextEditor | undefined): void {
+		if(editor && editor!!.document.uri.scheme != 'file') return;
+
 		this._editor = editor;
 
 		if(!this.anchorsLoaded) return;
@@ -680,7 +684,8 @@ export class AnchorEngine {
 	}
 
 	private onDocumentChanged(e: TextDocumentChangeEvent): void {
-		if(!e.contentChanges) return;
+		if(!e.contentChanges || e.document.uri.scheme != 'file') return;
+
 		this._idleRefresh!();
 	}
 

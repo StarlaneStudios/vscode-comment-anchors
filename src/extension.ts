@@ -76,14 +76,10 @@ function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {
 	if(window.activeTextEditor && window.activeTextEditor.document.uri == options.uri) {
 		scrollAndMove();
 	} else {
-		commands.executeCommand('vscode.openFolder', options.uri);
-
-		// Wait for the document to open
-		let unsub: Disposable = window.onDidChangeActiveTextEditor(() => {
-			scrollAndMove();
-	
-			// Unsubscribe
-			unsub.dispose();
-		})
+		workspace.openTextDocument(options.uri).then(doc => {
+			window.showTextDocument(doc).then(() => {
+				scrollAndMove();
+			});
+		});		
 	}
 }

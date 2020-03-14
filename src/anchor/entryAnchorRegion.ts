@@ -18,7 +18,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		public readonly lineNumber: number,
 		public readonly icon:string,
 		public readonly scope: string,
-		public readonly file?: Uri
+		public readonly file: Uri
 	) {
 		super(
 			anchorTag,

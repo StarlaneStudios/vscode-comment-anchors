@@ -27,13 +27,13 @@ export default class EntryAnchor extends EntryBase {
 		public readonly icon: string,			// The associated icon
 		public readonly scope: string,			// The anchor scope
 		public readonly showLine: Boolean,		// Whether to display line numbers
-		public readonly file?: Uri				// The file this anchor is in
+		public readonly file: Uri				// The file this anchor is in
 	) {
 		super("", TreeItemCollapsibleState.None);
 
 		this.label = showLine ? `[${this.lineNumber}] ${anchorText}` : anchorText;
 
-		this.command = file ? {
+		this.command = {
 			title: '',
 			command: 'commentAnchors.openFileAndRevealLine',
 			arguments: [{
@@ -41,14 +41,7 @@ export default class EntryAnchor extends EntryBase {
 				lineNumber: this.lineNumber - 1,
 				at: EntryAnchor.ScrollPosition
 			}]
-		} : {
-			title: '',
-			command: 'revealLine',
-			arguments: [{
-				lineNumber: this.lineNumber - 1,
-				at: EntryAnchor.ScrollPosition
-			}]
-		}
+		};
 
 		this.iconPath = {
 			light: this.loadIcon('anchor_' + (icon == 'default' ? 'black' : icon)),
