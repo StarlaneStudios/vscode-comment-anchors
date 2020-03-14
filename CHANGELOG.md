@@ -8,8 +8,10 @@
 - Added `provideAutoCompletion` setting to disable auto completion support
 - Added `maxFiles` setting to change how many workspace files will be indexed 
 - Improved the sidebar anchor icon to fit better with the default VSCode icons
+- Improved the rendering of fully styled comments
 - Simplified the searching regex in order to improve anchor recognition
 - Removed editor folding due to the many issues it caused
+- Fixed workspace anchors not opening the correct file
 
 ## 1.6.1
 - Allow anchor comments to be wrapped in double quotes
