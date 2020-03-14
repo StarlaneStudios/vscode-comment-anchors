@@ -519,14 +519,42 @@ export class AnchorEngine {
 						continue;
 					}
 
-					const rangeLength = tag.styleComment ? match[0].length : tag.tag.length;
-					const startPos = match.index + 1;
-					const endPos = startPos + rangeLength;
-					const deltaText = text.substr(0, startPos);
-					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
+					let rangeLength = tag.styleComment ? match[0].length - 1 
+					: tag.tag.length;
+					let startPos = match.index + 1;
+					let endPos = startPos + rangeLength;
+					let deltaText = text.substr(0, startPos);
+					let lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 					
-					const comment = (match[4] || '').trim();
-					const display = config.tags.displayInSidebar ? tag.tag + ": " + comment : comment;
+					let comment = (match[4] || '').trim();
+					let display = config.tags.displayInSidebar ? tag.tag + ": " + comment : comment;
+
+					// Clean up the comment and adjust the endPos
+					if(display.endsWith('-->')) {
+						if(tag.styleComment) {
+							let skip = [' ', '-', '>'];
+							let end = display.length - 1;
+
+							while(skip.includes(display[end])) {
+								endPos--;
+								end--;
+							}
+						}
+
+						display = display.substring(0, display.lastIndexOf('-->'));
+					} else if(display.endsWith('*/')) {
+						if(tag.styleComment) {
+							let skip = [' ', '*', '/'];
+							let end = display.length - 1;
+
+							while(skip.includes(display[end])) {
+								endPos--;
+								end--;
+							}
+						}
+
+						display = display.substring(0, display.lastIndexOf('*/'));
+					}
 
 					let anchor : EntryAnchor;
 
