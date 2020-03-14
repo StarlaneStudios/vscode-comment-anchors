@@ -73,6 +73,11 @@
 					"command": "commentAnchors.parse",
 					"when": "view == fileAnchors",
 					"group": "operations"
+				},
+				{
+					"command": "commentAnchors.listTags",
+					"when": "view == fileAnchors",
+					"group": "operations"
 				}
 			]
 		},

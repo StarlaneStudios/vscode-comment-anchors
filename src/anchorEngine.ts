@@ -308,7 +308,7 @@ export class AnchorEngine {
 			}
 
 			// ANCHOR: Tag RegEx
-			this.matcher = new RegExp(`[^\\w](${tags})((${separators}).*)?$`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`[^\\w](${tags})((${separators})(.*))?$`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -525,7 +525,7 @@ export class AnchorEngine {
 					const deltaText = text.substr(0, startPos);
 					const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 					
-					const comment = (match[2] || '').trim();
+					const comment = (match[4] || '').trim();
 					const display = config.tags.displayInSidebar ? tag.tag + ": " + comment : comment;
 
 					let anchor : EntryAnchor;
