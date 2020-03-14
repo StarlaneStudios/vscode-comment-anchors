@@ -83,7 +83,7 @@ See the configuration section for a complete list of tag properties.
 
 ## IntelliSense support
 
-Comment Anchors can be autocompleted by IntelliSense. Simply start typing an anchor name, or the text "Anchor". This will promt you with a list of anchors to insert.
+Comment Anchors can be autocompleted by IntelliSense. Simply start typing an anchor name, or the text "Anchor". This will prompt you with a list of anchors to insert.
 
 ![IntelliSense](media/intelli-sense.png)
 
