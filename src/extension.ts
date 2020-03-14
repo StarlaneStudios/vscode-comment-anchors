@@ -1,7 +1,6 @@
-import {window, commands, ExtensionContext, workspace, Uri, Disposable, TreeDataProvider, TreeItem} from 'vscode';
+import {window, commands, ExtensionContext, workspace, Uri, TreeDataProvider, TreeItem} from 'vscode';
 import {AnchorEngine} from './anchorEngine';
 import openAnchorList from './anchorListView';
-import UpdateMonitor from './util/updateMonitor';
 
 let anchorEngine: AnchorEngine;
 
@@ -9,9 +8,6 @@ let anchorEngine: AnchorEngine;
 // controlled by the activation events defined in package.json.
 export function activate(context: ExtensionContext) {
 	const engine = new AnchorEngine(context);
-
-	// Check for extension updates
-	new UpdateMonitor(context).checkForUpdate();
 	
 	// Register the ActivityBar view providers
 	window.registerTreeDataProvider('fileAnchors', engine.fileProvider as TreeDataProvider<TreeItem>);
