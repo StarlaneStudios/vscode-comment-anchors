@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.7.1
+- Adopt new Webview API
+
 ## 1.7.0
 - Changed some default settings to improve performance
 - Workspace lazy loading is now enabled by default

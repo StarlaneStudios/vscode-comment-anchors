@@ -1,38 +1,21 @@
 import * as path from 'path';
 import { AnchorEngine } from "./anchorEngine";
-import { window, ViewColumn, WebviewPanel, Uri } from "vscode";
+import { Uri, Webview } from "vscode";
 
-let webview: WebviewPanel|null = null;
-
-export default function openAnchorList(engine: AnchorEngine) {
-	if(webview) {
-		webview.reveal();
-	} else {
-		webview = window.createWebviewPanel('anchorList', "Comment Anchors Tags", {
-			viewColumn: ViewColumn.One
-		});
-
-		webview.onDidDispose(() => {
-			webview = null;
-		});
-
-		webview.webview.html = createViewContent(engine);
-
-		webview.onDidChangeViewState(e => {
-			if(e.webviewPanel.visible) {
-				webview!.webview.html = createViewContent(engine);
-			}
-		})
-	}
-}
-
-function createViewContent(engine: AnchorEngine) : string {
+/**
+ * Generate the contents of the anchor list view
+ * 
+ * @param engine Engine reference
+ * @param webview The website used to display
+ */
+export function createViewContent(engine: AnchorEngine, webview: Webview) : string {
 	let tagList = "";
 
 	engine.tags.forEach((tag) => {
 		const isDefault = tag.iconColor == 'default';
 		const fileIcon = Uri.file(path.join(engine.context.extensionPath, 'res', isDefault ? 'anchor_white.svg' : 'anchor_' + tag.iconColor + '.svg'));
-		const icon = fileIcon.with({ scheme: 'vscode-resource' });
+		const icon = webview.asWebviewUri(fileIcon);
+
 		let tagStyle = "";
 		let tagFlags = [];
 

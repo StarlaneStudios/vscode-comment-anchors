@@ -1,6 +1,5 @@
 import {window, commands, ExtensionContext, workspace, Uri, TreeDataProvider, TreeItem} from 'vscode';
 import {AnchorEngine} from './anchorEngine';
-import openAnchorList from './anchorListView';
 
 let anchorEngine: AnchorEngine;
 
@@ -18,7 +17,7 @@ export function activate(context: ExtensionContext) {
 	commands.registerCommand("commentAnchors.toggle", toggleVisibilitySetting);
 	commands.registerCommand("commentAnchors.openFileAndRevealLine", openFileAndRevealLine);
 	commands.registerCommand("commentAnchors.launchWorkspaceScan", launchWorkspaceScan);
-	commands.registerCommand("commentAnchors.listTags", () => openAnchorList(engine));
+	commands.registerCommand("commentAnchors.listTags", () => engine.openTagListPanel());
 
 	// Store a reference to the engine
 	anchorEngine = engine;

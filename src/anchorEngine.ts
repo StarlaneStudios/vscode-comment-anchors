@@ -38,13 +38,16 @@ import {
 	CompletionItem,
 	CompletionList,
 	CompletionItemKind,
-	Disposable} from "vscode";
+	Disposable,
+	WebviewPanel,
+	ViewColumn} from "vscode";
 import { FileAnchorProvider } from './provider/fileAnchorProvider';
 import { WorkspaceAnchorProvider } from './provider/workspaceAnchorProvider';
 import EntryLoading from './anchor/entryLoading';
 import EntryScan from './anchor/entryScan';
 import EntryAnchorRegion from './anchor/entryAnchorRegion';
 import registerDefaults from './util/defaultTags';
+import { createViewContent } from './anchorListView';
 
 export class AnchorEngine {
 
@@ -68,15 +71,6 @@ export class AnchorEngine {
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
-	
-	// ANCHOR Possible error entries //
-	public errorUnusableItem: EntryError = new EntryError('Waiting for open editor...');
-	public errorEmptyItem: EntryError = new EntryError('No comment anchors detected');
-	public errorEmptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
-	public errorWorkspaceDisabled: EntryError = new EntryError('Workspace disabled');
-	public errorFileOnly: EntryError = new EntryError('No open workspaces');
-	public statusLoading: EntryLoading = new EntryLoading();
-	public statusScan: EntryScan = new EntryScan();
 
 	/** The list of tags and their settings */
 	public tags: Map<string, TagEntry> = new Map();
@@ -105,6 +99,15 @@ export class AnchorEngine {
 	/** Initialize the various providers */
 	public readonly fileProvider = new FileAnchorProvider(this);
 	public readonly workspaceProvider = new WorkspaceAnchorProvider(this);
+
+	// Possible error entries //
+	public errorUnusableItem: EntryError = new EntryError('Waiting for open editor...');
+	public errorEmptyItem: EntryError = new EntryError('No comment anchors detected');
+	public errorEmptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
+	public errorWorkspaceDisabled: EntryError = new EntryError('Workspace disabled');
+	public errorFileOnly: EntryError = new EntryError('No open workspaces');
+	public statusLoading: EntryLoading = new EntryLoading();
+	public statusScan: EntryScan = new EntryScan();
 
 	constructor(context: ExtensionContext) {
 		this.context = context;
@@ -683,6 +686,19 @@ export class AnchorEngine {
 		if(document.scheme !== 'file') return;
 
 		this.anchorMaps.delete(document);
+	}
+
+	/**
+	 * Open a new webview panel listing out all configured
+	 * tags including their applied styles.
+	 */
+	public openTagListPanel() {
+		const panel = window.createWebviewPanel('anchorList', "Comment Anchors Tags", {
+			viewColumn: ViewColumn.One
+		});
+
+		panel.webview.html = createViewContent(this, panel.webview);
+		panel.webview.cspSource
 	}
 
 	private onActiveEditorChanged(editor: TextEditor | undefined): void {
