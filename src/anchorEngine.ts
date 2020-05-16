@@ -135,32 +135,35 @@ export class AnchorEngine {
 		// Provide auto completion
 		if(config.tags.provideAutoCompletion) {
 			const endTag = config.tags.endTag;
-
 			const provider = languages.registerCompletionItemProvider({language: '*'}, {
+
 				provideCompletionItems: () : ProviderResult<CompletionList> => {
 					const ret = new CompletionList();
 					const separator = config.tags.separators[0];
 					
 					for(let tag of this.tags.values()) {
-						let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Event);
+						let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Reference);
 						
-						item.documentation = `Insert a ${tag.tag} Comment Anchor`;
+						item.documentation = `Insert ${tag.tag} comment anchor`;
 						item.insertText = tag.tag + separator;
 						
 						ret.items.push(item);
 
 						if(tag.isRegion) {
-							let endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Event);
+							let endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Reference);
 						
-							endItem.documentation = `Insert a ${endTag + tag.tag} Comment Anchor`;
+							endItem.documentation = `Insert ${endTag + tag.tag} comment anchor`;
 							endItem.insertText = endTag + tag.tag + separator;
 							
 							ret.items.push(endItem);
 						}
 					}
+
+					AnchorEngine.output("Result: " + ret);
 					
 					return ret;
 				}
+
 			});
 			
 			this._subscriptions.push(provider);
