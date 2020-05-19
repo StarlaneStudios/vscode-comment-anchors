@@ -2,6 +2,7 @@
 
 ## 1.7.1
 - Adopt new Webview API
+- Fix anchors not working in certain files
 
 ## 1.7.0
 - Changed some default settings to improve performance

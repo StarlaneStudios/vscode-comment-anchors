@@ -10,6 +10,7 @@ export default class EntryError extends EntryBase {
 
 	constructor(message: string) {
 		super(message, TreeItemCollapsibleState.None);
+		
 		this.message = message;
 
 		this.iconPath = {

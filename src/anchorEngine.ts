@@ -14,6 +14,14 @@ import * as fs from 'fs';
 import * as escape from 'escape-string-regexp';
 import EntryAnchor from './anchor/entryAnchor';
 import EntryError from './anchor/entryError';
+import { FileAnchorProvider } from './provider/fileAnchorProvider';
+import { WorkspaceAnchorProvider } from './provider/workspaceAnchorProvider';
+import EntryLoading from './anchor/entryLoading';
+import EntryScan from './anchor/entryScan';
+import EntryAnchorRegion from './anchor/entryAnchorRegion';
+import registerDefaults from './util/defaultTags';
+import { createViewContent } from './anchorListView';
+
 import {
 	window,
 	workspace,
@@ -39,15 +47,8 @@ import {
 	CompletionList,
 	CompletionItemKind,
 	Disposable,
-	WebviewPanel,
-	ViewColumn} from "vscode";
-import { FileAnchorProvider } from './provider/fileAnchorProvider';
-import { WorkspaceAnchorProvider } from './provider/workspaceAnchorProvider';
-import EntryLoading from './anchor/entryLoading';
-import EntryScan from './anchor/entryScan';
-import EntryAnchorRegion from './anchor/entryAnchorRegion';
-import registerDefaults from './util/defaultTags';
-import { createViewContent } from './anchorListView';
+	ViewColumn
+} from "vscode";
 
 export class AnchorEngine {
 
@@ -67,7 +68,7 @@ export class AnchorEngine {
 	public anchorMaps: Map<Uri, EntryAnchor[]> = new Map();
 
 	/** List of folds created by anchor regions */
-	public foldMaps: Map<Uri, FoldingRange[]> = new Map();
+	// public foldMaps: Map<Uri, FoldingRange[]> = new Map();
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
@@ -604,7 +605,7 @@ export class AnchorEngine {
 
 				this.matcher!.lastIndex = 0;
 				this.anchorMaps.set(document, anchors);
-				this.foldMaps.set(document, folds);
+				// this.foldMaps.set(document, folds);
 			} catch(err) {
 				AnchorEngine.output("Error: " + err.message);
 				AnchorEngine.output(err.stack);

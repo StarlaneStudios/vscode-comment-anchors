@@ -1,5 +1,6 @@
-import { DecorationOptions, TextDocument, Range, Uri } from "vscode";
+import { DecorationOptions, TextDocument, Range, Uri, TreeItemCollapsibleState } from "vscode";
 import EntryAnchor from "./entryAnchor";
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents an Anchor found a file
@@ -33,6 +34,9 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		);
 
 		this.label = `[${this.lineNumber} - ?] ${this.anchorText}`;
+		this.collapsibleState = TreeItemCollapsibleState.Expanded;
+
+		AnchorEngine.output("State = " + this.collapsibleState)
 	}
 
 	setEndTag(endTag: {startIndex: number, endIndex: number, lineNumber: number}) {
