@@ -158,8 +158,6 @@ export class AnchorEngine {
 							ret.items.push(endItem);
 						}
 					}
-
-					AnchorEngine.output("Result: " + ret);
 					
 					return ret;
 				}
@@ -476,7 +474,7 @@ export class AnchorEngine {
 						text = td.getText();
 						return false;
 					}
-				})
+				});
 				
 				if(text == null) {
 					text = await this.readDocument(document);
@@ -705,7 +703,7 @@ export class AnchorEngine {
 	}
 
 	private onActiveEditorChanged(editor: TextEditor | undefined): void {
-		if(editor && editor!!.document.uri.scheme != 'file') return;
+		if(editor && editor!!.document.uri.scheme == 'output') return;
 
 		this._editor = editor;
 
@@ -731,7 +729,7 @@ export class AnchorEngine {
 	}
 
 	private onDocumentChanged(e: TextDocumentChangeEvent): void {
-		if(!e.contentChanges || e.document.uri.scheme != 'file') return;
+		if(!e.contentChanges || e.document.uri.scheme == 'output') return;
 
 		this._idleRefresh!();
 	}
