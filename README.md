@@ -64,10 +64,10 @@ Lazy workspace loading can be enabled in the settings (See configuration section
 
 ## Hierarchical anchors
 Region Anchors allow you to group relevant Comment Anchors together in regions, which can be
-folded in both the sidebar and the editor. These anchors act nearly identical to regular anchors,
-however they require an "end tag" to be specified, which is simply a tag of the same type, prefixed with an exclamation symbol.
+folded within the anchor sidebar. These anchors act nearly identical to regular anchors,
+however they require an end tag to be specified, which is simply a tag of the same type, prefixed with an exclamation mark.
 
-![Hierarchical Anchors](media/folding.gif)
+![Hierarchical Anchors](media/folding.png)
 
 In order to mark a tag as Region Tag, set the `isRegion` property to `true` in the tags configuration (See configuration section).
 
