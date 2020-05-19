@@ -47,9 +47,25 @@ import {
 	CompletionList,
 	CompletionItemKind,
 	Disposable,
-	ViewColumn
+	ViewColumn,
+	TreeDataProvider,
+	TreeItem,
+	TreeView
 } from "vscode";
+import { AnchorIndex } from './anchorIndex';
+import EntryCachedFile from './anchor/entryCachedFile';
 
+/* -- Anchor entry type aliases -- */
+
+export type FileEntry = EntryAnchor|EntryError|EntryLoading;
+export type FileEntryArray = EntryAnchor[]|EntryError[]|EntryLoading[];
+
+export type AnyEntry = EntryAnchor|EntryError|EntryCachedFile|EntryScan;
+export type AnyEntryArray = EntryAnchor[]|EntryError[]|EntryCachedFile[]|EntryScan[];
+
+/**
+ * The main anchor parsing and caching engine
+ */
 export class AnchorEngine {
 
 	/** The context of Comment Anchors */
@@ -65,7 +81,7 @@ export class AnchorEngine {
 	public matcher: RegExp | undefined;
 
 	/** A cache holding all documents */
-	public anchorMaps: Map<Uri, EntryAnchor[]> = new Map();
+	public anchorMaps: Map<Uri, AnchorIndex> = new Map();
 
 	/** List of folds created by anchor regions */
 	// public foldMaps: Map<Uri, FoldingRange[]> = new Map();
@@ -82,6 +98,18 @@ export class AnchorEngine {
 	/** Holds whether a scan has been performed since rebuild */
 	public anchorsScanned: boolean = false;
 
+	/** The tree view used for displaying file anchors */
+	public fileTreeView: TreeView<FileEntry>;
+
+	/** The tree view used for displaying workspace anchors */
+	public workspaceTreeView: TreeView<AnyEntry>;
+
+	/** The currently expanded file tree items */
+	public expandedFileTreeViewItems: string[] = [];
+
+	/** The currently expanded workspace tree items  */
+	public expandedWorkspaceTreeViewItems: string[] = [];
+
 	/** The current editor */
 	public _editor: TextEditor | undefined;
 
@@ -96,10 +124,6 @@ export class AnchorEngine {
 
 	/** The debug output for comment anchors */
 	public static output: (msg: string) => void;
-
-	/** Initialize the various providers */
-	public readonly fileProvider = new FileAnchorProvider(this);
-	public readonly workspaceProvider = new WorkspaceAnchorProvider(this);
 
 	// Possible error entries //
 	public errorUnusableItem: EntryError = new EntryError('Waiting for open editor...');
@@ -128,9 +152,47 @@ export class AnchorEngine {
 
 		// Build required anchor resources
 		this.buildResources();
+
+		// Create the file anchor view
+		this.fileTreeView = window.createTreeView('fileAnchors', {
+			treeDataProvider: new FileAnchorProvider(this),
+			showCollapseAll: true
+		});
+
+		this.fileTreeView.onDidExpandElement((e) => {
+			if(e.element instanceof EntryAnchor) {
+				this.expandedFileTreeViewItems.push(e.element.anchorText);
+			}
+		});
+
+		this.fileTreeView.onDidCollapseElement((e) => {
+			if(e.element instanceof EntryAnchor) {
+				const idx = this.expandedFileTreeViewItems.indexOf(e.element.anchorText);
+				this.expandedFileTreeViewItems.splice(idx, 1);
+			}
+		});
+
+		// Create the workspace anchor view
+		this.workspaceTreeView = window.createTreeView('workspaceAnchors', {
+			treeDataProvider: new WorkspaceAnchorProvider(this),
+			showCollapseAll: true
+		});
+
+		this.workspaceTreeView.onDidExpandElement((e) => {
+			if(e.element instanceof EntryAnchor) {
+				this.expandedWorkspaceTreeViewItems.push(e.element.anchorText);
+			}
+		});
+
+		this.workspaceTreeView.onDidCollapseElement((e) => {
+			if(e.element instanceof EntryAnchor) {
+				const idx = this.expandedWorkspaceTreeViewItems.indexOf(e.element.anchorText);
+				this.expandedWorkspaceTreeViewItems.splice(idx, 1);
+			}
+		});
 	}
 
-	registerProviders()	{
+	public registerProviders()	{
 		const config = this._config!!;
 
 		// Provide auto completion
@@ -169,7 +231,7 @@ export class AnchorEngine {
 		}
 	}
 
-	buildResources() {
+	public buildResources() {
 		try {
 			this.anchorsScanned = false;
 			const config = this._config = workspace.getConfiguration('commentAnchors');
@@ -436,7 +498,14 @@ export class AnchorEngine {
 	 */
 	public get currentAnchors(): EntryAnchor[] {
 		if(!this._editor) return [];
-		return this.anchorMaps.get(this._editor.document.uri) || [];
+
+		const uri = this._editor.document.uri;
+
+		if(this.anchorMaps.has(uri)) {
+			return this.anchorMaps.get(uri)!!.anchorTree;
+		} else {
+			return [];
+		}
 	}
 
 	/**
@@ -604,7 +673,8 @@ export class AnchorEngine {
 				}
 
 				this.matcher!.lastIndex = 0;
-				this.anchorMaps.set(document, anchors);
+				this.anchorMaps.set(document, new AnchorIndex(anchors));
+
 				// this.foldMaps.set(document, folds);
 			} catch(err) {
 				AnchorEngine.output("Error: " + err.message);
@@ -623,7 +693,7 @@ export class AnchorEngine {
 		if(this._editor && this._config!.tagHighlights.enabled) {
 			const document = this._editor!.document;
 			const doc = document.uri;
-			const anchors =  this.anchorMaps.get(doc) || [];
+			const index =  this.anchorMaps.get(doc);
 			const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
 			
 			// Create a mapping between tags and decorators
@@ -643,15 +713,63 @@ export class AnchorEngine {
 			}
 			
 			// Start by decorating the root list
-			applyDecorators(anchors);
+			if(index) {
+				applyDecorators(index.anchorTree);
+			}
 
 			// Apply all decorators to the document
 			tags.forEach((decorator) => {
 				this._editor!.setDecorations(decorator[0], decorator[1]);
 			});
-		}
 
-		this._onDidChangeTreeData.fire();
+			// Cache the previous expanded items
+			const previousExpandedFileTreeViewItems = this.expandedFileTreeViewItems;
+			const previousExpandedWorkspaceTreeViewItems = this.expandedWorkspaceTreeViewItems;
+
+			// Reset the expansion arrays
+			this.expandedFileTreeViewItems = [];
+			this.expandedWorkspaceTreeViewItems = [];
+
+			// Update the file trees
+			this._onDidChangeTreeData.fire();
+
+			// Re-open the previous expanded items
+
+			// FIXME this code should work as expected, except it doesn't thanks to code's janky API.
+			// The goal is to loop though our EntryAnchor instances and find all of those that have
+			// contents matching a previously expanded entry. We use #reveal() to alert code to expand
+			// the entries, however it results in nothing, even when a timeout is applied.
+
+			// this.anchorMaps.forEach((index) => {
+			// 	index.textIndex.forEach((anchor, text) => {
+			// 		if(previousExpandedFileTreeViewItems.includes(text)) {
+			// 			AnchorEngine.output("REVEALING IN FILE TREE " + anchor);
+
+			// 			this.fileTreeView.reveal(anchor, {
+			// 				select: true,
+			// 				focus: true,
+			// 				expand: true
+			// 			});
+			// 		}
+
+			// 		if(previousExpandedWorkspaceTreeViewItems.includes(text)) {
+			// 			AnchorEngine.output("REVEALING IN WORKSPACE TREE");
+
+			// 			this.workspaceTreeView.reveal(anchor, {
+			// 				select: true,
+			// 				focus: true,
+			// 				expand: true
+			// 			});
+			// 		}
+			// 	});
+			// });
+		} else {
+			this.expandedFileTreeViewItems = [];
+			this.expandedWorkspaceTreeViewItems = [];
+
+			// Update the file trees
+			this._onDidChangeTreeData.fire();
+		}
 	}
 	
 
@@ -661,7 +779,6 @@ export class AnchorEngine {
 	 * @param document TextDocument
 	 */
 	public addMap(document: Uri) : Thenable<boolean> {
-		// TODO Look into the possibility of other schemas to be accepted, as it may be limiting functionality.
 		if(document.scheme !== 'file') {
 			return Promise.resolve(false);
 		}
@@ -674,7 +791,7 @@ export class AnchorEngine {
 			}
 		});
 
-		this.anchorMaps.set(document, []);
+		this.anchorMaps.set(document, AnchorIndex.EMPTY);
 
 		return this.parse(document);
 	}
@@ -713,14 +830,15 @@ export class AnchorEngine {
 		if(editor && !this.anchorMaps.has(editor.document.uri)) {
 
 			// Bugfix - Replace duplicates
-			new Map<Uri, EntryAnchor[]>(this.anchorMaps).forEach((_, document) => {
+			new Map<Uri, AnchorIndex>(this.anchorMaps).forEach((_, document) => {
 				if(document.path.toString() == editor.document.uri.path.toString()) {
 					this.anchorMaps.delete(document);
 					return false;
 				}
 			});
 
-			this.anchorMaps.set(editor.document.uri, []);
+			this.anchorMaps.set(editor.document.uri, AnchorIndex.EMPTY);
+
 			this.parse(editor.document.uri).then(() => {
 				this.refresh();
 			});

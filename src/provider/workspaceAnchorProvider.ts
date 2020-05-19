@@ -1,15 +1,8 @@
 import { TreeDataProvider, Event, TreeItem, workspace, Uri } from "vscode";
 import EntryAnchor from "../anchor/entryAnchor";
-import EntryError from "../anchor/entryError";
-import { AnchorEngine } from "../anchorEngine";
+import { AnchorEngine, AnyEntry, AnyEntryArray } from "../anchorEngine";
 import EntryCachedFile from "../anchor/entryCachedFile";
-import EntryScan from "../anchor/entryScan";
-
-/**
- * The type repsenting any Entry
- */
-type AnyEntry = EntryAnchor|EntryError|EntryCachedFile|EntryScan;
-type AnyEntryArray = EntryAnchor[]|EntryError[]|EntryCachedFile[]|EntryScan[];
+import { AnchorIndex } from "../anchorIndex";
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current workspace
@@ -76,7 +69,9 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 
 			let res: EntryCachedFile[] = [];
 
-			this.provider.anchorMaps.forEach((anchors: EntryAnchor[], document: Uri) => {
+			this.provider.anchorMaps.forEach((index: AnchorIndex, document: Uri) => {
+				const anchors = index.anchorTree;
+
 				if(anchors.length == 0) return; // Skip empty files
 
 				let notVisible = true;

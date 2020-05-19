@@ -7,10 +7,6 @@ let anchorEngine: AnchorEngine;
 // controlled by the activation events defined in package.json.
 export function activate(context: ExtensionContext) {
 	const engine = new AnchorEngine(context);
-	
-	// Register the ActivityBar view providers
-	window.registerTreeDataProvider('fileAnchors', engine.fileProvider as TreeDataProvider<TreeItem>);
-	window.registerTreeDataProvider('workspaceAnchors', engine.workspaceProvider as TreeDataProvider<TreeItem>);
 
 	// Register extension commands
 	commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);

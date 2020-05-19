@@ -1,13 +1,11 @@
 import { TreeDataProvider, Event, TreeItem } from "vscode";
 import EntryAnchor from "../anchor/entryAnchor";
-import EntryError from "../anchor/entryError";
-import { AnchorEngine } from "../anchorEngine";
-import EntryLoading from "../anchor/entryLoading";
+import { AnchorEngine, FileEntry, FileEntryArray } from "../anchorEngine";
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current file
  */
-export class FileAnchorProvider implements TreeDataProvider<EntryAnchor|EntryError|EntryLoading> {
+export class FileAnchorProvider implements TreeDataProvider<FileEntry> {
 
 	readonly provider: AnchorEngine;
 	readonly onDidChangeTreeData: Event<undefined>;
@@ -17,11 +15,11 @@ export class FileAnchorProvider implements TreeDataProvider<EntryAnchor|EntryErr
 		this.provider = provider;
 	}
 
-	getTreeItem(element: EntryAnchor|EntryError): TreeItem {
+	getTreeItem(element: FileEntry): TreeItem {
 		return element;
 	}
 
-	getChildren(element?: EntryAnchor|EntryError): Thenable<EntryAnchor[]|EntryError[]|EntryLoading[]> {
+	getChildren(element?: FileEntry): Thenable<FileEntryArray> {
 		if(element) {
 			if(element instanceof EntryAnchor && element.children) {
 				return Promise.resolve(element.children);

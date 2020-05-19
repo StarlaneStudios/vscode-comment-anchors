@@ -34,9 +34,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		);
 
 		this.label = `[${this.lineNumber} - ?] ${this.anchorText}`;
-		this.collapsibleState = TreeItemCollapsibleState.Expanded;
-
-		AnchorEngine.output("State = " + this.collapsibleState)
+		this.collapsibleState = TreeItemCollapsibleState.Collapsed;
 	}
 
 	setEndTag(endTag: {startIndex: number, endIndex: number, lineNumber: number}) {
