@@ -1,4 +1,4 @@
-import { TreeItem, TreeItemCollapsibleState, Uri, workspace } from "vscode";
+import { TreeItem, TreeItemCollapsibleState, Uri, workspace, ThemeIcon } from "vscode";
 import EntryAnchor from "./entryAnchor";
 import EntryBase from "./entryBase";
 import * as path from 'path';
@@ -14,10 +14,7 @@ export default class EntryCachedFile extends EntryBase {
 	) {
 		super(EntryCachedFile.fileAnchorStats(file, anchors), TreeItemCollapsibleState.Expanded);
 
-		this.iconPath = {
-			light: this.loadIcon('file'),
-			dark: this.loadIcon('file')
-		};
+		this.iconPath = ThemeIcon.File;
 	}
 
 	get tooltip(): string {
