@@ -58,6 +58,7 @@ import EntryCachedFile from './anchor/entryCachedFile';
 /* -- Constants -- */
 
 const HEX_COLOR_REGEX = /^#([\da-f]{3}){1,2}$/i
+const COLOR_PLACEHOLDER_REGEX = /%COLOR%/g
 
 /* -- Anchor entry type aliases -- */
 
@@ -92,6 +93,9 @@ export class AnchorEngine {
 
 	/** The decorators used for decorating the anchors */
 	public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
+
+	/** The decorators used for decorating the region end anchors */
+	public anchorEndDecorators: Map<string, TextEditorDecorationType> = new Map();
 
 	/** The list of tags and their settings */
 	public tags: Map<string, TagEntry> = new Map();
@@ -284,8 +288,11 @@ export class AnchorEngine {
 			const storage = this.context.globalStoragePath
 			const iconCache = path.join(storage, 'icons');
 			const baseAnchorSrc = path.join(__dirname, '../res/anchor.svg');
+			const baseAnchorEndSrc = path.join(__dirname, '../res/anchor_end.svg');
 			const baseAnchor = fs.readFileSync(baseAnchorSrc, 'utf8');
+			const baseAnchorEnd = fs.readFileSync(baseAnchorEndSrc, 'utf8');
 			const iconColors: string[] = [];
+			const regionColors: string[] = [];
 
 			if(!fs.existsSync(storage)) fs.mkdirSync(storage);
 			if(!fs.existsSync(iconCache)) fs.mkdirSync(iconCache);
@@ -301,6 +308,8 @@ export class AnchorEngine {
 			this.tags.clear();
 			this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
 			this.anchorDecorators.clear();
+			this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
+			this.anchorEndDecorators.clear();
 
 			// Register default tags
 			registerDefaults(this.tags);
@@ -355,19 +364,6 @@ export class AnchorEngine {
 						highlight.overviewRulerLane = laneStyle;
 					}
 
-					// Optional gutter icons
-					if(config.tags.displayInGutter && tag.iconColor !== 'none') {
-						highlight = {
-							...highlight,
-							dark: {
-								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'white' : tag.iconColor}.svg`)
-							},
-							light: {
-								gutterIconPath: path.join(__dirname, '..', 'res', `anchor_${tag.iconColor == 'default' ? 'black' : tag.iconColor}.svg`)
-							}
-						}
-					}
-
 					// Optional border
 					if(tag.borderStyle) {
 						highlight = {
@@ -376,9 +372,6 @@ export class AnchorEngine {
 							borderRadius: tag.borderRadius + "px"
 						}
 					}
-					
-					// Create the decoration type
-					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType(highlight));
 
 					// Save the icon color
 					let iconColor = tag.iconColor || tag.highlightColor;
@@ -443,11 +436,55 @@ export class AnchorEngine {
 					} else {
 						iconColor = iconColor.substr(1);
 						
-						if(!skipColor && iconColors.indexOf(iconColor) < 0) {
+						if(iconColors.indexOf(iconColor) < 0) {
 							iconColors.push(iconColor);
 						}
 
-						tag.iconColor = iconColor;
+						if(tag.isRegion && regionColors.indexOf(iconColor) < 0) {
+							regionColors.push(iconColor);
+						}
+
+						tag.iconColor = iconColor.toLowerCase();
+					}
+
+					// Optional gutter icons
+					if(config.tags.displayInGutter) {
+						if(tag.iconColor == 'auto') {
+							highlight.dark = {
+								gutterIconPath: path.join(__dirname, '..', 'res', 'anchor_white.svg')
+							}
+
+							highlight.light = {
+								gutterIconPath: path.join(__dirname, '..', 'res', 'anchor_black.svg')
+							}
+						} else {
+							highlight.gutterIconPath = path.join(iconCache, 'anchor_' + tag.iconColor + '.svg');
+						}
+					}
+					
+					// Create the decoration type
+					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType(highlight));
+
+					if(tag.isRegion) {
+						const endHighlight = {...highlight};
+
+						// Optional gutter icons
+						if(config.tags.displayInGutter) {
+							if(tag.iconColor == 'auto') {
+								endHighlight.dark = {
+									gutterIconPath: path.join(__dirname, '..', 'res', 'anchor_end_white.svg')
+								}
+
+								endHighlight.light = {
+									gutterIconPath: path.join(__dirname, '..', 'res', 'anchor_end_black.svg')
+								}
+							} else {
+								endHighlight.gutterIconPath = path.join(iconCache, 'anchor_end_' + tag.iconColor + '.svg');
+							}
+						}
+
+						// Create the ending decoration type
+						this.anchorEndDecorators.set(tag.tag, window.createTextEditorDecorationType(endHighlight));
 					}
 				}
 			});
@@ -457,8 +494,6 @@ export class AnchorEngine {
 
 			// Generate region end tags
 			const endTag = this._config.tags.endTag;
-
-			AnchorEngine.output("endTag: " + endTag);
 			
 			this.tags.forEach((entry, tag) => { 
 				if(entry.isRegion) {
@@ -491,10 +526,17 @@ export class AnchorEngine {
 
 			// Write anchor icons
 			iconColors.forEach(color => {
-				const anchorSvg = baseAnchor.replace('%COLOR%', '#' + color);
+				const anchorSvg = baseAnchor.replace(COLOR_PLACEHOLDER_REGEX, '#' + color);
 				const filename = 'anchor_' + color.toLowerCase() + '.svg';
 
 				fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
+
+				if(regionColors.indexOf(color) >= 0) {
+					const anchorEndSvg = baseAnchorEnd.replace(COLOR_PLACEHOLDER_REGEX, '#' + color);
+					const filenameEnd = 'anchor_end_' + color.toLowerCase() + '.svg';
+
+					fs.writeFileSync(path.join(iconCache, filenameEnd), anchorEndSvg);
+				}
 			});
 
 			AnchorEngine.output("Generated icon cache at " + iconCache);
@@ -633,6 +675,7 @@ export class AnchorEngine {
 	 */
 	dispose() {
 		this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
+		this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
 	}
 
 	/**
@@ -814,16 +857,27 @@ export class AnchorEngine {
 			const doc = document.uri;
 			const index =  this.anchorMaps.get(doc);
 			const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
+			const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
 			
 			// Create a mapping between tags and decorators
 			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
 				tags.set(tag.toUpperCase(), [decorator, []]);
 			});
 
+			this.anchorEndDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
+				tagsEnd.set(tag.toUpperCase(), [decorator, []]);
+			});
+
 			// Create a function to handle decorating
 			const applyDecorators = (anchors: EntryAnchor[]) => {
 				anchors.forEach(anchor => {
-					anchor.decorateDocument(document, tags.get(anchor.anchorTag.toUpperCase())![1]);
+					const deco = tags.get(anchor.anchorTag.toUpperCase())![1];
+
+					anchor.decorateDocument(document, deco);
+						
+					if(anchor instanceof EntryAnchorRegion) {
+						anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag.toUpperCase())![1]);
+					}
 
 					if(anchor.children) {
 						applyDecorators(anchor.children);
@@ -838,6 +892,10 @@ export class AnchorEngine {
 
 			// Apply all decorators to the document
 			tags.forEach((decorator) => {
+				this._editor!.setDecorations(decorator[0], decorator[1]);
+			});
+
+			tagsEnd.forEach((decorator) => {
 				this._editor!.setDecorations(decorator[0], decorator[1]);
 			});
 

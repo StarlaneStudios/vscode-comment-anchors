@@ -34,7 +34,7 @@ export default class EntryBase extends TreeItem {
 	 * @returns The path
 	 */
 	loadCacheSvg(color: string) : string {
-		return path.join(this.engine.iconCache, 'anchor_' + color.toLowerCase() + '.svg');
+		return path.join(this.engine.iconCache, 'anchor_' + color + '.svg');
 	}
 
 }

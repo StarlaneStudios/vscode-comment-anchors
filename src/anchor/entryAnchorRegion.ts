@@ -42,10 +42,8 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		}
 	}
 
-	decorateDocument(document: TextDocument, options: DecorationOptions[]) {
-		super.decorateDocument(document, options);
-
-		if(this.closeStartIndex < 0 || this.closeEndIndex < 0) return;3
+	decorateDocumentEnd(document: TextDocument, options: DecorationOptions[]) {
+		if(this.closeStartIndex < 0 || this.closeEndIndex < 0) return;
 
 		const startPos = document.positionAt(this.closeStartIndex);
 		const endPos = document.positionAt(this.closeEndIndex);
