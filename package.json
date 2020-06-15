@@ -153,13 +153,13 @@
 				"commentAnchors.tags.displayInGutter": {
 					"type": "boolean",
 					"default": true,
-					"description": "Whether to display tags in the gutter",
+					"description": "Whether to display tag icons in the gutter",
 					"scope": "window"
 				},
 				"commentAnchors.tags.displayInRuler": {
 					"type": "boolean",
 					"default": true,
-					"description": "Whether to display tags in the scrollbar ruler",
+					"description": "Whether to highlight tags in the scrollbar ruler",
 					"scope": "window"
 				},
 				"commentAnchors.tags.rulerStyle": {
@@ -171,13 +171,13 @@
 						"full"
 					],
 					"default": "left",
-					"description": "The display of tags in the ruler lane",
+					"description": "The display style of tags in the ruler lane (Requires displayInRuler)",
 					"scope": "window"
 				},
 				"commentAnchors.tags.displayLineNumber": {
 					"type": "boolean",
 					"default": true,
-					"description": "Whether to display tag names in the sidebar",
+					"description": "Whether to display line numbers in the sidebar",
 					"scope": "window"
 				},
 				"commentAnchors.tags.sortMethod": {
