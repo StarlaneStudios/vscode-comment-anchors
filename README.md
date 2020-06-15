@@ -37,7 +37,7 @@ In order to make an anchor, simply place the tag name in a comment, with an addi
 
 ## Anchor types
 
-All anchor types have their own icon, highlight color, and background color, and more, which can all be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color.
+All anchor types have their own highlight color, and background color, and more, which can all be customized in the settings. Anchor tags can be added and removed, and can share the same icon or color. You can specify and use any hex color for the highlighting and icons, giving you full control over your personal set of anchor tags.
 
 ![All tags](media/all-anchors.png)
 
@@ -245,11 +245,11 @@ Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of 
 **Required properties:**
 - tag - *Specifies the name of the tag*
 - scope - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list*
-- iconColor - *The color used for the icon*
 - highlightColor - *The color used for highlighting the tag*
 
 **Optional properties:**
 - backgroundColor - *The color used as tag background*
+- iconColor - *An optional color to apply to the icon, or "auto" for automatic theme detection. Defaults to using highlightColor*
 - styleComment - *Boolean indicating whether to style the entire comment, or just the tag*
 - borderStyle - *Style to be applied to the tag border (See https://www.w3schools.com/cssref/pr_border.asp)*
 - borderRadius - *The curvature radius of the border (Requires borderStyle)*
@@ -284,23 +284,24 @@ You can use the `enabled` property to disable one or more default tags like so:
 ```
 
 ## Icon colors
-Comment Anchors provides an array of different icon colors you can use for your anchors. Since these icons have to be made upfront, they cannot be generated from your tag color. This table should help you find the right color to use for each icon.
+At startup, anchor icons are generated for all colors specified on your tags. The icon color defaults to using the tags `highlightColor`,
+however a custom color may be specified with `iconColor`. Setting `iconColor` to `auto` will allow VSCode to pick an icon based on your
+currentl theme (black or white).
 
-| Color         | Hex     | RGB              |
-| :------------ |--------:| ----------------:|
-| Default (B&W) | #A8C023 | rgb(176,201,36)  |
-| Blue          | #3ea8ff | rgb(62,168,255)  |
-| Blurple       | #7d5afc | rgb(125,90,252)  |
-| Red           | #F44336 | rgb(244,67,54)   |
-| Purple        | #BA68C8 | rgb(186,104,200) |
-| Teal          | #00cec9 | rgb(0,206,201)   |
-| Orange        | #ffa100 | rgb(255,161,0)   |
-| Green         | #64DD17 | rgb(100,221,23)  |
-| Pink          | #e84393 | rgb(232,67,147)  |
-| Emerald       | #2ecc71 | rgb(46,204,113)  |
-| Yellow        | #f4d13d | rgb(244,209,61)  |
+Besides specifying a custom hex color, the following names may be used as shortcuts.
 
-You can use these colors as value for the `highlightColor` property on tags, to make the highlight color fit with the icon color.
+| Color         | Hex     |
+| :------------ |--------:|
+| blue          | #3ea8ff |
+| blurple       | #7d5afc |
+| red           | #F44336 |
+| purple        | #BA68C8 |
+| teal          | #00cec9 |
+| orange        | #ffa100 |
+| green         | #64DD17 |
+| pink          | #e84393 |
+| emerald       | #2ecc71 |
+| yellow        | #f4d13d |
 
 # Issues
 
