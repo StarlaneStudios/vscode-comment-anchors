@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.7.2
+- Use file icon from theme for workspace anchor tree
+- Fix anchors not working in certain files
+
 ## 1.7.1
 - Adopt new Webview API
 - Fix anchors not working in certain files
