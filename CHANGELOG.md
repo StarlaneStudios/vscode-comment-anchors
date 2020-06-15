@@ -5,6 +5,7 @@
 	- Defaults to highlightColor when left out
 	- Can be set to "auto" or "default" to use black/white icons based on theme
 	- Continued support for legacy color names
+- Added specialized region end tag icons
 - Added pathFormat setting to improve workspace anchor tree readability
 - Use file icon from theme for workspace anchor tree
 - Fix setting description inaccuracies
