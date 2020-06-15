@@ -3,6 +3,8 @@
 ## 1.7.2
 - Use file icon from theme for workspace anchor tree
 - Fix anchors not working in certain files
+- Fix setting description inaccuracies
+- Fix displayLineNumber setting not working for section tags
 
 ## 1.7.1
 - Adopt new Webview API
