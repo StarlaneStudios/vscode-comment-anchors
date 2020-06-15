@@ -1,6 +1,10 @@
 # Change Log
 
-## 1.7.2
+## 1.8.0
+- Added support for custom icon hex colors
+	- Defaults to highlightColor when left out
+	- Can be set to "auto" or "default" to use black/white icons based on theme
+	- Continued support for legacy color names
 - Added pathFormat setting to improve workspace anchor tree readability
 - Use file icon from theme for workspace anchor tree
 - Fix setting description inaccuracies
