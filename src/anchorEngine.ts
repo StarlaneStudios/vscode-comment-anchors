@@ -734,7 +734,7 @@ export class AnchorEngine {
 
 					// Handle the closing of a region
 					if(isRegionEnd) {
-						if(!currRegion) continue;
+						if(!currRegion || currRegion.anchorTag != tag.tag) continue;
 
 						const deltaText = text.substr(0, match.index + 1);
 						const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
