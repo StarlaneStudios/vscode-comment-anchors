@@ -2,6 +2,7 @@ import { TreeItem, TreeItemCollapsibleState, Uri, workspace, ThemeIcon } from "v
 import EntryAnchor from "./entryAnchor";
 import EntryBase from "./entryBase";
 import * as path from 'path';
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents a workspace file holding one or more anchors
@@ -11,8 +12,9 @@ export default class EntryCachedFile extends EntryBase {
 	constructor(
 		public readonly file: Uri,
 		public readonly anchors: EntryAnchor[],
+		public readonly format: String
 	) {
-		super(EntryCachedFile.fileAnchorStats(file, anchors), TreeItemCollapsibleState.Expanded);
+		super(EntryCachedFile.fileAnchorStats(file, anchors, format), TreeItemCollapsibleState.Expanded);
 
 		this.iconPath = ThemeIcon.File;
 	}
@@ -28,7 +30,7 @@ export default class EntryCachedFile extends EntryBase {
 	/**
 	 * Formats a file stats string using the given anchors array
 	 */
-	static fileAnchorStats(file: Uri, anchors: EntryAnchor[]) {
+	static fileAnchorStats(file: Uri, anchors: EntryAnchor[], format: String) {
 		let visible = 0;
 		let hidden = 0;
 
@@ -47,17 +49,40 @@ export default class EntryCachedFile extends EntryBase {
 		}
 
 		let title = " (" + ret + ")";
+		let titlePath;
 
 		const root = workspace.getWorkspaceFolder(file) || workspace.workspaceFolders![0];
 
 		if(root) {
-			title = path.relative(root.uri.path, file.path) + title;
+			titlePath = path.relative(root.uri.path, file.path);
 		} else {
-			title = file.path + title;
+			titlePath = file.path;
 		}
 
-		if(title.startsWith('..')) {
+		// Verify relativity
+		if(titlePath.startsWith('..')) {
 			throw new Error("Cannot crate cached file for external documents");
+		}
+
+		// Always use unix style separators
+		titlePath = titlePath.replace(/\\/g, '/');
+
+		// Tweak the path format based on settings
+		if(format == "hidden") {
+			title = titlePath.substr(titlePath.lastIndexOf('/') + 1);
+		} else if(format == "abbreviated") {
+			const segments = titlePath.split('/');
+			const abbrPath = segments.map((segment, i) => {
+				if(i < segments.length - 1 && i > 0) {
+					return segment[0];
+				} else {
+					return segment;
+				}
+			}).join('/');
+			
+			title = abbrPath + title
+		} else {
+			title = titlePath + title
 		}
 
 		if(workspace.workspaceFolders!.length > 1) {

@@ -138,6 +138,17 @@
 					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
 					"scope": "window"
 				},
+				"commentAnchors.workspace.pathFormat": {
+					"type": "string",
+					"default": "full",
+					"description": "Alter how the workspace anchor tree displays path names",
+					"scope": "window",
+					"enum": [
+						"full",
+						"abbreviated",
+						"hidden"
+					]
+				},
 				"commentAnchors.tags.provideAutoCompletion": {
 					"type": "boolean",
 					"default": true,

@@ -164,6 +164,14 @@ Use `commentAnchors.workspace.excludeFiles` to define which files are excluded f
 }
 ```
 
+Use `commentAnchors.workspace.pathFormat` to change the way paths are displayed in the workspace anchor tree. You can choose to display full paths, abbreviate folders to single characters, or to hide the path completely. (Default full)
+
+```
+{
+	"commentAnchors.workspace.pathFormat": "full"
+}
+```
+
 Use `commentAnchors.tags.provideAutoCompletion` to enable autocompletion support for anchor tags. (Default true)
 
 ```

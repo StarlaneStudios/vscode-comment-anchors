@@ -67,6 +67,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				return;
 			}
 
+			let format = this.provider._config!!.workspace.pathFormat;
 			let res: EntryCachedFile[] = [];
 
 			this.provider.anchorMaps.forEach((index: AnchorIndex, document: Uri) => {
@@ -82,7 +83,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				
 				if(!notVisible) {
 					try {
-						res.push(new EntryCachedFile(document, anchors));
+						res.push(new EntryCachedFile(document, anchors, format));
 					} catch(err) {
 						// Simply ignore, we do not want to push this file
 					}
