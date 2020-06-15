@@ -8,6 +8,7 @@
 - Added specialized region end tag icons
 - Added pathFormat setting to improve workspace anchor tree readability
 - Use file icon from theme for workspace anchor tree
+- Fallback to displaying tag in the sidebar when no comment is found
 - Fix setting description inaccuracies
 - Fix displayLineNumber setting not working for section tags
 - Fix region end tags not verifying start tag

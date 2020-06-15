@@ -756,35 +756,44 @@ export class AnchorEngine {
 					let endPos = startPos + rangeLength;
 					let deltaText = text.substr(0, startPos);
 					let lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
-					
 					let comment = (match[4] || '').trim();
-					let display = config.tags.displayInSidebar ? tag.tag + ": " + comment : comment;
+					let display = "";
 
 					// Clean up the comment and adjust the endPos
-					if(display.endsWith('-->')) {
+					if(comment.endsWith('-->')) {
 						if(tag.styleComment) {
 							let skip = [' ', '-', '>'];
-							let end = display.length - 1;
+							let end = comment.length - 1;
 
-							while(skip.indexOf(display[end]) >= 0) {
+							while(skip.indexOf(comment[end]) >= 0) {
 								endPos--;
 								end--;
 							}
 						}
 
-						display = display.substring(0, display.lastIndexOf('-->'));
-					} else if(display.endsWith('*/')) {
+						comment = comment.substring(0, comment.lastIndexOf('-->'));
+					} else if(comment.endsWith('*/')) {
 						if(tag.styleComment) {
 							let skip = [' ', '*', '/'];
-							let end = display.length - 1;
+							let end = comment.length - 1;
 
-							while(skip.indexOf(display[end]) >= 0) {
+							while(skip.indexOf(comment[end]) >= 0) {
 								endPos--;
 								end--;
 							}
 						}
 
-						display = display.substring(0, display.lastIndexOf('*/'));
+						comment = comment.substring(0, comment.lastIndexOf('*/'));
+					}
+
+					comment = comment.trim();
+					
+					if(comment.length == 0) {
+						display = tag.tag;
+					} else if(config.tags.displayInSidebar) {
+						display = tag.tag + ": " + comment;
+					} else {
+						display = comment;
 					}
 
 					let anchor : EntryAnchor;
