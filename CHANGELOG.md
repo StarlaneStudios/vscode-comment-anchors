@@ -10,6 +10,7 @@
 - Use file icon from theme for workspace anchor tree
 - Fix setting description inaccuracies
 - Fix displayLineNumber setting not working for section tags
+- Fix region end tags not verifying start tag
 
 ## 1.7.1
 - Adopt new Webview API
