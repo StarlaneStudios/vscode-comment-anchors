@@ -443,7 +443,7 @@ export class AnchorEngine {
 					} else {
 						iconColor = iconColor.substr(1);
 						
-						if(!skipColor && !iconColors.includes(iconColor)) {
+						if(!skipColor && iconColors.indexOf(iconColor) < 0) {
 							iconColors.push(iconColor);
 						}
 
