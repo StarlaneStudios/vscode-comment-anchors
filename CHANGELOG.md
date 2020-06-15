@@ -1,14 +1,15 @@
 # Change Log
 
 ## 1.7.2
+- Added pathFormat setting to improve workspace anchor tree readability
 - Use file icon from theme for workspace anchor tree
-- Fix anchors not working in certain files
 - Fix setting description inaccuracies
 - Fix displayLineNumber setting not working for section tags
 
 ## 1.7.1
 - Adopt new Webview API
 - Fix anchors not working in certain files
+- Provide a "collapse all" button on the anchor trees
 
 ## 1.7.0
 - Changed some default settings to improve performance

@@ -1,5 +1,6 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import EntryBase from "./entryBase";
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents a caught error
@@ -8,14 +9,14 @@ export default class EntryError extends EntryBase {
 
 	private message: string;
 
-	constructor(message: string) {
-		super(message, TreeItemCollapsibleState.None);
+	constructor(engine: AnchorEngine, message: string) {
+		super(engine, message, TreeItemCollapsibleState.None);
 		
 		this.message = message;
 
 		this.iconPath = {
-			light: this.loadIcon('cross'),
-			dark: this.loadIcon('cross')
+			light: this.loadResourceSvg('cross'),
+			dark: this.loadResourceSvg('cross')
 		};
 	}
 

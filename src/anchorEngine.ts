@@ -55,6 +55,10 @@ import {
 import { AnchorIndex } from './anchorIndex';
 import EntryCachedFile from './anchor/entryCachedFile';
 
+/* -- Constants -- */
+
+const HEX_COLOR_REGEX = /^#([\da-f]{3}){1,2}$/i
+
 /* -- Anchor entry type aliases -- */
 
 export type FileEntry = EntryAnchor|EntryError|EntryLoading;
@@ -110,6 +114,9 @@ export class AnchorEngine {
 	/** The currently expanded workspace tree items  */
 	public expandedWorkspaceTreeViewItems: string[] = [];
 
+	/** The icon cache directory */
+	public iconCache: string = "";
+
 	/** The current editor */
 	public _editor: TextEditor | undefined;
 
@@ -126,13 +133,13 @@ export class AnchorEngine {
 	public static output: (msg: string) => void;
 
 	// Possible error entries //
-	public errorUnusableItem: EntryError = new EntryError('Waiting for open editor...');
-	public errorEmptyItem: EntryError = new EntryError('No comment anchors detected');
-	public errorEmptyWorkspace: EntryError = new EntryError('No comment anchors in workspace');
-	public errorWorkspaceDisabled: EntryError = new EntryError('Workspace disabled');
-	public errorFileOnly: EntryError = new EntryError('No open workspaces');
-	public statusLoading: EntryLoading = new EntryLoading();
-	public statusScan: EntryScan = new EntryScan();
+	public errorUnusableItem: EntryError = new EntryError(this, 'Waiting for open editor...');
+	public errorEmptyItem: EntryError = new EntryError(this, 'No comment anchors detected');
+	public errorEmptyWorkspace: EntryError = new EntryError(this, 'No comment anchors in workspace');
+	public errorWorkspaceDisabled: EntryError = new EntryError(this, 'Workspace disabled');
+	public errorFileOnly: EntryError = new EntryError(this, 'No open workspaces');
+	public statusLoading: EntryLoading = new EntryLoading(this);
+	public statusScan: EntryScan = new EntryScan(this);
 
 	constructor(context: ExtensionContext) {
 		this.context = context;
@@ -234,6 +241,7 @@ export class AnchorEngine {
 	public buildResources() {
 		try {
 			this.anchorsScanned = false;
+
 			const config = this._config = workspace.getConfiguration('commentAnchors');
 
 			// Construct the debounce
@@ -256,7 +264,39 @@ export class AnchorEngine {
 			if(config.scrollPosition) {
 				EntryAnchor.ScrollPosition = config.scrollPosition;
 			}
-			
+
+			/*
+			"default",
+			"red",
+			"purple",
+			"teal",
+			"green",
+			"orange",
+			"pink",
+			"blue",
+			"blurple",
+			"emerald",
+			"yellow",
+			"none"
+			*/
+
+			// Prepare icon cache
+			const storage = this.context.globalStoragePath
+			const iconCache = path.join(storage, 'icons');
+			const baseAnchorSrc = path.join(__dirname, '../res/anchor.svg');
+			const baseAnchor = fs.readFileSync(baseAnchorSrc, 'utf8');
+			const iconColors: string[] = [];
+
+			if(!fs.existsSync(storage)) fs.mkdirSync(storage);
+			if(!fs.existsSync(iconCache)) fs.mkdirSync(iconCache);
+
+			this.iconCache = iconCache;
+
+			// Clear icon cache
+			fs.readdirSync(iconCache).forEach(file => {
+				fs.unlinkSync(path.join(iconCache, file));
+			});
+
 			// Create a map holding the tags
 			this.tags.clear();
 			this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
@@ -339,6 +379,76 @@ export class AnchorEngine {
 					
 					// Create the decoration type
 					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType(highlight));
+
+					// Save the icon color
+					let iconColor = tag.iconColor || tag.highlightColor;
+					let skipColor = false;
+					
+					switch(iconColor) {
+						case 'blue': {
+							iconColor = '#3ea8ff';
+							break;
+						}
+						case 'blurple': {
+							iconColor = '#7d5afc';
+							break;
+						}
+						case 'red': {
+							iconColor = '#f44336';
+							break;
+						}
+						case 'purple': {
+							iconColor = '#ba68c8';
+							break;
+						}
+						case 'teal': {
+							iconColor = '#00cec9';
+							break;
+						}
+						case 'orange': {
+							iconColor = '#ffa100';
+							break;
+						}
+						case 'green': {
+							iconColor = '#64dd17';
+							break;
+						}
+						case 'pink': {
+							iconColor = '#e84393';
+							break;
+						}
+						case 'emerald': {
+							iconColor = '#2ecc71';
+							break;
+						}
+						case 'yellow': {
+							iconColor = '#f4d13d';
+							break;
+						}
+						case 'default':
+						case 'auto': {
+							skipColor = true;
+							break;
+						}
+						default: {
+							if(!iconColor.match(HEX_COLOR_REGEX)) {
+								skipColor = true;
+								window.showErrorMessage('Invalid color: ' + iconColor);
+							}
+						}
+					}
+
+					if(skipColor) {
+						tag.iconColor = 'auto';
+					} else {
+						iconColor = iconColor.substr(1);
+						
+						if(!skipColor && !iconColors.includes(iconColor)) {
+							iconColors.push(iconColor);
+						}
+
+						tag.iconColor = iconColor;
+					}
 				}
 			});
 
@@ -378,6 +488,16 @@ export class AnchorEngine {
 			this.matcher = new RegExp(`[^\\w](${tags})((${separators})(.*))?$`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
+
+			// Write anchor icons
+			iconColors.forEach(color => {
+				const anchorSvg = baseAnchor.replace('%COLOR%', '#' + color);
+				const filename = 'anchor_' + color.toLowerCase() + '.svg';
+
+				fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
+			});
+
+			AnchorEngine.output("Generated icon cache at " + iconCache);
 
 			// Scan in all workspace files
 			if(config.workspace.enabled && !config.workspace.lazyLoad) {
@@ -566,11 +686,6 @@ export class AnchorEngine {
 					const isRegionEnd = match[1].startsWith(endTag);
 					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
 
-					// Offset empty prefix
-					// if(!match[1].length) {
-					// 	match.index--;
-					// }
-
 					// We have found at least one anchor
 					anchorsFound = true;
 
@@ -593,8 +708,7 @@ export class AnchorEngine {
 						continue;
 					}
 
-					let rangeLength = tag.styleComment ? match[0].length - 1 
-					: tag.tag.length;
+					let rangeLength = tag.styleComment ? match[0].length - 1 : tag.tag.length;
 					let startPos = match.index + 1;
 					let endPos = startPos + rangeLength;
 					let deltaText = text.substr(0, startPos);
@@ -637,24 +751,26 @@ export class AnchorEngine {
 
 					if(isRegionStart) {
 						anchor = new EntryAnchorRegion(
+							this,
 							tag.tag,
 							display,
 							startPos,
 							endPos,
 							lineNumber,
-							tag.iconColor || "default",
+							tag.iconColor!,
 							tag.scope!,
 							displayLineNumber,
 							document
 						);
 					} else {
 						anchor = new EntryAnchor(
+							this,
 							tag.tag,
 							display,
 							startPos,
 							endPos,
 							lineNumber,
-							tag.iconColor || "default",
+							tag.iconColor!,
 							tag.scope!,
 							displayLineNumber,
 							document

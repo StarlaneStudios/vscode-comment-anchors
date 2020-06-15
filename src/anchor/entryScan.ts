@@ -1,17 +1,18 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import EntryBase from "./entryBase";
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents a pending workspace scan
  */
 export default class EntryScan extends EntryBase {
 
-	constructor() {
-		super("Click to start scanning", TreeItemCollapsibleState.None);
+	constructor(engine: AnchorEngine) {
+		super(engine, "Click to start scanning", TreeItemCollapsibleState.None);
 
 		this.iconPath = {
-			light: this.loadIcon('launch'),
-			dark: this.loadIcon('launch'),
+			light: this.loadResourceSvg('launch'),
+			dark: this.loadResourceSvg('launch'),
 		};
 
 		this.command = {

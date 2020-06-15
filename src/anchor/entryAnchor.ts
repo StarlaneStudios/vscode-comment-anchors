@@ -1,5 +1,6 @@
 import { DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
 import EntryBase from "./entryBase";
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents an Anchor found a file
@@ -18,17 +19,18 @@ export default class EntryAnchor extends EntryBase {
 	private childAnchors: EntryAnchor[] = [];
 
 	constructor(
+		engine: AnchorEngine,
 		public readonly anchorTag: string,		// The tag e.g. "ANCHOR"
 		public readonly anchorText: string,		// The text after the anchor tag
 		public readonly startIndex: number,		// The start column of the anchor
 		public readonly endIndex: number,		// The end column of the tag
 		public readonly lineNumber: number,		// The line number the tag was found on
-		public readonly icon: string,			// The associated icon
+		public readonly iconColor: string,		// The icon color to use
 		public readonly scope: string,			// The anchor scope
 		public readonly showLine: Boolean,		// Whether to display line numbers
 		public readonly file: Uri,				// The file this anchor is in
 	) {
-		super(showLine ? `[${lineNumber}] ${anchorText}` : anchorText);
+		super(engine, showLine ? `[${lineNumber}] ${anchorText}` : anchorText);
 
 		this.command = {
 			title: '',
@@ -40,10 +42,14 @@ export default class EntryAnchor extends EntryBase {
 			}]
 		};
 
-		this.iconPath = {
-			light: this.loadIcon('anchor_' + (icon == 'default' ? 'black' : icon)),
-			dark: this.loadIcon('anchor_' + (icon == 'default' ? 'white' : icon))
-		};
+		if(iconColor == 'default' || iconColor == 'auto') {
+			this.iconPath = {
+				light: this.loadResourceSvg('anchor_black'),
+				dark: this.loadResourceSvg('anchor_white')
+			};
+		} else {
+			this.iconPath= this.loadCacheSvg(iconColor);
+		}
 	}
 
 	contextValue = 'anchor';
@@ -77,12 +83,13 @@ export default class EntryAnchor extends EntryBase {
 
 	copy(copyChilds: boolean) : EntryAnchor {
 		let copy = new EntryAnchor(
+			this.engine,
 			this.anchorTag,
 			this.anchorText,
 			this.startIndex,
 			this.endIndex,
 			this.lineNumber,
-			this.icon,
+			this.iconColor,
 			this.scope,
 			this.showLine,
 			this.file

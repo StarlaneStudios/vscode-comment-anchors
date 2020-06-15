@@ -10,11 +10,12 @@ import { AnchorEngine } from "../anchorEngine";
 export default class EntryCachedFile extends EntryBase {
 
 	constructor(
+		engine: AnchorEngine,
 		public readonly file: Uri,
 		public readonly anchors: EntryAnchor[],
 		public readonly format: String
 	) {
-		super(EntryCachedFile.fileAnchorStats(file, anchors, format), TreeItemCollapsibleState.Expanded);
+		super(engine, EntryCachedFile.fileAnchorStats(file, anchors, format), TreeItemCollapsibleState.Expanded);
 
 		this.iconPath = ThemeIcon.File;
 	}

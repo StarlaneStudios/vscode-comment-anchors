@@ -298,22 +298,8 @@
 							},
 							"iconColor": {
 								"type": "string",
-								"enum": [
-									"default",
-									"red",
-									"purple",
-									"teal",
-									"green",
-									"orange",
-									"pink",
-									"blue",
-									"blurple",
-									"emerald",
-									"yellow",
-									"none"
-								],
-								"default": "none",
-								"description": "The icon for this tag in the sidebar. Set to null to disable"
+								"default": null,
+								"description": "The icon color as hex value. Set to null to default to highlightColor"
 							},
 							"highlightColor": {
 								"type": "string",

@@ -12,19 +12,20 @@ export default class EntryAnchorRegion extends EntryAnchor {
 	public closeLineNumber: number = -1;
 
 	constructor(
+		engine: AnchorEngine,
 		public readonly anchorTag: string,		// The tag e.g. "ANCHOR"
 		public readonly anchorText: string,		// The text after the anchor tag
 		public readonly startIndex: number,		// The start column of the anchor
 		public readonly endIndex: number,		// The end column of the tag
 		public readonly lineNumber: number,		// The line number the tag was found on
-		public readonly icon: string,			// The associated icon
+		public readonly iconColor: string,		// The icon color to use
 		public readonly scope: string,			// The anchor scope
 		public readonly showLine: Boolean,		// Whether to display line numbers
 		public readonly file: Uri				// The file this anchor is in
 	) {
 		super(
-			anchorTag, anchorText, startIndex, endIndex, lineNumber,
-			icon, scope, showLine, file
+			engine, anchorTag, anchorText, startIndex, endIndex, lineNumber,
+			iconColor, scope, showLine, file
 		);
 
 		this.label = showLine ? `[${lineNumber} - ?] ${anchorText}` : anchorText;
@@ -58,12 +59,13 @@ export default class EntryAnchorRegion extends EntryAnchor {
 
 	copy(copyChilds: boolean) : EntryAnchorRegion {
 		let copy = new EntryAnchorRegion(
+			this.engine,
 			this.anchorTag,
 			this.anchorText,
 			this.startIndex,
 			this.endIndex,
 			this.lineNumber,
-			this.icon,
+			this.iconColor,
 			this.scope,
 			this.showLine,
 			this.file

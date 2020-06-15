@@ -83,7 +83,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 				
 				if(!notVisible) {
 					try {
-						res.push(new EntryCachedFile(document, anchors, format));
+						res.push(new EntryCachedFile(this.provider, document, anchors, format));
 					} catch(err) {
 						// Simply ignore, we do not want to push this file
 					}

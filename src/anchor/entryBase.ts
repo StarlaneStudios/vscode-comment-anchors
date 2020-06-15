@@ -1,5 +1,6 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import * as path from 'path';
+import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Base class extended by all implementions of a TreeItem
@@ -7,8 +8,12 @@ import * as path from 'path';
  */
 export default class EntryBase extends TreeItem {
 
-	public constructor(label: string, state?: TreeItemCollapsibleState) {
+	public readonly engine: AnchorEngine
+
+	public constructor(engine: AnchorEngine, label: string, state?: TreeItemCollapsibleState) {
 		super(label, state);
+
+		this.engine = engine;
 	}
 
 	/**
@@ -17,8 +22,19 @@ export default class EntryBase extends TreeItem {
 	 * @param name Icon name
 	 * @returns The path
 	 */
-	loadIcon(name: string) : string {
+	loadResourceSvg(name: string) : string {
 		return path.join(__dirname, '../../res', name + '.svg');
+	}
+
+	/**
+	 * Load an svg of the given color from the resource directory.
+	 * The icon must be generated first.
+	 * 
+	 * @param name Icon color
+	 * @returns The path
+	 */
+	loadCacheSvg(color: string) : string {
+		return path.join(this.engine.iconCache, 'anchor_' + color.toLowerCase() + '.svg');
 	}
 
 }
