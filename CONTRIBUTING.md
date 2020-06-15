@@ -13,11 +13,12 @@ $ yarn install
 
 Please send a [GitHub Pull Request to Comment-anchors](https://github.com/ExodiusStudios/vscode-comment-anchors/pull/new/master) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, make sure to commit what you have patched/added. Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). 
 
-Always write a clear log message for your commits. One-line messages are fine for small changes, but bigger changes should look like this:
+Always write a clear log message for your commits. Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines while writing your commits. The following commit types are in use in this repository:
 
-    $ git commit -m "A brief summary of the commit
-    > 
-    > A paragraph describing what changed and its impact."
+- `feat`: for new features and improvements
+- `fix`: for bugfixes and minor rewrites
+- `change`: for larger rewrites or improvements to existing code
+- `chore`: for updates to project meta files
 
 #### **Did you find a bug?**
 
