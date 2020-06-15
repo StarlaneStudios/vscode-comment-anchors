@@ -633,6 +633,8 @@ export class AnchorEngine {
 					let anchor : EntryAnchor;
 
 					// Create a regular or region anchor
+					const displayLineNumber = config.tags.displayLineNumber;
+
 					if(isRegionStart) {
 						anchor = new EntryAnchorRegion(
 							tag.tag,
@@ -642,6 +644,7 @@ export class AnchorEngine {
 							lineNumber,
 							tag.iconColor || "default",
 							tag.scope!,
+							displayLineNumber,
 							document
 						);
 					} else {
@@ -653,7 +656,7 @@ export class AnchorEngine {
 							lineNumber,
 							tag.iconColor || "default",
 							tag.scope!,
-							config.tags.displayLineNumber,
+							displayLineNumber,
 							document
 						);
 					}

@@ -12,28 +12,22 @@ export default class EntryAnchorRegion extends EntryAnchor {
 	public closeLineNumber: number = -1;
 
 	constructor(
-		public readonly anchorTag: string,
-		public readonly anchorText: string,
-		public readonly startIndex: number,
-		public readonly endIndex: number,
-		public readonly lineNumber: number,
-		public readonly icon:string,
-		public readonly scope: string,
-		public readonly file: Uri
+		public readonly anchorTag: string,		// The tag e.g. "ANCHOR"
+		public readonly anchorText: string,		// The text after the anchor tag
+		public readonly startIndex: number,		// The start column of the anchor
+		public readonly endIndex: number,		// The end column of the tag
+		public readonly lineNumber: number,		// The line number the tag was found on
+		public readonly icon: string,			// The associated icon
+		public readonly scope: string,			// The anchor scope
+		public readonly showLine: Boolean,		// Whether to display line numbers
+		public readonly file: Uri				// The file this anchor is in
 	) {
 		super(
-			anchorTag,
-			anchorText,
-			startIndex,
-			endIndex,
-			lineNumber,
-			icon,
-			scope,
-			false, // Line numbers are handled differently
-			file
+			anchorTag, anchorText, startIndex, endIndex, lineNumber,
+			icon, scope, showLine, file
 		);
 
-		this.label = `[${this.lineNumber} - ?] ${this.anchorText}`;
+		this.label = showLine ? `[${lineNumber} - ?] ${anchorText}` : anchorText;
 		this.collapsibleState = TreeItemCollapsibleState.Collapsed;
 	}
 
@@ -41,8 +35,10 @@ export default class EntryAnchorRegion extends EntryAnchor {
 		this.closeStartIndex = endTag.startIndex;
 		this.closeEndIndex = endTag.endIndex;
 		this.closeLineNumber = endTag.lineNumber;
-
-		this.label = `[${this.lineNumber} - ${endTag.lineNumber}] ${this.anchorText}`;
+		
+		if(this.showLine) {
+			this.label = `[${this.lineNumber} - ${endTag.lineNumber}] ${this.anchorText}`;
+		}
 	}
 
 	decorateDocument(document: TextDocument, options: DecorationOptions[]) {
@@ -69,6 +65,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
 			this.lineNumber,
 			this.icon,
 			this.scope,
+			this.showLine,
 			this.file
 		);
 

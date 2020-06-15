@@ -1,6 +1,5 @@
-import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
+import { DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
 import EntryBase from "./entryBase";
-import { AnchorEngine } from "../anchorEngine";
 
 /**
  * Represents an Anchor found a file
