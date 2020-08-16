@@ -1,7 +1,7 @@
 const debounce = require('debounce');
 
 // Utility used for awaiting a timeout
-const asyncDelay = (delay: number) : Promise<void> => {
+const asyncDelay = (delay: number): Promise<void> => {
 	return new Promise((success) => {
 		setTimeout(() => {
 			success();
@@ -54,6 +54,8 @@ import {
 } from "vscode";
 import { AnchorIndex } from './anchorIndex';
 import EntryCachedFile from './anchor/entryCachedFile';
+import EntryEpic from './anchor/entryEpic';
+import { EpicAnchorProvider, EpicAnchorIntelliSenseProvider } from './provider/epicAnchorProvider';
 
 /* -- Constants -- */
 
@@ -62,11 +64,17 @@ const COLOR_PLACEHOLDER_REGEX = /%COLOR%/g
 
 /* -- Anchor entry type aliases -- */
 
-export type FileEntry = EntryAnchor|EntryError|EntryLoading;
-export type FileEntryArray = EntryAnchor[]|EntryError[]|EntryLoading[];
+export type FileEntry = EntryAnchor | EntryError | EntryLoading;
+export type FileEntryArray = EntryAnchor[] | EntryError[] | EntryLoading[];
 
-export type AnyEntry = EntryAnchor|EntryError|EntryCachedFile|EntryScan;
-export type AnyEntryArray = EntryAnchor[]|EntryError[]|EntryCachedFile[]|EntryScan[];
+export type AnyEntry = EntryAnchor | EntryError | EntryCachedFile | EntryScan | EntryEpic;
+export type AnyEntryArray = EntryAnchor[] | EntryError[] | EntryCachedFile[] | EntryScan[] | EntryEpic[];
+
+const MATCHER_TAG_INDEX = 1
+const MATCHER_ATTR_INDEX = 2
+const MATCHER_COMMENT_INDEX = 5
+
+export const DEFAULT_EPIC = '_default'
 
 /**
  * The main anchor parsing and caching engine
@@ -111,6 +119,9 @@ export class AnchorEngine {
 
 	/** The tree view used for displaying workspace anchors */
 	public workspaceTreeView: TreeView<AnyEntry>;
+
+	/** The epic view used for displaying workspace anchors */
+	public epicTreeView: TreeView<AnyEntry>
 
 	/** The currently expanded file tree items */
 	public expandedFileTreeViewItems: string[] = [];
@@ -157,7 +168,7 @@ export class AnchorEngine {
 		const outputChannel = window.createOutputChannel("Comment Anchors");
 		AnchorEngine.output = (m: string) => outputChannel.appendLine("[Comment Anchors] " + m);
 
-		if(window.activeTextEditor) {
+		if (window.activeTextEditor) {
 			this._editor = window.activeTextEditor;
 		}
 
@@ -171,13 +182,13 @@ export class AnchorEngine {
 		});
 
 		this.fileTreeView.onDidExpandElement((e) => {
-			if(e.element instanceof EntryAnchor) {
+			if (e.element instanceof EntryAnchor) {
 				this.expandedFileTreeViewItems.push(e.element.anchorText);
 			}
 		});
 
 		this.fileTreeView.onDidCollapseElement((e) => {
-			if(e.element instanceof EntryAnchor) {
+			if (e.element instanceof EntryAnchor) {
 				const idx = this.expandedFileTreeViewItems.indexOf(e.element.anchorText);
 				this.expandedFileTreeViewItems.splice(idx, 1);
 			}
@@ -190,55 +201,72 @@ export class AnchorEngine {
 		});
 
 		this.workspaceTreeView.onDidExpandElement((e) => {
-			if(e.element instanceof EntryAnchor) {
+			if (e.element instanceof EntryAnchor) {
 				this.expandedWorkspaceTreeViewItems.push(e.element.anchorText);
 			}
 		});
 
 		this.workspaceTreeView.onDidCollapseElement((e) => {
-			if(e.element instanceof EntryAnchor) {
+			if (e.element instanceof EntryAnchor) {
 				const idx = this.expandedWorkspaceTreeViewItems.indexOf(e.element.anchorText);
 				this.expandedWorkspaceTreeViewItems.splice(idx, 1);
 			}
 		});
+
+		// Create the workspace anchor view
+		this.epicTreeView = window.createTreeView('epicAnchors', {
+			treeDataProvider: new EpicAnchorProvider(this),
+			showCollapseAll: true
+		});
+
 	}
 
-	public registerProviders()	{
+	public registerProviders() {
 		const config = this._config!!;
 
 		// Provide auto completion
-		if(config.tags.provideAutoCompletion) {
+		if (config.tags.provideAutoCompletion) {
 			const endTag = config.tags.endTag;
-			const provider = languages.registerCompletionItemProvider({language: '*'}, {
+			const provider = languages.registerCompletionItemProvider({ language: '*' }, {
 
-				provideCompletionItems: () : ProviderResult<CompletionList> => {
+				provideCompletionItems: (): ProviderResult<CompletionList> => {
 					const ret = new CompletionList();
 					const separator = config.tags.separators[0];
-					
-					for(let tag of this.tags.values()) {
+
+					for (let tag of this.tags.values()) {
 						let item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Reference);
-						
+
 						item.documentation = `Insert ${tag.tag} comment anchor`;
 						item.insertText = tag.tag + separator;
-						
+
 						ret.items.push(item);
 
-						if(tag.isRegion) {
+						if (tag.isRegion) {
 							let endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Reference);
-						
+
 							endItem.documentation = `Insert ${endTag + tag.tag} comment anchor`;
 							endItem.insertText = endTag + tag.tag + separator;
-							
+
 							ret.items.push(endItem);
 						}
 					}
-					
+
 					return ret;
 				}
 
 			});
-			
+
 			this._subscriptions.push(provider);
+		}
+
+		// Provide epic auto complete
+		if (config.epic.provideAutoCompletion) {
+			this._subscriptions.push(
+				languages.registerCompletionItemProvider(
+					{ scheme: 'file' }, new EpicAnchorIntelliSenseProvider(this),
+					'['
+				)
+			)
 		}
 	}
 
@@ -250,7 +278,7 @@ export class AnchorEngine {
 
 			// Construct the debounce
 			this._idleRefresh = debounce(() => {
-				if(this._editor) this.parse(this._editor!.document.uri).then(() => {
+				if (this._editor) this.parse(this._editor!.document.uri).then(() => {
 					this.refresh();
 				});
 			}, config.parseDelay);
@@ -260,12 +288,12 @@ export class AnchorEngine {
 			this._subscriptions = [];
 
 			// Store the sorting method
-			if(config.tags.sortMethod && (config.tags.sortMethod == 'line' || config.tags.sortMethod == 'type')) {
+			if (config.tags.sortMethod && (config.tags.sortMethod == 'line' || config.tags.sortMethod == 'type')) {
 				EntryAnchor.SortMethod = config.tags.sortMethod;
 			}
 
 			// Store the scroll position
-			if(config.scrollPosition) {
+			if (config.scrollPosition) {
 				EntryAnchor.ScrollPosition = config.scrollPosition;
 			}
 
@@ -294,8 +322,8 @@ export class AnchorEngine {
 			const iconColors: string[] = [];
 			const regionColors: string[] = [];
 
-			if(!fs.existsSync(storage)) fs.mkdirSync(storage);
-			if(!fs.existsSync(iconCache)) fs.mkdirSync(iconCache);
+			if (!fs.existsSync(storage)) fs.mkdirSync(storage);
+			if (!fs.existsSync(iconCache)) fs.mkdirSync(iconCache);
 
 			this.iconCache = iconCache;
 
@@ -318,12 +346,12 @@ export class AnchorEngine {
 			config.tags.list.forEach((tag: TagEntry) => {
 				let def = this.tags.get(tag.tag.toUpperCase()) || {};
 
-				if(tag.enabled === false) {
+				if (tag.enabled === false) {
 					this.tags.delete(tag.tag.toUpperCase());
 					return;
 				}
 
-				const opts = {...def, ...tag};
+				const opts = { ...def, ...tag };
 
 				this.tags.set(tag.tag.toUpperCase(), opts);
 			});
@@ -331,11 +359,11 @@ export class AnchorEngine {
 			// Detect the lane style
 			let laneStyle: OverviewRulerLane;
 
-			if(config.tags.rulerStyle == "left") {
+			if (config.tags.rulerStyle == "left") {
 				laneStyle = OverviewRulerLane.Left;
-			} else if(config.tags.rulerStyle == "right") {
+			} else if (config.tags.rulerStyle == "right") {
 				laneStyle = OverviewRulerLane.Right;
-			} else if(config.tags.rulerStyle == "center") {
+			} else if (config.tags.rulerStyle == "center") {
 				laneStyle = OverviewRulerLane.Center;
 			} else {
 				laneStyle = OverviewRulerLane.Full;
@@ -344,28 +372,28 @@ export class AnchorEngine {
 			// Configure all tags
 			Array.from(this.tags.values()).forEach((tag: TagEntry) => {
 
-				if(!tag.scope) {
+				if (!tag.scope) {
 					tag.scope = 'workspace';
 				}
 
-				if(config.tagHighlights.enabled) {
+				if (config.tagHighlights.enabled) {
 
 					// Create base configuration
-					let highlight : DecorationRenderOptions = {
-						fontWeight: tag.isBold || tag.isBold == undefined? "bold": "normal",
-						fontStyle: tag.isItalic || tag.isItalic == undefined ? "italic": "normal",
+					let highlight: DecorationRenderOptions = {
+						fontWeight: tag.isBold || tag.isBold == undefined ? "bold" : "normal",
+						fontStyle: tag.isItalic || tag.isItalic == undefined ? "italic" : "normal",
 						color: tag.highlightColor,
 						backgroundColor: tag.backgroundColor
 					};
 
 					// Optionally insert rulers
-					if(config.tags.displayInRuler) {
+					if (config.tags.displayInRuler) {
 						highlight.overviewRulerColor = tag.highlightColor;
 						highlight.overviewRulerLane = laneStyle;
 					}
 
 					// Optional border
-					if(tag.borderStyle) {
+					if (tag.borderStyle) {
 						highlight = {
 							...highlight,
 							border: tag.borderStyle,
@@ -376,8 +404,8 @@ export class AnchorEngine {
 					// Save the icon color
 					let iconColor = tag.iconColor || tag.highlightColor;
 					let skipColor = false;
-					
-					switch(iconColor) {
+
+					switch (iconColor) {
 						case 'blue': {
 							iconColor = '#3ea8ff';
 							break;
@@ -424,23 +452,23 @@ export class AnchorEngine {
 							break;
 						}
 						default: {
-							if(!iconColor.match(HEX_COLOR_REGEX)) {
+							if (!iconColor.match(HEX_COLOR_REGEX)) {
 								skipColor = true;
 								window.showErrorMessage('Invalid color: ' + iconColor);
 							}
 						}
 					}
 
-					if(skipColor) {
+					if (skipColor) {
 						tag.iconColor = 'auto';
 					} else {
 						iconColor = iconColor.substr(1);
-						
-						if(iconColors.indexOf(iconColor) < 0) {
+
+						if (iconColors.indexOf(iconColor) < 0) {
 							iconColors.push(iconColor);
 						}
 
-						if(tag.isRegion && regionColors.indexOf(iconColor) < 0) {
+						if (tag.isRegion && regionColors.indexOf(iconColor) < 0) {
 							regionColors.push(iconColor);
 						}
 
@@ -448,8 +476,8 @@ export class AnchorEngine {
 					}
 
 					// Optional gutter icons
-					if(config.tags.displayInGutter) {
-						if(tag.iconColor == 'auto') {
+					if (config.tags.displayInGutter) {
+						if (tag.iconColor == 'auto') {
 							highlight.dark = {
 								gutterIconPath: path.join(__dirname, '..', 'res', 'anchor_white.svg')
 							}
@@ -461,16 +489,16 @@ export class AnchorEngine {
 							highlight.gutterIconPath = path.join(iconCache, 'anchor_' + tag.iconColor + '.svg');
 						}
 					}
-					
+
 					// Create the decoration type
 					this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType(highlight));
 
-					if(tag.isRegion) {
-						const endHighlight = {...highlight};
+					if (tag.isRegion) {
+						const endHighlight = { ...highlight };
 
 						// Optional gutter icons
-						if(config.tags.displayInGutter) {
-							if(tag.iconColor == 'auto') {
+						if (config.tags.displayInGutter) {
+							if (tag.iconColor == 'auto') {
 								endHighlight.dark = {
 									gutterIconPath: path.join(__dirname, '..', 'res', 'anchor_end_white.svg')
 								}
@@ -494,9 +522,9 @@ export class AnchorEngine {
 
 			// Generate region end tags
 			const endTag = this._config.tags.endTag;
-			
-			this.tags.forEach((entry, tag) => { 
-				if(entry.isRegion) {
+
+			this.tags.forEach((entry, tag) => {
+				if (entry.isRegion) {
 					matchTags.push(endTag + tag);
 				}
 			});
@@ -504,7 +532,7 @@ export class AnchorEngine {
 			// Create a matcher for the tags
 			const tags = matchTags.map(tag => escape(tag)).join('|');
 
-			if(tags.length === 0) {
+			if (tags.length === 0) {
 				window.showErrorMessage("At least one tag must be defined");
 				return;
 			}
@@ -514,13 +542,13 @@ export class AnchorEngine {
 				return escape(s).replace(/ /g, ' +');
 			}).join('|');
 
-			if(separators.length === 0) {
+			if (separators.length === 0) {
 				window.showErrorMessage("At least one separator must be defined");
 				return;
 			}
-
+			const attributes = `\\[.*\\]`
 			// ANCHOR: Tag RegEx
-			this.matcher = new RegExp(`[^\\w](${tags})((${separators})(.*))?$`, config.tags.matchCase ? "gm" : "img");
+			this.matcher = new RegExp(`[^\\w](${tags})(${attributes})?((${separators})(.*))?$`, config.tags.matchCase ? "gm" : "img");
 
 			AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -531,7 +559,7 @@ export class AnchorEngine {
 
 				fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
 
-				if(regionColors.indexOf(color) >= 0) {
+				if (regionColors.indexOf(color) >= 0) {
 					const anchorEndSvg = baseAnchorEnd.replace(COLOR_PLACEHOLDER_REGEX, '#' + color);
 					const filenameEnd = 'anchor_end_' + color.toLowerCase() + '.svg';
 
@@ -542,32 +570,32 @@ export class AnchorEngine {
 			AnchorEngine.output("Generated icon cache at " + iconCache);
 
 			// Scan in all workspace files
-			if(config.workspace.enabled && !config.workspace.lazyLoad) {
+			if (config.workspace.enabled && !config.workspace.lazyLoad) {
 				setTimeout(() => {
 					this.initiateWorkspaceScan();
 				}, 500);
 			} else {
 				this.anchorsLoaded = true;
 
-				if(this._editor) {
+				if (this._editor) {
 					this.addMap(this._editor!.document.uri);
 				}
-				
+
 				this.refresh();
 			}
 
 			// Dispose the existing file watcher
-			if(this._watcher) {
+			if (this._watcher) {
 				this._watcher.dispose();
 			}
 
 			// Create a new file watcher
-			if(config.workspace.enabled) {
+			if (config.workspace.enabled) {
 				this._watcher = workspace.createFileSystemWatcher(config.workspace.matchFiles, true, true, false);
 
 				this._watcher.onDidDelete((file: Uri) => {
 					this.anchorMaps.forEach((_, uri) => {
-						if(uri.toString() == file.toString()) {
+						if (uri.toString() == file.toString()) {
 							this.removeMap(uri);
 							return false;
 						}
@@ -577,7 +605,7 @@ export class AnchorEngine {
 
 			// Register editor providers
 			this.registerProviders();
-		} catch(err) {
+		} catch (err) {
 			AnchorEngine.output("Failed to build resources: " + err.message);
 			AnchorEngine.output(err);
 		}
@@ -596,10 +624,10 @@ export class AnchorEngine {
 
 			// Resolve all matched URIs
 			this.loadWorkspace(uris).then(() => {
-				if(this._editor) {
+				if (this._editor) {
 					this.addMap(this._editor!.document.uri);
 				}
-				
+
 				this.anchorsLoaded = true;
 				this.refresh();
 			}).catch(err => {
@@ -617,17 +645,17 @@ export class AnchorEngine {
 		let parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
 		let parseCount: number = 0;
 		let parsePercentage: number = 0;
-		
+
 		parseStatus.tooltip = "Provided by the Comment Anchors extension";
 		parseStatus.text = `$(telescope) Initializing...`;
 		parseStatus.show();
 
-		for(let i = 0; i < uris.length && parseCount < maxFiles; i++) {
+		for (let i = 0; i < uris.length && parseCount < maxFiles; i++) {
 
 			// Await a timeout for every 10 documents parsed. This allows
 			// all files to be slowly parsed without completely blocking
 			// the main thread for the entire process.
-			if(i % 10 == 0) {
+			if (i % 10 == 0) {
 				await asyncDelay(5);
 			}
 
@@ -636,13 +664,13 @@ export class AnchorEngine {
 
 				// Only update states when a file containing anchors
 				// was found and parsed.
-				if(found) {
+				if (found) {
 					parseCount++;
 					parsePercentage = parseCount / uris.length * 100;
 
 					parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(1)}%)`;
 				}
-			} catch(err) {
+			} catch (err) {
 				// Ignore, already taken care of
 			}
 		};
@@ -659,11 +687,11 @@ export class AnchorEngine {
 	 * Returns the anchors in the current document
 	 */
 	public get currentAnchors(): EntryAnchor[] {
-		if(!this._editor) return [];
+		if (!this._editor) return [];
 
 		const uri = this._editor.document.uri;
 
-		if(this.anchorMaps.has(uri)) {
+		if (this.anchorMaps.has(uri)) {
 			return this.anchorMaps.get(uri)!!.anchorTree;
 		} else {
 			return [];
@@ -682,20 +710,37 @@ export class AnchorEngine {
 	 * Clean up external files
 	 */
 	public cleanUp(document: TextDocument) {
-		if(document.uri.scheme != 'file') return;
+		if (document.uri.scheme != 'file') return;
 
 		const ws = workspace.getWorkspaceFolder(document.uri);
-		if(this._config!.workspace.enabled && ws && this.anchorsScanned) return;
+		if (this._config!.workspace.enabled && ws && this.anchorsScanned) return;
 
 		this.removeMap(document.uri);
+	}
+
+	public parseAttributes(raw: String, defaultValue: TagAttributes): TagAttributes {
+		if (!raw) return defaultValue
+		// parse all 'key1=value1,key2=value2'
+		// TODO: try-catch
+		const dict = new Map<string, string>()
+		raw.split(",").forEach(pair => {
+			const [key, value] = pair.trim().split('=')
+			dict.set(key, value)
+			AnchorEngine.output(`Trying to set key=${key},value=${value}`)
+		})
+
+		return {
+			seq: parseInt(dict.get('seq') || `${defaultValue.seq}`, 10),
+			epic: dict.get('epic') || defaultValue.epic
+		}
 	}
 
 	/**
 	 * Parse the given or current document
 	 * 
 	 * @returns true when anchors were found
-	 */	
-	public parse(document: Uri) : Promise<boolean> {
+	 */
+	public parse(document: Uri): Promise<boolean> {
 		return new Promise(async (success, reject) => {
 			let anchorsFound = false;
 
@@ -703,13 +748,13 @@ export class AnchorEngine {
 				let text = null;
 
 				workspace.textDocuments.forEach(td => {
-					if(td.uri == document) {
+					if (td.uri == document) {
 						text = td.getText();
 						return false;
 					}
 				});
-				
-				if(text == null) {
+
+				if (text == null) {
 					text = await this.readDocument(document);
 				}
 
@@ -717,31 +762,35 @@ export class AnchorEngine {
 				let anchors: EntryAnchor[] = [];
 				let folds: FoldingRange[] = [];
 				let match;
-				
+
 				const config = this._config!!;
 				const endTag = config.tags.endTag;
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
-					const tagName = match[1].toUpperCase().replace(endTag, '');
-					const tag : TagEntry = this.tags.get(tagName)!;
+					// 找到match的tagName
+					const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(endTag, '');
+					const tag: TagEntry = this.tags.get(tagName)!;
+					AnchorEngine.output(match.map((v, i) => `[[${i}]=${v}]`).join(" -> "))
+
+
 					const isRegionStart = tag.isRegion;
-					const isRegionEnd = match[1].startsWith(endTag);
-					const currRegion: EntryAnchorRegion|null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+					const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
+					const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
 
 					// We have found at least one anchor
 					anchorsFound = true;
 
 					// Handle the closing of a region
-					if(isRegionEnd) {
-						if(!currRegion || currRegion.anchorTag != tag.tag) continue;
+					if (isRegionEnd) {
+						if (!currRegion || currRegion.anchorTag != tag.tag) continue;
 
 						const deltaText = text.substr(0, match.index + 1);
 						const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 
 						currRegion.setEndTag({
 							startIndex: match.index + 1,
-							endIndex: match.index + 1 + match[1].length,
+							endIndex: match.index + 1 + match[MATCHER_TAG_INDEX].length,
 							lineNumber: lineNumber
 						})
 
@@ -756,28 +805,34 @@ export class AnchorEngine {
 					let endPos = startPos + rangeLength;
 					let deltaText = text.substr(0, startPos);
 					let lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
-					let comment = (match[4] || '').trim();
+					let comment = (match[MATCHER_COMMENT_INDEX] || '').trim();
 					let display = "";
 
+					const rawAttributeStr = match[MATCHER_ATTR_INDEX] || "[]"
+					const attributes = this.parseAttributes(rawAttributeStr.substr(1, rawAttributeStr.length - 2), {
+						epic: DEFAULT_EPIC,
+						seq: lineNumber
+					})
+
 					// Clean up the comment and adjust the endPos
-					if(comment.endsWith('-->')) {
-						if(tag.styleComment) {
+					if (comment.endsWith('-->')) {
+						if (tag.styleComment) {
 							let skip = [' ', '-', '>'];
 							let end = comment.length - 1;
 
-							while(skip.indexOf(comment[end]) >= 0) {
+							while (skip.indexOf(comment[end]) >= 0) {
 								endPos--;
 								end--;
 							}
 						}
 
 						comment = comment.substring(0, comment.lastIndexOf('-->'));
-					} else if(comment.endsWith('*/')) {
-						if(tag.styleComment) {
+					} else if (comment.endsWith('*/')) {
+						if (tag.styleComment) {
 							let skip = [' ', '*', '/'];
 							let end = comment.length - 1;
 
-							while(skip.indexOf(comment[end]) >= 0) {
+							while (skip.indexOf(comment[end]) >= 0) {
 								endPos--;
 								end--;
 							}
@@ -787,21 +842,21 @@ export class AnchorEngine {
 					}
 
 					comment = comment.trim();
-					
-					if(comment.length == 0) {
+
+					if (comment.length == 0) {
 						display = tag.tag;
-					} else if(config.tags.displayInSidebar) {
+					} else if (config.tags.displayInSidebar) {
 						display = tag.tag + ": " + comment;
 					} else {
 						display = comment;
 					}
 
-					let anchor : EntryAnchor;
+					let anchor: EntryAnchor;
 
 					// Create a regular or region anchor
 					const displayLineNumber = config.tags.displayLineNumber;
 
-					if(isRegionStart) {
+					if (isRegionStart) {
 						anchor = new EntryAnchorRegion(
 							this,
 							tag.tag,
@@ -812,7 +867,8 @@ export class AnchorEngine {
 							tag.iconColor!,
 							tag.scope!,
 							displayLineNumber,
-							document
+							document,
+							attributes
 						);
 					} else {
 						anchor = new EntryAnchor(
@@ -825,17 +881,18 @@ export class AnchorEngine {
 							tag.iconColor!,
 							tag.scope!,
 							displayLineNumber,
-							document
+							document,
+							attributes,
 						);
 					}
-				
+
 					// Push this region onto the stack
-					if(isRegionStart) {
+					if (isRegionStart) {
 						currRegions.push(anchor as EntryAnchorRegion);
 					}
 
 					// Place this anchor on root or child level
-					if(currRegion) {
+					if (currRegion) {
 						currRegion.addChild(anchor);
 					} else {
 						anchors.push(anchor);
@@ -847,7 +904,7 @@ export class AnchorEngine {
 				this.anchorMaps.set(document, new AnchorIndex(anchors));
 
 				// this.foldMaps.set(document, folds);
-			} catch(err) {
+			} catch (err) {
 				AnchorEngine.output("Error: " + err.message);
 				AnchorEngine.output(err.stack);
 				reject(err);
@@ -856,18 +913,18 @@ export class AnchorEngine {
 			}
 		});
 	}
-	
+
 	/**
 	 * Refresh the visual representation of the anchors
 	 */
 	refresh(): void {
-		if(this._editor && this._config!.tagHighlights.enabled) {
+		if (this._editor && this._config!.tagHighlights.enabled) {
 			const document = this._editor!.document;
 			const doc = document.uri;
-			const index =  this.anchorMaps.get(doc);
+			const index = this.anchorMaps.get(doc);
 			const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
 			const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
-			
+
 			// Create a mapping between tags and decorators
 			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
 				tags.set(tag.toUpperCase(), [decorator, []]);
@@ -883,19 +940,19 @@ export class AnchorEngine {
 					const deco = tags.get(anchor.anchorTag.toUpperCase())![1];
 
 					anchor.decorateDocument(document, deco);
-						
-					if(anchor instanceof EntryAnchorRegion) {
+
+					if (anchor instanceof EntryAnchorRegion) {
 						anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag.toUpperCase())![1]);
 					}
 
-					if(anchor.children) {
+					if (anchor.children) {
 						applyDecorators(anchor.children);
 					}
 				});
 			}
-			
+
 			// Start by decorating the root list
-			if(index) {
+			if (index) {
 				applyDecorators(index.anchorTree);
 			}
 
@@ -957,21 +1014,21 @@ export class AnchorEngine {
 			this._onDidChangeTreeData.fire();
 		}
 	}
-	
+
 
 	/**
 	 * Add a TextDocument mapping to the engine
 	 * 
 	 * @param document TextDocument
 	 */
-	public addMap(document: Uri) : Thenable<boolean> {
-		if(document.scheme !== 'file') {
+	public addMap(document: Uri): Thenable<boolean> {
+		if (document.scheme !== 'file') {
 			return Promise.resolve(false);
 		}
 
 		// Make sure we have no duplicates
 		this.anchorMaps.forEach((_, doc) => {
-			if(doc.path == document.path) {
+			if (doc.path == document.path) {
 				this.anchorMaps.delete(doc);
 				return false;
 			}
@@ -988,7 +1045,7 @@ export class AnchorEngine {
 	 * @param editor textDocument
 	 */
 	public removeMap(document: Uri) {
-		if(document.scheme !== 'file') return;
+		if (document.scheme !== 'file') return;
 
 		this.anchorMaps.delete(document);
 	}
@@ -1007,17 +1064,17 @@ export class AnchorEngine {
 	}
 
 	private onActiveEditorChanged(editor: TextEditor | undefined): void {
-		if(editor && editor!!.document.uri.scheme == 'output') return;
+		if (editor && editor!!.document.uri.scheme == 'output') return;
 
 		this._editor = editor;
 
-		if(!this.anchorsLoaded) return;
+		if (!this.anchorsLoaded) return;
 
-		if(editor && !this.anchorMaps.has(editor.document.uri)) {
+		if (editor && !this.anchorMaps.has(editor.document.uri)) {
 
 			// Bugfix - Replace duplicates
 			new Map<Uri, AnchorIndex>(this.anchorMaps).forEach((_, document) => {
-				if(document.path.toString() == editor.document.uri.path.toString()) {
+				if (document.path.toString() == editor.document.uri.path.toString()) {
 					this.anchorMaps.delete(document);
 					return false;
 				}
@@ -1034,7 +1091,7 @@ export class AnchorEngine {
 	}
 
 	private onDocumentChanged(e: TextDocumentChangeEvent): void {
-		if(!e.contentChanges || e.document.uri.scheme == 'output') return;
+		if (!e.contentChanges || e.document.uri.scheme == 'output') return;
 
 		this._idleRefresh!();
 	}
@@ -1044,10 +1101,10 @@ export class AnchorEngine {
 	 * 
 	 * @param path Document uri
 	 */
-	private readDocument(path: Uri) : Thenable<string> {
+	private readDocument(path: Uri): Thenable<string> {
 		return new Promise<string>((success, reject) => {
 			fs.readFile(path.fsPath, 'utf8', (err, data) => {
-				if(err) {
+				if (err) {
 					reject(err);
 				} else {
 					success(data);
@@ -1064,7 +1121,7 @@ export interface TagEntry {
 	tag: string;
 	enabled?: boolean;
 	iconColor?: string;
-	highlightColor:string;
+	highlightColor: string;
 	backgroundColor?: string;
 	styleComment?: boolean;
 	borderStyle?: string;
@@ -1073,4 +1130,15 @@ export interface TagEntry {
 	isItalic?: boolean;
 	scope?: string,
 	isRegion?: boolean;
+	isSequential?: boolean
+	isEpic?: boolean
+}
+
+/**
+ * Defined for tag attribute
+ * Currenly only "seq" and "epic" are used
+ */
+export interface TagAttributes {
+	seq: number,
+	epic: string
 }
