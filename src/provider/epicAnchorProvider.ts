@@ -203,6 +203,7 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
         this.engine = engine
     }
     provideCompletionItems(document: TextDocument, position: Position, token: CancellationToken, context: CompletionContext): Thenable<CompletionItem[] | CompletionList> {
+        const config = this.engine._config!!
 
         return new Promise((success) => {
             const keyWord = document.getText(document.getWordRangeAtPosition(position.translate(0, -1)))
@@ -215,7 +216,7 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
                     })
                 })
 
-                success(Array.from(epicCtr).filter(([epic]) => epic !== DEFAULT_EPIC).map(([epic, maxSeq]) => new CompletionItem(`epic=${epic},seq=${maxSeq + 1}`, CompletionItemKind.Enum)))
+                success(Array.from(epicCtr).filter(([epic]) => epic !== DEFAULT_EPIC).map(([epic, maxSeq]) => new CompletionItem(`epic=${epic},seq=${maxSeq + config.epic.seqStep}`, CompletionItemKind.Enum)))
             }
             return []
         })
