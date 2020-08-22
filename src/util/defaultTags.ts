@@ -1,14 +1,14 @@
-import { TagEntry } from "../anchorEngine";
+import { TagEntry, CaseSensitiveMap } from "../anchorEngine";
 
 /**
  * Register default tags to a tagMap
  * 
  * @param tagMap The tagMap reference
  */
-export default function registerDefaults(tagMap: Map<string, TagEntry>) {
+export default function registerDefaults(tagMap: CaseSensitiveMap<string, TagEntry>) {
 
 	function register(entry: TagEntry) {
-		tagMap.set(entry.tag.toUpperCase(), entry);
+		tagMap.set(entry.tag, entry);
 	}
 
 	register({
