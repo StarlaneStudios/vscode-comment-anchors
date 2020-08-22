@@ -6,24 +6,22 @@ import { AnchorEngine } from "../anchorEngine";
  * Represents an active workspace scan
  */
 export default class EntryLoading extends EntryBase {
+  constructor(engine: AnchorEngine) {
+    super(engine, "Searching for anchors...", TreeItemCollapsibleState.None);
 
-	constructor(engine: AnchorEngine) {
-		super(engine, "Searching for anchors...", TreeItemCollapsibleState.None);
+    this.iconPath = {
+      light: this.loadResourceSvg("load"),
+      dark: this.loadResourceSvg("load"),
+    };
+  }
 
-		this.iconPath = {
-			light: this.loadResourceSvg('load'),
-			dark: this.loadResourceSvg('load')
-		};
-	}
+  get tooltip(): string {
+    return this.label!;
+  }
 
-	get tooltip(): string {
-		return this.label!;
-	}
+  toString(): string {
+    return "EntryLoading{}";
+  }
 
-	toString():string {
-		return "EntryLoading{}";
-	}
-
-	contextValue = 'loading';
-
+  contextValue = "loading";
 }

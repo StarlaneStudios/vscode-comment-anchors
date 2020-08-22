@@ -1,76 +1,99 @@
-import {window, commands, ExtensionContext, workspace, Uri, TreeDataProvider, TreeItem} from 'vscode';
-import {AnchorEngine} from './anchorEngine';
+import {
+  window,
+  commands,
+  ExtensionContext,
+  workspace,
+  Uri,
+  TreeDataProvider,
+  TreeItem,
+} from "vscode";
+import { AnchorEngine } from "./anchorEngine";
 
 let anchorEngine: AnchorEngine;
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
 export function activate(context: ExtensionContext) {
-	const engine = new AnchorEngine(context);
+  const engine = new AnchorEngine(context);
 
-	// Register extension commands
-	commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);
-	commands.registerCommand("commentAnchors.toggle", toggleVisibilitySetting);
-	commands.registerCommand("commentAnchors.openFileAndRevealLine", openFileAndRevealLine);
-	commands.registerCommand("commentAnchors.launchWorkspaceScan", launchWorkspaceScan);
-	commands.registerCommand("commentAnchors.listTags", () => engine.openTagListPanel());
+  // Register extension commands
+  commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);
+  commands.registerCommand("commentAnchors.toggle", toggleVisibilitySetting);
+  commands.registerCommand(
+    "commentAnchors.openFileAndRevealLine",
+    openFileAndRevealLine
+  );
+  commands.registerCommand(
+    "commentAnchors.launchWorkspaceScan",
+    launchWorkspaceScan
+  );
+  commands.registerCommand("commentAnchors.listTags", () =>
+    engine.openTagListPanel()
+  );
 
-	// Store a reference to the engine
-	anchorEngine = engine;
+  // Store a reference to the engine
+  anchorEngine = engine;
 }
 
 export function deactivate() {
-	anchorEngine.dispose();
+  anchorEngine.dispose();
 }
 
 /**
  * Reparse anchors in the current file
  */
 function parseCurrentAnchors() {
-	if(!window.activeTextEditor) return;
+  if (!window.activeTextEditor) return;
 
-	anchorEngine.parse(window.activeTextEditor.document.uri);
+  anchorEngine.parse(window.activeTextEditor.document.uri);
 }
 
 /**
  * Luanch the workspace scan
  */
 function launchWorkspaceScan() {
-	anchorEngine.initiateWorkspaceScan();
+  anchorEngine.initiateWorkspaceScan();
 }
 
 /**
  * Toggles the visibility of comment anchors
  */
 function toggleVisibilitySetting() {
-	const config = workspace.getConfiguration('commentAnchors');
+  const config = workspace.getConfiguration("commentAnchors");
 
-	config.update("tagHighlights.enabled", !config.tagHighlights.enabled);
+  config.update("tagHighlights.enabled", !config.tagHighlights.enabled);
 }
 
-type OpenFileAndRevealLineOptions = {uri: Uri, lineNumber: number, at: string};
+type OpenFileAndRevealLineOptions = {
+  uri: Uri;
+  lineNumber: number;
+  at: string;
+};
 
 /**
  * Opens a file and reveales the given line number
  */
 function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {
-	if(!options) return;
+  if (!options) return;
 
-	function scrollAndMove() {
-		commands.executeCommand('revealLine', {
-			lineNumber: options.lineNumber,
-			at: options.at
-		});
-	}
+  function scrollAndMove() {
+    commands.executeCommand("revealLine", {
+      lineNumber: options.lineNumber,
+      at: options.at,
+    });
+  }
 
-	// Either open right away or wait for the document to open
-	if(window.activeTextEditor && window.activeTextEditor.document.uri == options.uri) {
-		scrollAndMove();
-	} else {
-		workspace.openTextDocument(options.uri).then(doc => {
-			window.showTextDocument(doc).then(() => {
-				scrollAndMove();
-			});
-		});		
-	}
+  // Either open right away or wait for the document to open
+  if (
+    window.activeTextEditor &&
+    window.activeTextEditor.document.uri == options.uri
+  ) {
+    scrollAndMove();
+  } else {
+    workspace.openTextDocument(options.uri).then((doc) => {
+      window.showTextDocument(doc).then(() => {
+        scrollAndMove();
+      });
+    });
+  }
 }
