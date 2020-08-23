@@ -68,6 +68,27 @@ export type FileEntryArray = EntryAnchor[]|EntryError[]|EntryLoading[];
 export type AnyEntry = EntryAnchor|EntryError|EntryCachedFile|EntryScan;
 export type AnyEntryArray = EntryAnchor[]|EntryError[]|EntryCachedFile[]|EntryScan[];
 
+
+export class CaseSensitiveMap<K, V> extends Map<K, V> {
+	public get(key: K): V | undefined {
+		// TODO: is there an elegenet way?
+		if(typeof key === "string" && !workspace.getConfiguration('commentAnchors').tags.matchCase) {
+			return super.get(key.toUpperCase() as unknown as K)
+		}
+		return super.get(key)
+	}
+
+	public set(key: K, value: V): this {
+		// TODO: is there an elegenet way?
+		if(typeof key === "string" && !workspace.getConfiguration('commentAnchors').tags.matchCase) {
+			return super.set(key.toUpperCase() as unknown as K, value)
+		}
+		return super.set(key, value)
+	}
+}
+
+
+
 /**
  * The main anchor parsing and caching engine
  */
@@ -98,7 +119,7 @@ export class AnchorEngine {
 	public anchorEndDecorators: Map<string, TextEditorDecorationType> = new Map();
 
 	/** The list of tags and their settings */
-	public tags: Map<string, TagEntry> = new Map();
+	public tags: CaseSensitiveMap<string, TagEntry> = new CaseSensitiveMap();
 
 	/** Returns true when all anchors have been loaded */
 	public anchorsLoaded: boolean = false;
@@ -316,16 +337,16 @@ export class AnchorEngine {
 
 			// Add custom tags
 			config.tags.list.forEach((tag: TagEntry) => {
-				let def = this.tags.get(tag.tag.toUpperCase()) || {};
+				let def = this.tags.get(tag.tag) || {};
 
 				if(tag.enabled === false) {
-					this.tags.delete(tag.tag.toUpperCase());
+					this.tags.delete(tag.tag);
 					return;
 				}
 
 				const opts = {...def, ...tag};
 
-				this.tags.set(tag.tag.toUpperCase(), opts);
+				this.tags.set(tag.tag, opts);
 			});
 
 			// Detect the lane style
@@ -723,7 +744,8 @@ export class AnchorEngine {
 
 				// Find all anchor occurences
 				while (match = this.matcher!.exec(text)) {
-					const tagName = match[1].toUpperCase().replace(endTag, '');
+					const tagName = match[1].replace(endTag, '');
+					AnchorEngine.output(tagName)
 					const tag : TagEntry = this.tags.get(tagName)!;
 					const isRegionStart = tag.isRegion;
 					const isRegionEnd = match[1].startsWith(endTag);
@@ -865,27 +887,27 @@ export class AnchorEngine {
 			const document = this._editor!.document;
 			const doc = document.uri;
 			const index =  this.anchorMaps.get(doc);
-			const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
-			const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
+			const tags = new CaseSensitiveMap<string, [TextEditorDecorationType, DecorationOptions[]]>();
+			const tagsEnd = new CaseSensitiveMap<string, [TextEditorDecorationType, DecorationOptions[]]>();
 			
 			// Create a mapping between tags and decorators
 			this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
-				tags.set(tag.toUpperCase(), [decorator, []]);
+				tags.set(tag, [decorator, []]);
 			});
 
 			this.anchorEndDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
-				tagsEnd.set(tag.toUpperCase(), [decorator, []]);
+				tagsEnd.set(tag, [decorator, []]);
 			});
 
 			// Create a function to handle decorating
 			const applyDecorators = (anchors: EntryAnchor[]) => {
 				anchors.forEach(anchor => {
-					const deco = tags.get(anchor.anchorTag.toUpperCase())![1];
+					const deco = tags.get(anchor.anchorTag)![1];
 
 					anchor.decorateDocument(document, deco);
 						
 					if(anchor instanceof EntryAnchorRegion) {
-						anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag.toUpperCase())![1]);
+						anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag)![1]);
 					}
 
 					if(anchor.children) {
