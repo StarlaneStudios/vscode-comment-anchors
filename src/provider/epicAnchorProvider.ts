@@ -40,9 +40,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
                     }));
                     return;
                 } else if (element instanceof EntryEpic) { // it is EntryEpic
-
-                    AnchorEngine.output('fucking yes')
-
                     // let res: EntryAnchor[] = [];
 
                     // const cachedFile = (element as EntryCachedFile);

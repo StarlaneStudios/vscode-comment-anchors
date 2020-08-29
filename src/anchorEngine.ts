@@ -263,7 +263,7 @@ export class AnchorEngine {
 		if (config.epic.provideAutoCompletion) {
 			this._subscriptions.push(
 				languages.registerCompletionItemProvider(
-					{ scheme: 'file' }, new EpicAnchorIntelliSenseProvider(this),
+					{ language: '*' }, new EpicAnchorIntelliSenseProvider(this),
 					'['
 				)
 			)
