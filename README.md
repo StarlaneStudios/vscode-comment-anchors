@@ -1,23 +1,24 @@
 ![Comment Anchors](media/extension_logo.png)
 
-Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, write Notes, create foldable section, or to build a simple navigation, making it easier to navigate large files.
+Place anchors within comments or strings to place bookmarks within the context of your code. Anchors can be used to track TODOs, write notes, create foldable sections, or to build a simple navigation making it easier to navigate your files.
 
 Anchors can be viewed for the current file, or throughout the entire workspace, using an easy to use sidebar.
 
-Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of featured!
+Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of features!
 
+### Changelog
 The changelog can be found [here](CHANGELOG.md)
 
 # Feature breakdown
 
 * Place anchors in any file for any language
-* Anchors can be viewed in the anchor list in the activity bar
+* Anchors can be viewed in the anchor list sidebar
 * Anchor names, colors, highlight colors, and much more can be customized (See below for examples)
 * Click an anchor in the anchor list to scroll it into view
 * Quickly toggle tag visibility with commands
 * View anchors across your entire workspace
 * Scope anchors to be visible in your entire workspace, or just the current file
-* Create foldable sections using region anchors
+* Group anchors into logical sections using region anchors
 
 # Usage
 
