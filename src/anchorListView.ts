@@ -23,10 +23,11 @@ export function createViewContent(
         isDefault ? "anchor_white.svg" : "anchor_" + tag.iconColor + ".svg"
       )
     );
+
     const icon = webview.asWebviewUri(fileIcon);
+    const tagFlags = [];
 
     let tagStyle = "";
-    const tagFlags = [];
 
     if (tag.backgroundColor) {
       tagStyle += `background-color: ${tag.backgroundColor};`;

@@ -56,10 +56,7 @@ export default class EntryAnchor extends EntryBase {
 
   contextValue = "anchor";
 
-  // @ts-ignore
-  get tooltip(): string {
-    return `${this.anchorText} (Click to reveal)`;
-  }
+  tooltip = `${this.anchorText} (Click to reveal)`;
 
   get isVisibleInWorkspace(): boolean {
     return this.scope == "workspace";

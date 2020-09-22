@@ -15,9 +15,7 @@ export default class EntryLoading extends EntryBase {
     };
   }
 
-  get tooltip(): string {
-    return this.label!;
-  }
+  tooltip = this.label!;
 
   toString(): string {
     return "EntryLoading{}";

@@ -29,10 +29,7 @@ export default class EntryCachedFile extends EntryBase {
     this.iconPath = ThemeIcon.File;
   }
 
-  // @ts-ignore
-  get tooltip(): string {
-    return `${this.file.path}`;
-  }
+  tooltip = `${this.file.path}`;
 
   toString(): string {
     return this.label!;

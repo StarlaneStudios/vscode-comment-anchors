@@ -6,6 +6,7 @@ import { TagEntry } from "../anchorEngine";
  * @param tagMap The tagMap reference
  */
 export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
+
   function register(entry: TagEntry): void {
     tagMap.set(entry.tag.toUpperCase(), entry);
   }
