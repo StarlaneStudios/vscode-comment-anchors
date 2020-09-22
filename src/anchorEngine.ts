@@ -726,7 +726,7 @@ export class AnchorEngine {
   }
 
   private async loadWorkspace(uris: Uri[]) {
-    const maxFiles = this._config!.workspace.maxFiles || 100;
+    const maxFiles = this._config!.workspace.maxFiles;
     const parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
     let parseCount = 0;
     let parsePercentage = 0;
