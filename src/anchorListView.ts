@@ -1,69 +1,78 @@
-import * as path from 'path';
+import * as path from "path";
 import { AnchorEngine } from "./anchorEngine";
 import { Uri, Webview } from "vscode";
 
 /**
  * Generate the contents of the anchor list view
- * 
+ *
  * @param engine Engine reference
  * @param webview The website used to display
  */
-export function createViewContent(engine: AnchorEngine, webview: Webview) : string {
-	let tagList = "";
+export function createViewContent(
+  engine: AnchorEngine,
+  webview: Webview
+): string {
+  let tagList = "";
 
-	engine.tags.forEach((tag) => {
-		const isDefault = tag.iconColor == 'default';
-		const fileIcon = Uri.file(path.join(engine.context.extensionPath, 'res', isDefault ? 'anchor_white.svg' : 'anchor_' + tag.iconColor + '.svg'));
-		const icon = webview.asWebviewUri(fileIcon);
+  engine.tags.forEach((tag) => {
+    const isDefault = tag.iconColor == "default";
+    const fileIcon = Uri.file(
+      path.join(
+        engine.context.extensionPath,
+        "res",
+        isDefault ? "anchor_white.svg" : "anchor_" + tag.iconColor + ".svg"
+      )
+    );
+    const icon = webview.asWebviewUri(fileIcon);
 
-		let tagStyle = "";
-		let tagFlags = [];
+    let tagStyle = "";
+    const tagFlags = [];
 
-		if(tag.backgroundColor) {
-			tagStyle += `background-color: ${tag.backgroundColor};`;
-		}
+    if (tag.backgroundColor) {
+      tagStyle += `background-color: ${tag.backgroundColor};`;
+    }
 
-		if(tag.borderRadius) {
-			tagStyle += `border-radius: ${tag.borderRadius}px;`;
-		}
+    if (tag.borderRadius) {
+      tagStyle += `border-radius: ${tag.borderRadius}px;`;
+    }
 
-		if(tag.borderStyle) {
-			tagStyle += `border: ${tag.borderStyle};`;
-		}
+    if (tag.borderStyle) {
+      tagStyle += `border: ${tag.borderStyle};`;
+    }
 
-		if(tag.highlightColor) {
-			tagStyle += `color: ${tag.highlightColor};`;
-		}
+    if (tag.highlightColor) {
+      tagStyle += `color: ${tag.highlightColor};`;
+    }
 
-		if(tag.isBold || tag.isBold == undefined) {
-			tagStyle += 'font-weight: bold;';
-		}
+    if (tag.isBold || tag.isBold == undefined) {
+      tagStyle += "font-weight: bold;";
+    }
 
-		if(tag.isItalic) {
-			tagStyle += 'font-style: italic;'
-		}
+    if (tag.isItalic) {
+      tagStyle += "font-style: italic;";
+    }
 
-		if(tag.scope == 'workspace') {
-			tagFlags.push('Workspace Scope');
-		} else {
-			tagFlags.push('File Scope');
-		}
+    if (tag.scope == "workspace") {
+      tagFlags.push("Workspace Scope");
+    } else {
+      tagFlags.push("File Scope");
+    }
 
-		if(tag.styleComment) {
-			tagFlags.push('Style Comment');
-		}
+    if (tag.styleComment) {
+      tagFlags.push("Style Comment");
+    }
 
-		if(tag.isRegion) {
-			tagFlags.push('Region Tag');
-		}
+    if (tag.isRegion) {
+      tagFlags.push("Region Tag");
+    }
 
-		const flags = tagFlags.join(', ');
+    const flags = tagFlags.join(", ");
 
-		tagList += `
+    tagList += `
 		<section class="tag-entry">
 			<div class="tag-wrapper">
 				<div class="side-container">
-					<img class="tag-icon ${isDefault ? 'default-icon' : ''}" src="${icon}">
+					<img class="tag-icon ${isDefault ? "default-icon" : ""}" src="${icon}">
 				</div>
 				<div class="tag-content">
 					<span class="comment-pre">// </span>
@@ -73,9 +82,9 @@ export function createViewContent(engine: AnchorEngine, webview: Webview) : stri
 			</div>
 		</section>
 		`;
-	});
+  });
 
-	return `
+  return `
 	<html>
 		<head>
 			<meta charset="UTF-8">
@@ -136,5 +145,5 @@ export function createViewContent(engine: AnchorEngine, webview: Webview) : stri
 			<div class="tag-list">${tagList}</div>
 		</body>
 	</html>
-	`
+	`;
 }

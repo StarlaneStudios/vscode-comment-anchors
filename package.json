@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file & workspace navigation.",
-	"version": "1.7.2",
+	"version": "1.8.0",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.38.0"
@@ -373,12 +373,21 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"lint": "eslint . --ext .ts",
+		"lint:fix": "eslint  --fix . --ext .ts"
 	},
 	"devDependencies": {
 		"@types/debounce": "^1.0.0",
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^7.0.43",
+		"@typescript-eslint/eslint-plugin": "^3.9.1",
+		"@typescript-eslint/parser": "^3.9.1",
+		"eslint": "^7.7.0",
+		"eslint-config-prettier": "^6.11.0",
+		"eslint-plugin-prettier": "^3.1.4",
+		"husky": "^4.2.5",
+		"prettier": "^2.0.5",
 		"typescript": "^2.6.1",
 		"vscode": "^1.1.37"
 	},
@@ -386,5 +395,10 @@
 		"debounce": "^1.2.0",
 		"escape-string-regexp": "^2.0.0",
 		"opn": "^6.0.0"
-	}
+	},
+	"husky": {
+		"hooks": {
+		  "pre-commit": "npm run lint"
+		}
+	  }
 }
