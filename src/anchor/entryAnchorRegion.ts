@@ -49,7 +49,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
     startIndex: number;
     endIndex: number;
     lineNumber: number;
-  }) {
+  }): void {
     this.closeStartIndex = endTag.startIndex;
     this.closeEndIndex = endTag.endIndex;
     this.closeLineNumber = endTag.lineNumber;
@@ -59,7 +59,10 @@ export default class EntryAnchorRegion extends EntryAnchor {
     }
   }
 
-  decorateDocumentEnd(document: TextDocument, options: DecorationOptions[]) {
+  decorateDocumentEnd(
+    document: TextDocument,
+    options: DecorationOptions[]
+  ): void {
     if (this.closeStartIndex < 0 || this.closeEndIndex < 0) return;
 
     const startPos = document.positionAt(this.closeStartIndex);
@@ -71,7 +74,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
     });
   }
 
-  toString() {
+  toString(): string {
     return "EntryAnchorRegion(" + this.label! + ")";
   }
 

@@ -29,9 +29,7 @@ export default class EntryCachedFile extends EntryBase {
     this.iconPath = ThemeIcon.File;
   }
 
-  get tooltip(): string {
-    return `${this.file.path}`;
-  }
+  tooltip = `${this.file.path}`;
 
   toString(): string {
     return this.label!;
@@ -40,7 +38,11 @@ export default class EntryCachedFile extends EntryBase {
   /**
    * Formats a file stats string using the given anchors array
    */
-  static fileAnchorStats(file: Uri, anchors: EntryAnchor[], format: string) {
+  static fileAnchorStats(
+    file: Uri,
+    anchors: EntryAnchor[],
+    format: string
+  ): string {
     let visible = 0;
     let hidden = 0;
 

@@ -55,19 +55,17 @@ export default class EntryAnchor extends EntryBase {
 
   contextValue = "anchor";
 
-  get tooltip(): string {
-    return `${this.anchorText} (Click to reveal)`;
-  }
+  tooltip = `${this.anchorText} (Click to reveal)`;
 
-  get isVisibleInWorkspace() {
+  get isVisibleInWorkspace(): boolean {
     return this.scope == "workspace";
   }
 
-  get children() {
+  get children(): EntryAnchor[] {
     return this.childAnchors;
   }
 
-  decorateDocument(document: TextDocument, options: DecorationOptions[]) {
+  decorateDocument(document: TextDocument, options: DecorationOptions[]): void {
     const startPos = document.positionAt(this.startIndex);
     const endPos = document.positionAt(this.endIndex);
 
@@ -77,7 +75,7 @@ export default class EntryAnchor extends EntryBase {
     });
   }
 
-  addChild(child: EntryAnchor) {
+  addChild(child: EntryAnchor): void {
     this.childAnchors.push(child);
   }
 

@@ -20,9 +20,7 @@ export default class EntryScan extends EntryBase {
     };
   }
 
-  get tooltip(): string {
-    return this.label!;
-  }
+  tooltip = this.label!;
 
   toString(): string {
     return "EntryLaunch{}";

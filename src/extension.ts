@@ -13,7 +13,7 @@ let anchorEngine: AnchorEngine;
 
 // This method is called when your extension is activated. Activation is
 // controlled by the activation events defined in package.json.
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): void {
   const engine = new AnchorEngine(context);
 
   // Register extension commands
@@ -35,7 +35,7 @@ export function activate(context: ExtensionContext) {
   anchorEngine = engine;
 }
 
-export function deactivate() {
+export function deactivate(): void {
   anchorEngine.dispose();
 }
 

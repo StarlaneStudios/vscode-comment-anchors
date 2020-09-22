@@ -122,8 +122,8 @@
 				},
 				"commentAnchors.workspace.maxFiles": {
 					"type": "integer",
-					"default": 50,
-					"description": "The maximum amount of files that will be parsed. Higher values may cause performance degration in large projects. (Default 50)",
+					"default": 250,
+					"description": "The maximum amount of files that will be parsed. Higher values may cause performance degration in large projects. (Default 250)",
 					"scope": "window"
 				},
 				"commentAnchors.workspace.matchFiles": {
@@ -372,7 +372,7 @@
 		"eslint-plugin-prettier": "^3.1.4",
 		"husky": "^4.2.5",
 		"prettier": "^2.0.5",
-		"typescript": "^2.6.1",
+		"typescript": "^4.0.3",
 		"vscode": "^1.1.37"
 	},
 	"dependencies": {
@@ -382,7 +382,7 @@
 	},
 	"husky": {
 		"hooks": {
-		  "pre-commit": "npm run lint"
+			"pre-commit": "npm run lint"
 		}
-	  }
+	}
 }

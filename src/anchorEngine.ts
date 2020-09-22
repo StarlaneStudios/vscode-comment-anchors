@@ -246,7 +246,7 @@ export class AnchorEngine {
     });
   }
 
-  public registerProviders() {
+  public registerProviders(): void {
     const config = this._config!;
 
     // Provide auto completion
@@ -294,7 +294,7 @@ export class AnchorEngine {
     }
   }
 
-  public buildResources() {
+  public buildResources(): void {
     try {
       this.anchorsScanned = false;
 
@@ -693,7 +693,7 @@ export class AnchorEngine {
     }
   }
 
-  public initiateWorkspaceScan() {
+  public initiateWorkspaceScan(): void {
     const config = this._config!;
     this.anchorsScanned = true;
     this.anchorsLoaded = false;
@@ -787,7 +787,7 @@ export class AnchorEngine {
   /**
    * Dispose anchor list resources
    */
-  dispose() {
+  dispose(): void {
     this.anchorDecorators.forEach((type: TextEditorDecorationType) =>
       type.dispose()
     );
@@ -799,7 +799,7 @@ export class AnchorEngine {
   /**
    * Clean up external files
    */
-  public cleanUp(document: TextDocument) {
+  public cleanUp(document: TextDocument): void {
     if (document.uri.scheme != "file") return;
 
     const ws = workspace.getWorkspaceFolder(document.uri);
@@ -1128,7 +1128,7 @@ export class AnchorEngine {
    *
    * @param editor textDocument
    */
-  public removeMap(document: Uri) {
+  public removeMap(document: Uri): void {
     if (document.scheme !== "file") return;
 
     this.anchorMaps.delete(document);
@@ -1138,7 +1138,7 @@ export class AnchorEngine {
    * Open a new webview panel listing out all configured
    * tags including their applied styles.
    */
-  public openTagListPanel() {
+  public openTagListPanel(): void {
     const panel = window.createWebviewPanel(
       "anchorList",
       "Comment Anchors Tags",
@@ -1148,7 +1148,6 @@ export class AnchorEngine {
     );
 
     panel.webview.html = createViewContent(this, panel.webview);
-    panel.webview.cspSource;
   }
 
   private onActiveEditorChanged(editor: TextEditor | undefined): void {
