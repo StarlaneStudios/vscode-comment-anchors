@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.9.0
+- Added Anchor Epics
+	- Used to group anchors into individual groups
+	- Specify the epic using an `epic` attribute, example:<br>
+	`// EXAMPLE[epic=examples] This anchor appears in the "examples" epic`
+	- Anchor ordering can be customized per anchor using the `seq` option
+- Increase default `maxFiles` value from 50 to 250
+
 ## 1.8.0
 - Added support for custom icon hex colors
 	- Defaults to highlightColor when left out

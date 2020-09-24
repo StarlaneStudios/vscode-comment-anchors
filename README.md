@@ -18,7 +18,8 @@ The changelog can be found [here](CHANGELOG.md)
 * Quickly toggle tag visibility with commands
 * View anchors across your entire workspace
 * Scope anchors to be visible in your entire workspace, or just the current file
-* Group anchors into logical sections using region anchors
+* Place your anchors into hierarchical sections using region anchors
+* Group anchors into custom lists by tagging anchors with an epic
 
 # Usage
 
@@ -53,6 +54,12 @@ be used as quick navigation.
 The visibility of anchor tags in the workspace list can be altered using the 'scope' property on each tag (See configuration section).
 
 ![Workspace Anchors](media/workspace-anchors.png)
+
+## Anchor epics
+
+Epics give you the power to easily tag classes, methods, and entire sections of codes into personal lists. To get started, tag your individual anchors with an Epic to place them into a specific list. Optionally provide a sequence number to customize the ordering of your anchors.
+
+![Workspace Anchors](media/epics.png)
 
 ### Lazy loading
 
