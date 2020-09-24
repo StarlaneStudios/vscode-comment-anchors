@@ -417,13 +417,19 @@ export class AnchorEngine {
       // Add custom tags
       config.tags.list.forEach((tag: TagEntry) => {
         const def = this.tags.get(tag.tag.toUpperCase()) || {};
+        const opts = { ...def, ...tag };
 
+        // Skip disabled default tags
         if (tag.enabled === false) {
           this.tags.delete(tag.tag.toUpperCase());
           return;
         }
 
-        const opts = { ...def, ...tag };
+        // Fix legacy isRegion tag
+        if (opts.isRegion) {
+          AnchorEngine.output("AAAWIIEEEP!");
+          opts.behavior = "region";
+        }
 
         this.tags.set(tag.tag.toUpperCase(), opts);
       });
@@ -838,6 +844,10 @@ export class AnchorEngine {
       type.dispose()
     );
   }
+
+  // LINK /src/some/file.png
+  // LINK src/some/file.png
+  // LINK ./src/some/file.png
 
   /**
    * Clean up external files
