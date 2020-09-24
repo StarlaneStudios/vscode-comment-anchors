@@ -163,7 +163,7 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
       });
 
       if (res.length == 0) {
-        success([this.provider.errorEmptyWorkspace]);
+        success([this.provider.errorEmptyEpics]);
         return;
       }
 

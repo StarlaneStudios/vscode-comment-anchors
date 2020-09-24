@@ -172,6 +172,10 @@ export class AnchorEngine {
     this,
     "No comment anchors in workspace"
   );
+  public errorEmptyEpics: EntryError = new EntryError(
+    this,
+    "No epics found in workspace"
+  );
   public errorWorkspaceDisabled: EntryError = new EntryError(
     this,
     "Workspace disabled"
