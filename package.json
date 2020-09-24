@@ -293,7 +293,14 @@
 							"iconColor": "blurple",
 							"highlightColor": "#896afc",
 							"scope": "workspace",
-							"isRegion": true
+							"behavior": "region"
+						},
+						{
+							"tag": "LINK",
+							"iconColor": "#2ecc71",
+							"highlightColor": "#2ecc71",
+							"scope": "workspace",
+							"behavior": "link"
 						}
 					],
 					"items": {
@@ -357,6 +364,16 @@
 								],
 								"description": "Defines the scope of this tag. Setting this to \"file\" makes these tags only visible in the 'File Anchors' list",
 								"default": "workspace"
+							},
+							"behavior": {
+								"type": "string",
+								"enum": [
+									"anchor",
+									"region",
+									"link"
+								],
+								"description": "Specify the behavior type of this tag",
+								"default": "anchor"
 							}
 						}
 					},

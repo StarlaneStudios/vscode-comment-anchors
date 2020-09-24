@@ -63,8 +63,10 @@ export function createViewContent(
       tagFlags.push("Style Comment");
     }
 
-    if (tag.isRegion) {
+    if (tag.behavior == "region") {
       tagFlags.push("Region Tag");
+    } else if (tag.behavior == "link") {
+      tagFlags.push("Link Tag");
     }
 
     const flags = tagFlags.join(", ");

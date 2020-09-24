@@ -15,6 +15,7 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "default",
     highlightColor: "#A8C023",
     scope: "file",
+    behavior: "anchor",
   });
 
   register({
@@ -22,6 +23,7 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "blue",
     highlightColor: "#3ea8ff",
     scope: "workspace",
+    behavior: "anchor",
   });
 
   register({
@@ -29,6 +31,7 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "red",
     highlightColor: "#F44336",
     scope: "workspace",
+    behavior: "anchor",
   });
 
   register({
@@ -36,6 +39,7 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "purple",
     highlightColor: "#BA68C8",
     scope: "file",
+    behavior: "anchor",
   });
 
   register({
@@ -43,6 +47,7 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "orange",
     highlightColor: "#FFB300",
     scope: "file",
+    behavior: "anchor",
   });
 
   register({
@@ -50,6 +55,7 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "green",
     highlightColor: "#64DD17",
     scope: "workspace",
+    behavior: "anchor",
   });
 
   register({
@@ -57,6 +63,14 @@ export default function registerDefaults(tagMap: Map<string, TagEntry>): void {
     iconColor: "blurple",
     highlightColor: "#896afc",
     scope: "workspace",
-    isRegion: true,
+    behavior: "region",
+  });
+
+  register({
+    tag: "LINK",
+    iconColor: "#2ecc71",
+    highlightColor: "#2ecc71",
+    scope: "workspace",
+    behavior: "link",
   });
 }

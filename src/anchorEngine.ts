@@ -297,16 +297,16 @@ export class AnchorEngine {
 
               ret.items.push(item);
 
-              if (tag.isRegion) {
+              if (tag.behavior == "region") {
                 const endItem = new CompletionItem(
                   endTag + tag.tag + " Anchor",
                   CompletionItemKind.Reference
                 );
 
+                endItem.insertText = endTag + tag.tag + separator;
                 endItem.documentation = `Insert ${
                   endTag + tag.tag
                 } comment anchor`;
-                endItem.insertText = endTag + tag.tag + separator;
 
                 ret.items.push(endItem);
               }
@@ -540,7 +540,10 @@ export class AnchorEngine {
               iconColors.push(iconColor);
             }
 
-            if (tag.isRegion && regionColors.indexOf(iconColor) < 0) {
+            if (
+              tag.behavior == "region" &&
+              regionColors.indexOf(iconColor) < 0
+            ) {
               regionColors.push(iconColor);
             }
 
@@ -581,7 +584,7 @@ export class AnchorEngine {
             window.createTextEditorDecorationType(highlight)
           );
 
-          if (tag.isRegion) {
+          if (tag.behavior == "region") {
             const endHighlight = { ...highlight };
 
             // Optional gutter icons
@@ -628,7 +631,7 @@ export class AnchorEngine {
       const endTag = this._config.tags.endTag;
 
       this.tags.forEach((entry, tag) => {
-        if (entry.isRegion) {
+        if (entry.behavior == "region") {
           matchTags.push(endTag + tag);
         }
       });
@@ -929,7 +932,7 @@ export class AnchorEngine {
             match.map((v, i) => `[[${i}]=${v}]`).join(" -> ")
           );
 
-          const isRegionStart = tag.isRegion;
+          const isRegionStart = tag.behavior == "region";
           const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
           const currRegion: EntryAnchorRegion | null = currRegions.length
             ? currRegions[currRegions.length - 1]
@@ -1321,6 +1324,7 @@ export interface TagEntry {
   isRegion?: boolean;
   isSequential?: boolean;
   isEpic?: boolean;
+  behavior: "anchor" | "region" | "link";
 }
 
 /**

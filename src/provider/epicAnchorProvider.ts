@@ -3,17 +3,16 @@ import {
   Event,
   TreeItem,
   workspace,
-  Uri,
   CompletionItemProvider,
   TextDocument,
   Position,
   CancellationToken,
   CompletionContext,
-  ProviderResult,
   CompletionItem,
   CompletionList,
   CompletionItemKind,
 } from "vscode";
+
 import EntryAnchor from "../anchor/entryAnchor";
 import { AnchorEngine, AnyEntry, AnyEntryArray } from "../anchorEngine";
 import EntryEpic from "../anchor/entryEpic";
