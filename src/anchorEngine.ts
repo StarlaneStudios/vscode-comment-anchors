@@ -1017,6 +1017,11 @@ export class AnchorEngine {
             display = comment;
           }
 
+          // Remove epics when tag is not workspace visible
+          if (tag.scope != "workspace") {
+            attributes.epic = undefined;
+          }
+
           let anchor: EntryAnchor;
 
           // Create a regular or region anchor
