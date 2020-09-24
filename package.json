@@ -67,7 +67,8 @@
 				},
 				{
 					"id": "epicAnchors",
-					"name": "Epic Anchors"
+					"name": "Epic Anchors",
+					"visibility": "collapsed"
 				}
 			]
 		},

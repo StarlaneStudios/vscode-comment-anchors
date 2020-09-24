@@ -87,8 +87,6 @@ const MATCHER_TAG_INDEX = 1;
 const MATCHER_ATTR_INDEX = 2;
 const MATCHER_COMMENT_INDEX = 5;
 
-export const DEFAULT_EPIC = "_default";
-
 /**
  * The main anchor parsing and caching engine
  */
@@ -650,7 +648,9 @@ export class AnchorEngine {
         window.showErrorMessage("At least one separator must be defined");
         return;
       }
+
       const attributes = `\\[.*\\]`;
+
       // ANCHOR: Tag RegEx
       this.matcher = new RegExp(
         `[^\\w](${tags})(${attributes})?((${separators})(.*))?$`,
@@ -661,20 +661,20 @@ export class AnchorEngine {
 
       // Write anchor icons
       iconColors.forEach((color) => {
+        const filename = "anchor_" + color.toLowerCase() + ".svg";
         const anchorSvg = baseAnchor.replace(
           COLOR_PLACEHOLDER_REGEX,
           "#" + color
         );
-        const filename = "anchor_" + color.toLowerCase() + ".svg";
 
         fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
 
         if (regionColors.indexOf(color) >= 0) {
+          const filenameEnd = "anchor_end_" + color.toLowerCase() + ".svg";
           const anchorEndSvg = baseAnchorEnd.replace(
             COLOR_PLACEHOLDER_REGEX,
             "#" + color
           );
-          const filenameEnd = "anchor_end_" + color.toLowerCase() + ".svg";
 
           fs.writeFileSync(path.join(iconCache, filenameEnd), anchorEndSvg);
         }
@@ -844,24 +844,41 @@ export class AnchorEngine {
     this.removeMap(document.uri);
   }
 
+  /**
+   * Parse the given raw attribute string into
+   * individual attributes.
+   *
+   * @param raw The raw attribute string
+   * @param defaultValue The default attributes
+   */
   public parseAttributes(
     raw: string,
     defaultValue: TagAttributes
   ): TagAttributes {
     if (!raw) return defaultValue;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: TagAttributes = { ...defaultValue };
+    const mapping = new Map<string, string>();
+
     // parse all 'key1=value1,key2=value2'
-    // TODO: try-catch
-    const dict = new Map<string, string>();
     raw.split(",").forEach((pair) => {
       const [key, value] = pair.trim().split("=");
-      dict.set(key, value);
       AnchorEngine.output(`Trying to set key=${key},value=${value}`);
+      mapping.set(key, value);
     });
 
-    return {
-      seq: parseInt(dict.get("seq") || `${defaultValue.seq}`, 10),
-      epic: dict.get("epic") || defaultValue.epic,
-    };
+    // Parse the epic value
+    if (mapping.has("epic")) {
+      result.epic = mapping.get("epic")!;
+    }
+
+    // Parse the sequence value
+    if (mapping.has("seq")) {
+      result.seq = parseInt(mapping.get("seq")!, 10);
+    }
+
+    return result;
   }
 
   /**
@@ -890,6 +907,7 @@ export class AnchorEngine {
         const currRegions: EntryAnchorRegion[] = [];
         const anchors: EntryAnchor[] = [];
         const folds: FoldingRange[] = [];
+
         let match;
 
         const config = this._config!;
@@ -944,10 +962,12 @@ export class AnchorEngine {
           const rangeLength = tag.styleComment
             ? match[0].length - 1
             : tag.tag.length;
+
           const startPos = match.index + 1;
-          let endPos = startPos + rangeLength;
           const deltaText = text.substr(0, startPos);
           const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
+
+          let endPos = startPos + rangeLength;
           let comment = (match[MATCHER_COMMENT_INDEX] || "").trim();
           let display = "";
 
@@ -955,7 +975,7 @@ export class AnchorEngine {
           const attributes = this.parseAttributes(
             rawAttributeStr.substr(1, rawAttributeStr.length - 2),
             {
-              epic: DEFAULT_EPIC,
+              epic: undefined,
               seq: lineNumber,
             }
           );
@@ -1300,5 +1320,5 @@ export interface TagEntry {
  */
 export interface TagAttributes {
   seq: number;
-  epic: string;
+  epic?: string;
 }

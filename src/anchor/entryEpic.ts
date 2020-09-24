@@ -25,16 +25,14 @@ export default class EntryEpic extends EntryBase {
     engine: AnchorEngine
   ) {
     super(engine, label, TreeItemCollapsibleState.Expanded);
+
     this.epic = epic;
     this.anchors = anchors;
+    this.tooltip = `${this.epic}`;
     // this.iconPath = {
     //     light: path.join(__dirname, '..', 'res', `book.svg`),
     //     dark: path.join(__dirname, '..', 'res', `book.svg`)
     // };
-  }
-
-  get tooltip(): string {
-    return `${this.epic}`;
   }
 
   toString(): string {

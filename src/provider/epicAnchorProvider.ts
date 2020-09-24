@@ -15,12 +15,7 @@ import {
   CompletionItemKind,
 } from "vscode";
 import EntryAnchor from "../anchor/entryAnchor";
-import {
-  AnchorEngine,
-  AnyEntry,
-  AnyEntryArray,
-  DEFAULT_EPIC,
-} from "../anchorEngine";
+import { AnchorEngine, AnyEntry, AnyEntryArray } from "../anchorEngine";
 import EntryEpic from "../anchor/entryEpic";
 
 /**
@@ -36,7 +31,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
   }
 
   private generateLabel(i: number, e: EntryAnchor): string {
-    // return `${i}@(seq=${e.attributes.seq})-${e.label}`
     return e.label!;
   }
 
@@ -48,7 +42,7 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
     AnchorEngine.output(`epic elementType ${typeof element}`);
 
     return new Promise((success) => {
-      // 默认是空的 所以你得构建出一个树
+      // The default is empty, so you have to build a tree
       if (element) {
         if (element instanceof EntryAnchor && element.children) {
           success(
@@ -104,17 +98,16 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
             );
           }
 
-          success(
-            res
-              .sort((left, right) => {
-                return left.attributes.seq - right.attributes.seq;
-              })
-              .map((v, i) => {
-                if (v.attributes.epic === DEFAULT_EPIC) return v;
-                v.label = this.generateLabel(i, v);
-                return v;
-              })
-          );
+          const anchors = res
+            .sort((left, right) => {
+              return left.attributes.seq - right.attributes.seq;
+            })
+            .map((v, i) => {
+              v.label = this.generateLabel(i, v);
+              return v;
+            });
+
+          success(anchors);
         } else {
           AnchorEngine.output("return empty array");
           success([]);
@@ -138,26 +131,34 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
         success([this.provider.statusLoading]);
         return;
       }
+
       const res: EntryEpic[] = [];
       const epicMaps = new Map<string, EntryAnchor[]>();
+
+      // Build the epic entries
       Array.from(this.provider.anchorMaps).forEach(
-        ([uri, anchorIndex], _: number) => {
+        ([, anchorIndex], _: number) => {
           anchorIndex.anchorTree.forEach((anchor) => {
-            // TODO if show 'default'
-            const anchorEpic = epicMaps.get(anchor.attributes.epic);
+            const epic = anchor.attributes.epic;
+            if (!epic) return;
+
+            const anchorEpic = epicMaps.get(epic);
+
             if (anchorEpic) {
               anchorEpic.push(anchor);
             } else {
-              epicMaps.set(anchor.attributes.epic, [anchor]);
+              epicMaps.set(epic, [anchor]);
             }
           });
         }
       );
 
+      // Sort and build the entry list
       epicMaps.forEach((anchorArr: EntryAnchor[], epic: string) => {
         anchorArr.sort((left, right) => {
           return left.attributes.seq - left.attributes.seq;
         });
+
         res.push(new EntryEpic(epic, `${epic}`, anchorArr, this.provider));
       });
 
@@ -227,9 +228,11 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
 
 export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
   public readonly engine: AnchorEngine;
+
   constructor(engine: AnchorEngine) {
     this.engine = engine;
   }
+
   provideCompletionItems(
     document: TextDocument,
     position: Position,
@@ -242,32 +245,34 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
       const keyWord = document.getText(
         document.getWordRangeAtPosition(position.translate(0, -1))
       );
-      if (
-        Array.from(this.engine.tags.keys()).find(
-          (v) => v.toUpperCase() === keyWord
-        )
-      ) {
+
+      const hasKeyWord = Array.from(this.engine.tags.keys()).find(
+        (v) => v.toUpperCase() === keyWord
+      );
+
+      if (hasKeyWord) {
         const epicCtr = new Map<string, number>();
+
         this.engine.anchorMaps.forEach((anchorIndex, uri) => {
           anchorIndex.anchorTree.forEach((entryAnchor) => {
             const { seq, epic } = entryAnchor.attributes;
-            epicCtr.set(epic, Math.max(epicCtr.get(epic) || 0, seq));
+
+            if (epic) {
+              epicCtr.set(epic, Math.max(epicCtr.get(epic) || 0, seq));
+            }
           });
         });
 
         success(
-          Array.from(epicCtr)
-            .filter(([epic]) => epic !== DEFAULT_EPIC)
-            .map(
-              ([epic, maxSeq]) =>
-                new CompletionItem(
-                  `epic=${epic},seq=${maxSeq + config.epic.seqStep}`,
-                  CompletionItemKind.Enum
-                )
-            )
+          Array.from(epicCtr).map(
+            ([epic, maxSeq]) =>
+              new CompletionItem(
+                `epic=${epic},seq=${maxSeq + config.epic.seqStep}`,
+                CompletionItemKind.Enum
+              )
+          )
         );
       }
-      return [];
     });
   }
 }
