@@ -6,7 +6,7 @@ import {
   TreeItemCollapsibleState,
 } from "vscode";
 import EntryAnchor from "./entryAnchor";
-import { AnchorEngine } from "../anchorEngine";
+import { AnchorEngine, TagAttributes } from "../anchorEngine";
 
 /**
  * Represents an Anchor found a file
@@ -26,7 +26,8 @@ export default class EntryAnchorRegion extends EntryAnchor {
     public readonly iconColor: string, // The icon color to use
     public readonly scope: string, // The anchor scope
     public readonly showLine: boolean, // Whether to display line numbers
-    public readonly file: Uri // The file this anchor is in
+    public readonly file: Uri, // The file this anchor is in
+    public readonly attributes: TagAttributes // The attriibutes this tag has
   ) {
     super(
       engine,
@@ -38,7 +39,8 @@ export default class EntryAnchorRegion extends EntryAnchor {
       iconColor,
       scope,
       showLine,
-      file
+      file,
+      attributes
     );
 
     this.label = showLine ? `[${lineNumber} - ?] ${anchorText}` : anchorText;
@@ -89,7 +91,8 @@ export default class EntryAnchorRegion extends EntryAnchor {
       this.iconColor,
       this.scope,
       this.showLine,
-      this.file
+      this.file,
+      this.attributes
     );
 
     if (this.closeStartIndex >= 0) {

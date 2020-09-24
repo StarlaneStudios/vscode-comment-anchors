@@ -1,4 +1,3 @@
-// @ts-ignore
 const debounce = require("debounce");
 
 // Utility used for awaiting a timeout
@@ -55,6 +54,11 @@ import {
 } from "vscode";
 import { AnchorIndex } from "./anchorIndex";
 import EntryCachedFile from "./anchor/entryCachedFile";
+import EntryEpic from "./anchor/entryEpic";
+import {
+  EpicAnchorProvider,
+  EpicAnchorIntelliSenseProvider,
+} from "./provider/epicAnchorProvider";
 
 /* -- Constants -- */
 
@@ -66,12 +70,22 @@ const COLOR_PLACEHOLDER_REGEX = /%COLOR%/g;
 export type FileEntry = EntryAnchor | EntryError | EntryLoading;
 export type FileEntryArray = EntryAnchor[] | EntryError[] | EntryLoading[];
 
-export type AnyEntry = EntryAnchor | EntryError | EntryCachedFile | EntryScan;
+export type AnyEntry =
+  | EntryAnchor
+  | EntryError
+  | EntryCachedFile
+  | EntryScan
+  | EntryEpic;
 export type AnyEntryArray =
   | EntryAnchor[]
   | EntryError[]
   | EntryCachedFile[]
-  | EntryScan[];
+  | EntryScan[]
+  | EntryEpic[];
+
+const MATCHER_TAG_INDEX = 1;
+const MATCHER_ATTR_INDEX = 2;
+const MATCHER_COMMENT_INDEX = 5;
 
 /**
  * The main anchor parsing and caching engine
@@ -117,6 +131,9 @@ export class AnchorEngine {
 
   /** The tree view used for displaying workspace anchors */
   public workspaceTreeView: TreeView<AnyEntry>;
+
+  /** The epic view used for displaying workspace anchors */
+  public epicTreeView: TreeView<AnyEntry>;
 
   /** The currently expanded file tree items */
   public expandedFileTreeViewItems: string[] = [];
@@ -244,6 +261,12 @@ export class AnchorEngine {
         this.expandedWorkspaceTreeViewItems.splice(idx, 1);
       }
     });
+
+    // Create the workspace anchor view
+    this.epicTreeView = window.createTreeView("epicAnchors", {
+      treeDataProvider: new EpicAnchorProvider(this),
+      showCollapseAll: true,
+    });
   }
 
   public registerProviders(): void {
@@ -291,6 +314,17 @@ export class AnchorEngine {
       );
 
       this._subscriptions.push(provider);
+    }
+
+    // Provide epic auto complete
+    if (config.epic.provideAutoCompletion) {
+      this._subscriptions.push(
+        languages.registerCompletionItemProvider(
+          { language: "*" },
+          new EpicAnchorIntelliSenseProvider(this),
+          "["
+        )
+      );
     }
   }
 
@@ -615,9 +649,11 @@ export class AnchorEngine {
         return;
       }
 
+      const attributes = `\\[.*\\]`;
+
       // ANCHOR: Tag RegEx
       this.matcher = new RegExp(
-        `[^\\w](${tags})((${separators})(.*))?$`,
+        `[^\\w](${tags})(${attributes})?((${separators})(.*))?$`,
         config.tags.matchCase ? "gm" : "img"
       );
 
@@ -625,20 +661,20 @@ export class AnchorEngine {
 
       // Write anchor icons
       iconColors.forEach((color) => {
+        const filename = "anchor_" + color.toLowerCase() + ".svg";
         const anchorSvg = baseAnchor.replace(
           COLOR_PLACEHOLDER_REGEX,
           "#" + color
         );
-        const filename = "anchor_" + color.toLowerCase() + ".svg";
 
         fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
 
         if (regionColors.indexOf(color) >= 0) {
+          const filenameEnd = "anchor_end_" + color.toLowerCase() + ".svg";
           const anchorEndSvg = baseAnchorEnd.replace(
             COLOR_PLACEHOLDER_REGEX,
             "#" + color
           );
-          const filenameEnd = "anchor_end_" + color.toLowerCase() + ".svg";
 
           fs.writeFileSync(path.join(iconCache, filenameEnd), anchorEndSvg);
         }
@@ -725,7 +761,7 @@ export class AnchorEngine {
     this._onDidChangeTreeData.fire();
   }
 
-  private async loadWorkspace(uris: Uri[]) {
+  private async loadWorkspace(uris: Uri[]): Promise<void> {
     const maxFiles = this._config!.workspace.maxFiles;
     const parseStatus = window.createStatusBarItem(StatusBarAlignment.Left, 0);
     let parseCount = 0;
@@ -809,11 +845,47 @@ export class AnchorEngine {
   }
 
   /**
+   * Parse the given raw attribute string into
+   * individual attributes.
+   *
+   * @param raw The raw attribute string
+   * @param defaultValue The default attributes
+   */
+  public parseAttributes(
+    raw: string,
+    defaultValue: TagAttributes
+  ): TagAttributes {
+    if (!raw) return defaultValue;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: TagAttributes = { ...defaultValue };
+    const mapping = new Map<string, string>();
+
+    // parse all 'key1=value1,key2=value2'
+    raw.split(",").forEach((pair) => {
+      const [key, value] = pair.trim().split("=");
+      AnchorEngine.output(`Trying to set key=${key},value=${value}`);
+      mapping.set(key, value);
+    });
+
+    // Parse the epic value
+    if (mapping.has("epic")) {
+      result.epic = mapping.get("epic")!;
+    }
+
+    // Parse the sequence value
+    if (mapping.has("seq")) {
+      result.seq = parseInt(mapping.get("seq")!, 10);
+    }
+
+    return result;
+  }
+
+  /**
    * Parse the given or current document
    *
    * @returns true when anchors were found
    */
-
   public parse(document: Uri): Promise<boolean> {
     return new Promise(async (success, reject) => {
       let anchorsFound = false;
@@ -835,6 +907,7 @@ export class AnchorEngine {
         const currRegions: EntryAnchorRegion[] = [];
         const anchors: EntryAnchor[] = [];
         const folds: FoldingRange[] = [];
+
         let match;
 
         const config = this._config!;
@@ -842,10 +915,18 @@ export class AnchorEngine {
 
         // Find all anchor occurences
         while ((match = this.matcher!.exec(text))) {
-          const tagName = match[1].toUpperCase().replace(endTag, "");
+          // 找到match的tagName
+          const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(
+            endTag,
+            ""
+          );
           const tag: TagEntry = this.tags.get(tagName)!;
+          AnchorEngine.output(
+            match.map((v, i) => `[[${i}]=${v}]`).join(" -> ")
+          );
+
           const isRegionStart = tag.isRegion;
-          const isRegionEnd = match[1].startsWith(endTag);
+          const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
           const currRegion: EntryAnchorRegion | null = currRegions.length
             ? currRegions[currRegions.length - 1]
             : null;
@@ -862,7 +943,7 @@ export class AnchorEngine {
 
             currRegion.setEndTag({
               startIndex: match.index + 1,
-              endIndex: match.index + 1 + match[1].length,
+              endIndex: match.index + 1 + match[MATCHER_TAG_INDEX].length,
               lineNumber: lineNumber,
             });
 
@@ -881,12 +962,23 @@ export class AnchorEngine {
           const rangeLength = tag.styleComment
             ? match[0].length - 1
             : tag.tag.length;
+
           const startPos = match.index + 1;
-          let endPos = startPos + rangeLength;
           const deltaText = text.substr(0, startPos);
           const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
-          let comment = (match[4] || "").trim();
+
+          let endPos = startPos + rangeLength;
+          let comment = (match[MATCHER_COMMENT_INDEX] || "").trim();
           let display = "";
+
+          const rawAttributeStr = match[MATCHER_ATTR_INDEX] || "[]";
+          const attributes = this.parseAttributes(
+            rawAttributeStr.substr(1, rawAttributeStr.length - 2),
+            {
+              epic: undefined,
+              seq: lineNumber,
+            }
+          );
 
           // Clean up the comment and adjust the endPos
           if (comment.endsWith("-->")) {
@@ -941,7 +1033,8 @@ export class AnchorEngine {
               tag.iconColor!,
               tag.scope!,
               displayLineNumber,
-              document
+              document,
+              attributes
             );
           } else {
             anchor = new EntryAnchor(
@@ -954,7 +1047,8 @@ export class AnchorEngine {
               tag.iconColor!,
               tag.scope!,
               displayLineNumber,
-              document
+              document,
+              attributes
             );
           }
 
@@ -1216,4 +1310,15 @@ export interface TagEntry {
   isItalic?: boolean;
   scope?: string;
   isRegion?: boolean;
+  isSequential?: boolean;
+  isEpic?: boolean;
+}
+
+/**
+ * Defined for tag attribute
+ * Currenly only "seq" and "epic" are used
+ */
+export interface TagAttributes {
+  seq: number;
+  epic?: string;
 }

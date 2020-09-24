@@ -64,6 +64,11 @@
 				{
 					"id": "workspaceAnchors",
 					"name": "Workspace Anchors"
+				},
+				{
+					"id": "epicAnchors",
+					"name": "Epic Anchors",
+					"visibility": "collapsed"
 				}
 			]
 		},
@@ -148,6 +153,18 @@
 						"abbreviated",
 						"hidden"
 					]
+				},
+				"commentAnchors.epic.provideAutoCompletion": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether auto complete an epic",
+					"scope": "window"
+				},
+				"commentAnchors.epic.seqStep": {
+					"type": "integer",
+					"default": 1,
+					"description": "Only useful when autoComplete is enabled. This will be added to the max seq for each epic as shown in the autocomplete item",
+					"scope": "window"
 				},
 				"commentAnchors.tags.provideAutoCompletion": {
 					"type": "boolean",
