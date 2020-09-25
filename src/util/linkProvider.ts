@@ -76,7 +76,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
               command: "commentAnchors.openFileAndRevealLine",
               title:
                 "$(chevron-right) Click here to open file at line " +
-                lineNumber,
+                (lineNumber + 1),
               arguments: [options],
             });
           } else {
