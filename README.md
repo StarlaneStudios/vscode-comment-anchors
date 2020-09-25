@@ -372,4 +372,10 @@ If you'd rather disable workspace anchors all together, you can disable these in
 
 You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
 
+## Are you enjoying Comment Anchors?
+
+Feel free to leave us a tip to support our development!
+
+Paypal: https://paypal.me/ExodiusStudios
+
 ### **Thanks for using Comment Anchors! ❤️**
