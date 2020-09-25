@@ -27,6 +27,9 @@ class LinkCodeLensProvider implements CodeLensProvider {
       return [];
     }
 
+    // While this seems like an extremely crude solution,
+    // it does provide a much better visual experience
+    // compared to directly parsing anchors.
     while (this.engine.anchorsDirty) {
       await asyncDelay(100);
     }
@@ -71,8 +74,6 @@ class LinkCodeLensProvider implements CodeLensProvider {
           );
         }
       });
-
-    AnchorEngine.output("Lenses = " + list.length);
 
     return list;
   }
