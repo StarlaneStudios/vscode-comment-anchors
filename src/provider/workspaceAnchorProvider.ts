@@ -3,6 +3,7 @@ import EntryAnchor from "../anchor/entryAnchor";
 import { AnchorEngine, AnyEntry, AnyEntryArray } from "../anchorEngine";
 import EntryCachedFile from "../anchor/entryCachedFile";
 import { AnchorIndex } from "../anchorIndex";
+import { flattenAnchors } from "../util/flattener";
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current workspace
@@ -38,7 +39,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
               res.push(anchor.copy(true));
             });
           } else {
-            WorkspaceAnchorProvider.flattenAnchors(cachedFile.anchors).forEach(
+            flattenAnchors(cachedFile.anchors).forEach(
               (anchor: EntryAnchor) => {
                 if (!anchor.isVisibleInWorkspace) return;
 
@@ -107,26 +108,5 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
         })
       );
     });
-  }
-
-  /**
-   * Flattens hierarchical anchors into a single array
-   *
-   * @param anchors Array to flatten
-   */
-  static flattenAnchors(anchors: EntryAnchor[]): EntryAnchor[] {
-    const list: EntryAnchor[] = [];
-
-    function crawlList(anchors: EntryAnchor[]) {
-      anchors.forEach((anchor) => {
-        list.push(anchor);
-
-        crawlList(anchor.children);
-      });
-    }
-
-    crawlList(anchors);
-
-    return list;
   }
 }

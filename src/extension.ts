@@ -1,12 +1,4 @@
-import {
-  window,
-  commands,
-  ExtensionContext,
-  workspace,
-  Uri,
-  TreeDataProvider,
-  TreeItem,
-} from "vscode";
+import { window, commands, ExtensionContext, workspace, Uri } from "vscode";
 import { AnchorEngine } from "./anchorEngine";
 
 let anchorEngine: AnchorEngine;

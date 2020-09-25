@@ -55,7 +55,6 @@ export default class EntryAnchor extends EntryBase {
   }
 
   contextValue = "anchor";
-
   tooltip = `${this.anchorText} (Click to reveal)`;
 
   get isVisibleInWorkspace(): boolean {
@@ -64,6 +63,15 @@ export default class EntryAnchor extends EntryBase {
 
   get children(): EntryAnchor[] {
     return this.childAnchors;
+  }
+
+  get lensRange(): Range {
+    return new Range(
+      this.lineNumber - 1,
+      this.startIndex,
+      this.lineNumber - 1,
+      this.endIndex
+    );
   }
 
   decorateDocument(document: TextDocument, options: DecorationOptions[]): void {

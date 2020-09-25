@@ -16,6 +16,7 @@ import {
 import EntryAnchor from "../anchor/entryAnchor";
 import { AnchorEngine, AnyEntry, AnyEntryArray } from "../anchorEngine";
 import EntryEpic from "../anchor/entryEpic";
+import { flattenAnchors } from "../util/flattener";
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current workspace
@@ -38,8 +39,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
   }
 
   getChildren(element?: AnyEntry): Thenable<AnyEntryArray> {
-    AnchorEngine.output(`epic elementType ${typeof element}`);
-
     return new Promise((success) => {
       // The default is empty, so you have to build a tree
       if (element) {
@@ -88,13 +87,11 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
               res.push(anchor.copy(true, false));
             });
           } else {
-            EpicAnchorProvider.flattenAnchors(epic.anchors).forEach(
-              (anchor: EntryAnchor) => {
-                if (!anchor.isVisibleInWorkspace) return;
+            flattenAnchors(epic.anchors).forEach((anchor: EntryAnchor) => {
+              if (!anchor.isVisibleInWorkspace) return;
 
-                res.push(anchor.copy(false, false));
-              }
-            );
+              res.push(anchor.copy(false, false));
+            });
           }
 
           const anchors = res
@@ -166,10 +163,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
         return;
       }
 
-      AnchorEngine.output(
-        `put res = ${res.map((r) => r.toString()).join(",")}`
-      );
-
       success(res);
 
       // this.provider.anchorMaps.forEach((index: AnchorIndex, document: Uri) => {
@@ -201,27 +194,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
       //     return left.label!.localeCompare(right.label!)
       // }));
     });
-  }
-
-  /**
-   * Flattens hierarchical anchors into a single array
-   *
-   * @param anchors Array to flatten
-   */
-  static flattenAnchors(anchors: EntryAnchor[]): EntryAnchor[] {
-    const list: EntryAnchor[] = [];
-
-    function crawlList(anchors: EntryAnchor[]) {
-      anchors.forEach((anchor) => {
-        list.push(anchor);
-
-        crawlList(anchor.children);
-      });
-    }
-
-    crawlList(anchors);
-
-    return list;
   }
 }
 

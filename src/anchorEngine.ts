@@ -1,14 +1,5 @@
 const debounce = require("debounce");
 
-// Utility used for awaiting a timeout
-const asyncDelay = (delay: number): Promise<void> => {
-  return new Promise((success) => {
-    setTimeout(() => {
-      success();
-    }, delay);
-  });
-};
-
 import * as path from "path";
 import * as fs from "fs";
 import * as escape from "escape-string-regexp";
@@ -21,6 +12,13 @@ import EntryScan from "./anchor/entryScan";
 import EntryAnchorRegion from "./anchor/entryAnchorRegion";
 import registerDefaults from "./util/defaultTags";
 import { createViewContent } from "./anchorListView";
+import { AnchorIndex } from "./anchorIndex";
+import EntryCachedFile from "./anchor/entryCachedFile";
+import EntryEpic from "./anchor/entryEpic";
+import {
+  EpicAnchorProvider,
+  EpicAnchorIntelliSenseProvider,
+} from "./provider/epicAnchorProvider";
 
 import {
   window,
@@ -33,7 +31,6 @@ import {
   WorkspaceConfiguration,
   ExtensionContext,
   DecorationRenderOptions,
-  OutputChannel,
   StatusBarAlignment,
   Uri,
   FileSystemWatcher,
@@ -42,23 +39,13 @@ import {
   languages,
   FoldingRange,
   FoldingRangeKind,
-  ProviderResult,
-  CompletionItem,
-  CompletionList,
-  CompletionItemKind,
   Disposable,
   ViewColumn,
-  TreeDataProvider,
-  TreeItem,
   TreeView,
 } from "vscode";
-import { AnchorIndex } from "./anchorIndex";
-import EntryCachedFile from "./anchor/entryCachedFile";
-import EntryEpic from "./anchor/entryEpic";
-import {
-  EpicAnchorProvider,
-  EpicAnchorIntelliSenseProvider,
-} from "./provider/epicAnchorProvider";
+import { setupCompletionProvider } from "./util/completionProvider";
+import { setupLinkProvider } from "./util/linkProvider";
+import { asyncDelay } from "./util/asyncDelay";
 
 /* -- Constants -- */
 
@@ -99,6 +86,11 @@ export class AnchorEngine {
     undefined
   >();
 
+  /** Then event emitter in charge of refreshing the link lens */
+  public _onDidChangeLensData: EventEmitter<undefined> = new EventEmitter<
+    undefined
+  >();
+
   /** Debounced function for performance improvements */
   private _idleRefresh: (() => void) | undefined;
 
@@ -126,6 +118,9 @@ export class AnchorEngine {
   /** Holds whether a scan has been performed since rebuild */
   public anchorsScanned = false;
 
+  /** Holds whether anchors may be outdated */
+  public anchorsDirty = true;
+
   /** The tree view used for displaying file anchors */
   public fileTreeView: TreeView<FileEntry>;
 
@@ -134,6 +129,9 @@ export class AnchorEngine {
 
   /** The epic view used for displaying workspace anchors */
   public epicTreeView: TreeView<AnyEntry>;
+
+  /** The resource for the lkink provider */
+  public linkProvider: Disposable;
 
   /** The currently expanded file tree items */
   public expandedFileTreeViewItems: string[] = [];
@@ -164,18 +162,22 @@ export class AnchorEngine {
     this,
     "Waiting for open editor..."
   );
+
   public errorEmptyItem: EntryError = new EntryError(
     this,
     "No comment anchors detected"
   );
+
   public errorEmptyWorkspace: EntryError = new EntryError(
     this,
     "No comment anchors in workspace"
   );
+
   public errorEmptyEpics: EntryError = new EntryError(
     this,
     "No epics found in workspace"
   );
+
   public errorWorkspaceDisabled: EntryError = new EntryError(
     this,
     "Workspace disabled"
@@ -214,6 +216,7 @@ export class AnchorEngine {
     );
 
     const outputChannel = window.createOutputChannel("Comment Anchors");
+
     AnchorEngine.output = (m: string) =>
       outputChannel.appendLine("[Comment Anchors] " + m);
 
@@ -271,6 +274,9 @@ export class AnchorEngine {
       treeDataProvider: new EpicAnchorProvider(this),
       showCollapseAll: true,
     });
+
+    // Setup the link lens
+    this.linkProvider = setupLinkProvider(this);
   }
 
   public registerProviders(): void {
@@ -278,46 +284,7 @@ export class AnchorEngine {
 
     // Provide auto completion
     if (config.tags.provideAutoCompletion) {
-      const endTag = config.tags.endTag;
-      const provider = languages.registerCompletionItemProvider(
-        { language: "*" },
-        {
-          provideCompletionItems: (): ProviderResult<CompletionList> => {
-            const ret = new CompletionList();
-            const separator = config.tags.separators[0];
-
-            for (const tag of this.tags.values()) {
-              const item = new CompletionItem(
-                tag.tag + " Anchor",
-                CompletionItemKind.Reference
-              );
-
-              item.documentation = `Insert ${tag.tag} comment anchor`;
-              item.insertText = tag.tag + separator;
-
-              ret.items.push(item);
-
-              if (tag.behavior == "region") {
-                const endItem = new CompletionItem(
-                  endTag + tag.tag + " Anchor",
-                  CompletionItemKind.Reference
-                );
-
-                endItem.insertText = endTag + tag.tag + separator;
-                endItem.documentation = `Insert ${
-                  endTag + tag.tag
-                } comment anchor`;
-
-                ret.items.push(endItem);
-              }
-            }
-
-            return ret;
-          },
-        }
-      );
-
-      this._subscriptions.push(provider);
+      this._subscriptions.push(setupCompletionProvider(this));
     }
 
     // Provide epic auto complete
@@ -427,7 +394,6 @@ export class AnchorEngine {
 
         // Fix legacy isRegion tag
         if (opts.isRegion) {
-          AnchorEngine.output("AAAWIIEEEP!");
           opts.behavior = "region";
         }
 
@@ -662,11 +628,9 @@ export class AnchorEngine {
         return;
       }
 
-      const attributes = `\\[.*\\]`;
-
       // ANCHOR: Tag RegEx
       this.matcher = new RegExp(
-        `[^\\w](${tags})(${attributes})?((${separators})(.*))?$`,
+        `[^\\w](${tags})(\\[.*\\])?((${separators})(.*))?$`,
         config.tags.matchCase ? "gm" : "img"
       );
 
@@ -840,9 +804,12 @@ export class AnchorEngine {
     this.anchorDecorators.forEach((type: TextEditorDecorationType) =>
       type.dispose()
     );
+
     this.anchorEndDecorators.forEach((type: TextEditorDecorationType) =>
       type.dispose()
     );
+
+    this.linkProvider.dispose();
   }
 
   // LINK /src/some/file.png
@@ -932,16 +899,13 @@ export class AnchorEngine {
 
         // Find all anchor occurences
         while ((match = this.matcher!.exec(text))) {
-          // 找到match的tagName
+          // Find the tagName of match
           const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(
             endTag,
             ""
           );
-          const tag: TagEntry = this.tags.get(tagName)!;
-          AnchorEngine.output(
-            match.map((v, i) => `[[${i}]=${v}]`).join(" -> ")
-          );
 
+          const tag: TagEntry = this.tags.get(tagName)!;
           const isRegionStart = tag.behavior == "region";
           const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
           const currRegion: EntryAnchorRegion | null = currRegions.length
@@ -1028,7 +992,7 @@ export class AnchorEngine {
 
           if (comment.length == 0) {
             display = tag.tag;
-          } else if (config.tags.displayInSidebar) {
+          } else if (config.tags.displayInSidebar && tag.behavior != "link") {
             display = tag.tag + ": " + comment;
           } else {
             display = comment;
@@ -1164,56 +1128,16 @@ export class AnchorEngine {
       tagsEnd.forEach((decorator) => {
         this._editor!.setDecorations(decorator[0], decorator[1]);
       });
-
-      // Cache the previous expanded items
-      const previousExpandedFileTreeViewItems = this.expandedFileTreeViewItems;
-      const previousExpandedWorkspaceTreeViewItems = this
-        .expandedWorkspaceTreeViewItems;
-
-      // Reset the expansion arrays
-      this.expandedFileTreeViewItems = [];
-      this.expandedWorkspaceTreeViewItems = [];
-
-      // Update the file trees
-      this._onDidChangeTreeData.fire();
-
-      // Re-open the previous expanded items
-
-      // FIXME this code should work as expected, except it doesn't thanks to code's janky API.
-      // The goal is to loop though our EntryAnchor instances and find all of those that have
-      // contents matching a previously expanded entry. We use #reveal() to alert code to expand
-      // the entries, however it results in nothing, even when a timeout is applied.
-
-      // this.anchorMaps.forEach((index) => {
-      // 	index.textIndex.forEach((anchor, text) => {
-      // 		if(previousExpandedFileTreeViewItems.includes(text)) {
-      // 			AnchorEngine.output("REVEALING IN FILE TREE " + anchor);
-
-      // 			this.fileTreeView.reveal(anchor, {
-      // 				select: true,
-      // 				focus: true,
-      // 				expand: true
-      // 			});
-      // 		}
-
-      // 		if(previousExpandedWorkspaceTreeViewItems.includes(text)) {
-      // 			AnchorEngine.output("REVEALING IN WORKSPACE TREE");
-
-      // 			this.workspaceTreeView.reveal(anchor, {
-      // 				select: true,
-      // 				focus: true,
-      // 				expand: true
-      // 			});
-      // 		}
-      // 	});
-      // });
-    } else {
-      this.expandedFileTreeViewItems = [];
-      this.expandedWorkspaceTreeViewItems = [];
-
-      // Update the file trees
-      this._onDidChangeTreeData.fire();
     }
+
+    // Reset the expansion arrays
+    this.expandedFileTreeViewItems = [];
+    this.expandedWorkspaceTreeViewItems = [];
+
+    // Update the file trees
+    this._onDidChangeTreeData.fire();
+    this._onDidChangeLensData.fire();
+    this.anchorsDirty = false;
   }
 
   /**
@@ -1295,6 +1219,7 @@ export class AnchorEngine {
   private onDocumentChanged(e: TextDocumentChangeEvent): void {
     if (!e.contentChanges || e.document.uri.scheme == "output") return;
 
+    this.anchorsDirty = true;
     this._idleRefresh!();
   }
 
