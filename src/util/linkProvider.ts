@@ -14,7 +14,7 @@ import { lstatSync } from "fs";
 import EntryAnchor from "../anchor/entryAnchor";
 import { OpenFileAndRevealLineOptions } from "../extension";
 
-const LINK_REGEX = /^(.+?)(:\d+|~[\w-]+)?$/;
+const LINK_REGEX = /^(.+?)(:\d+|#[\w-]+)?$/;
 
 class LinkCodeLensProvider implements CodeLensProvider {
   readonly engine: AnchorEngine;
@@ -54,7 +54,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
       })
       .forEach((anchor) => {
         const components = LINK_REGEX.exec(anchor.anchorText)!;
-        const parameter = components[2];
+        const parameter = components[2] || "";
         const filePath = components[1];
 
         const fullPath = resolve(basePath, filePath);
@@ -74,21 +74,31 @@ class LinkCodeLensProvider implements CodeLensProvider {
 
             codeLens = new CodeLens(anchor.lensRange, {
               command: "commentAnchors.openFileAndRevealLine",
-              title: "$(chevron-right) Click here to open file",
+              title:
+                "$(chevron-right) Click here to open file at line " +
+                lineNumber,
               arguments: [options],
             });
           } else {
-            if (parameter.startsWith("~")) {
+            if (parameter.startsWith("#")) {
               const targetId = parameter.substr(1);
 
               this.engine.revealAnchorOnParse = targetId;
-            }
 
-            codeLens = new CodeLens(anchor.lensRange, {
-              command: "vscode.open",
-              title: "$(chevron-right) Click here to open file",
-              arguments: [fileUri],
-            });
+              codeLens = new CodeLens(anchor.lensRange, {
+                command: "vscode.open",
+                title:
+                  "$(chevron-right) Click here to open file at anchor " +
+                  targetId,
+                arguments: [fileUri],
+              });
+            } else {
+              codeLens = new CodeLens(anchor.lensRange, {
+                command: "vscode.open",
+                title: "$(chevron-right) Click here to open file",
+                arguments: [fileUri],
+              });
+            }
           }
 
           list.push(codeLens);

@@ -6,7 +6,18 @@
 	- Specify the epic using an `epic` attribute, example:<br>
 	`// EXAMPLE[epic=examples] This anchor appears in the "examples" epic`
 	- Anchor ordering can be customized per anchor using the `seq` option
+- Add "link" anchor support
+	- Enabled on tags by setting `behavior` to `"link"`
+	- Allows you to specify an absolute or relative file to travel to
+	- Renders a clickable link that opens the file in your editor
+	- You can link to specific line numbers
+		- Example: `// LINK some/file.txt:50`
+	- You can link to specific anchors
+		- Example: `// LINK some/file.txt#my-anchor`
+		- Takes you to `// ANCHOR[id=my-anchor] This is the destination` 
+- Added new default `LINK` tag to use together with the new link behavior functionality
 - Increase default `maxFiles` value from 50 to 250
+- Deprecated `isRegion` in favor of `behavior` set to `"region"`
 
 ## 1.8.0
 - Added support for custom icon hex colors

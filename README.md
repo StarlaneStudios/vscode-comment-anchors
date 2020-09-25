@@ -30,9 +30,11 @@ The default settings come with anchors for the following tags:
 * FIXME - An item that requires a bugfix
 * STUB - Used for generated default snippets
 * NOTE - An important note for a specific code section
-* REVIEW - An item that needs additional review
+* REVIEW - An item that requires additional review
 * SECTION - Used to define a region (See 'Hierarchical anchors')
+* LINK - Used to link to a file that can be opened within the editor (See 'Link Anchors')
 
+Of course you can add your own anchors as well!
 In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
 
 ![Preview](media/preview.gif)
@@ -77,7 +79,7 @@ however they require an end tag to be specified, which is simply a tag of the sa
 
 ![Hierarchical Anchors](media/folding.png)
 
-In order to mark a tag as Region Tag, set the `isRegion` property to `true` in the tags configuration (See configuration section).
+In order to mark a tag as Region Tag, set the `behavior` property to `"region"` in the tags configuration (See configuration section).
 
 A default region tag is provided, called "SECTION"
 
@@ -88,6 +90,30 @@ Comment Anchors supports a vast range of tag customization options. All tags can
 See the configuration section for a complete list of tag properties.
 
 ![Workspace Anchors](media/custom-tags.png)
+
+## Link Anchors
+
+Sometimes you might want to link to a file from within a comment. In these cases, a link anchor
+might provide to be useful to you. Using the default `LINK` tag you can provide a relative or
+absolute path to a file. These anchors will render with a clickable CodeLens line, used to quickly open it within your editor.
+
+Custom link tags can be created by setting `behavior` to `"link"`
+
+### Linking to a line number
+
+You can specify a line number to scroll to by appending the path with `:` followed by the line number.
+
+Example: `// LINK some/file.txt:50`
+
+### Linking to a specific anchor
+
+Link anchors can take you to another anchor in the target file by appending the path with `#` followed by the anchor id.
+The anchor id can be specified as an attribute.
+
+Example: `// LINK some/file.txt#my-anchor`
+Takes you here: `// ANCHOR[id=my-anchor] This is the destination!`
+
+![Link Anchors](media/link-anchors.png)
 
 ## IntelliSense support
 
