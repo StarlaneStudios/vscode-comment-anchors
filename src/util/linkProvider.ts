@@ -11,21 +11,30 @@ import {
 } from "vscode";
 import { flattenAnchors } from "./flattener";
 import { resolve, join } from "path";
+import { asyncDelay } from "./asyncDelay";
+import { existsSync, fstat, lstatSync } from "fs";
 
 class LinkCodeLensProvider implements CodeLensProvider {
   readonly engine: AnchorEngine;
-  readonly onDidChangeCodeLenses: Event<void>;
 
   constructor(engine: AnchorEngine) {
-    this.onDidChangeCodeLenses = engine._onDidChangeLensData.event;
+    // this.onDidChangeCodeLenses = engine._onDidChangeLensData.event;
     this.engine = engine;
   }
 
   async provideCodeLenses(document: TextDocument): Promise<CodeLens[]> {
+    if (document.uri.scheme == "output") {
+      return [];
+    }
+
+    while (this.engine.anchorsDirty) {
+      await asyncDelay(100);
+    }
+
     const index = this.engine.anchorMaps.get(document.uri);
     const list: CodeLens[] = [];
 
-    if (!index || document.uri.scheme == "output") {
+    if (!index) {
       return [];
     }
 
@@ -42,18 +51,28 @@ class LinkCodeLensProvider implements CodeLensProvider {
       .forEach((anchor) => {
         const fullPath = resolve(basePath, anchor.anchorText);
         const fileUri = Uri.file(fullPath);
-        const range = anchor.lensRange;
+        const exists = lstatSync(fullPath).isFile();
 
-        list.push(
-          new CodeLens(range, {
-            command: "vscode.open",
-            title: "$(chevron-right) Click to open linked file",
-            arguments: [fileUri],
-          })
-        );
+        if (exists) {
+          list.push(
+            new CodeLens(anchor.lensRange, {
+              command: "vscode.open",
+              title: "$(chevron-right) Click here to open file",
+              arguments: [fileUri],
+            })
+          );
+        } else {
+          list.push(
+            new CodeLens(anchor.lensRange, {
+              command: "",
+              title: "$(chrome-close) File not found",
+              arguments: [fileUri],
+            })
+          );
+        }
       });
 
-    // AnchorEngine.output("Lenses = " + JSON.stringify(list));
+    AnchorEngine.output("Lenses = " + list.length);
 
     return list;
   }

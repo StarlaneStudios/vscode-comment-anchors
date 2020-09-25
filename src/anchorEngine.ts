@@ -1135,8 +1135,8 @@ export class AnchorEngine {
     this.expandedWorkspaceTreeViewItems = [];
 
     // Update the file trees
-    this._onDidChangeTreeData.fire();
     this._onDidChangeLensData.fire();
+    this._onDidChangeTreeData.fire();
     this.anchorsDirty = false;
   }
 
