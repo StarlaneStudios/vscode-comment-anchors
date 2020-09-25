@@ -69,10 +69,6 @@ function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {
   if (!options) return;
 
   function scrollAndMove() {
-    AnchorEngine.output("AHHYEEET!");
-    AnchorEngine.output("num = " + options.lineNumber);
-    AnchorEngine.output("nat = " + options.at);
-
     commands.executeCommand("revealLine", {
       lineNumber: options.lineNumber,
       at: options.at,

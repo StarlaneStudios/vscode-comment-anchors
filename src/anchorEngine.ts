@@ -42,10 +42,12 @@ import {
   Disposable,
   ViewColumn,
   TreeView,
+  commands,
 } from "vscode";
 import { setupCompletionProvider } from "./util/completionProvider";
 import { setupLinkProvider } from "./util/linkProvider";
 import { asyncDelay } from "./util/asyncDelay";
+import { flattenAnchors } from "./util/flattener";
 
 /* -- Constants -- */
 
@@ -120,6 +122,9 @@ export class AnchorEngine {
 
   /** Holds whether anchors may be outdated */
   public anchorsDirty = true;
+
+  /** The id of an anchor to reveal on parse */
+  public revealAnchorOnParse: string | undefined;
 
   /** The tree view used for displaying file anchors */
   public fileTreeView: TreeView<FileEntry>;
@@ -825,6 +830,41 @@ export class AnchorEngine {
   }
 
   /**
+   * Travel to the cached anchor
+   */
+  private travelToCachedAnchor() {
+    if (this.revealAnchorOnParse) {
+      this.travelToAnchor(this.revealAnchorOnParse);
+      this.revealAnchorOnParse = undefined;
+    }
+  }
+
+  /**
+   * Travel to the specified anchor id
+   *
+   * @param The anchor id
+   */
+  public travelToAnchor(id: string): void {
+    if (!this._editor) return;
+
+    const anchors = this.currentAnchors;
+    const flattened = flattenAnchors(anchors);
+
+    for (const anchor of flattened) {
+      if (anchor.attributes.id == id) {
+        const targetLine = anchor.lineNumber - 1;
+
+        commands.executeCommand("revealLine", {
+          lineNumber: targetLine,
+          at: EntryAnchor.ScrollPosition,
+        });
+
+        return;
+      }
+    }
+  }
+
+  /**
    * Parse the given raw attribute string into
    * individual attributes.
    *
@@ -856,6 +896,11 @@ export class AnchorEngine {
     // Parse the sequence value
     if (mapping.has("seq")) {
       result.seq = parseInt(mapping.get("seq")!, 10);
+    }
+
+    // Parse the id value
+    if (mapping.has("id")) {
+      result.id = mapping.get("id");
     }
 
     return result;
@@ -952,7 +997,6 @@ export class AnchorEngine {
           const attributes = this.parseAttributes(
             rawAttributeStr.substr(1, rawAttributeStr.length - 2),
             {
-              epic: undefined,
               seq: lineNumber,
             }
           );
@@ -1206,14 +1250,12 @@ export class AnchorEngine {
 
       this.parse(editor.document.uri).then(() => {
         this.refresh();
+        this.travelToCachedAnchor();
       });
     } else {
       this.refresh();
+      this.travelToCachedAnchor();
     }
-
-    // if (this.goToLine) {
-    //   commands.executeCommand('')
-    // }
   }
 
   private onDocumentChanged(e: TextDocumentChangeEvent): void {
@@ -1269,4 +1311,5 @@ export interface TagEntry {
 export interface TagAttributes {
   seq: number;
   epic?: string;
+  id?: string;
 }
