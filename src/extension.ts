@@ -56,7 +56,7 @@ function toggleVisibilitySetting() {
   config.update("tagHighlights.enabled", !config.tagHighlights.enabled);
 }
 
-type OpenFileAndRevealLineOptions = {
+export type OpenFileAndRevealLineOptions = {
   uri: Uri;
   lineNumber: number;
   at: string;
@@ -69,6 +69,10 @@ function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {
   if (!options) return;
 
   function scrollAndMove() {
+    AnchorEngine.output("AHHYEEET!");
+    AnchorEngine.output("num = " + options.lineNumber);
+    AnchorEngine.output("nat = " + options.at);
+
     commands.executeCommand("revealLine", {
       lineNumber: options.lineNumber,
       at: options.at,

@@ -812,10 +812,6 @@ export class AnchorEngine {
     this.linkProvider.dispose();
   }
 
-  // LINK /src/some/file.png
-  // LINK src/some/file.png
-  // LINK ./src/some/file.png
-
   /**
    * Clean up external files
    */
@@ -1214,6 +1210,10 @@ export class AnchorEngine {
     } else {
       this.refresh();
     }
+
+    // if (this.goToLine) {
+    //   commands.executeCommand('')
+    // }
   }
 
   private onDocumentChanged(e: TextDocumentChangeEvent): void {

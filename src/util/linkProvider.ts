@@ -13,6 +13,10 @@ import { flattenAnchors } from "./flattener";
 import { resolve, join } from "path";
 import { asyncDelay } from "./asyncDelay";
 import { existsSync, fstat, lstatSync } from "fs";
+import EntryAnchor from "../anchor/entryAnchor";
+import { OpenFileAndRevealLineOptions } from "../extension";
+
+const LINK_REGEX = /^(.+?)(:\d+)?$/;
 
 class LinkCodeLensProvider implements CodeLensProvider {
   readonly engine: AnchorEngine;
@@ -52,24 +56,45 @@ class LinkCodeLensProvider implements CodeLensProvider {
         return tag?.behavior == "link";
       })
       .forEach((anchor) => {
-        const fullPath = resolve(basePath, anchor.anchorText);
+        const components = LINK_REGEX.exec(anchor.anchorText)!;
+        const lineNum = components[2];
+        const filePath = components[1];
+
+        const fullPath = resolve(basePath, filePath);
         const fileUri = Uri.file(fullPath);
         const exists = lstatSync(fullPath).isFile();
 
         if (exists) {
-          list.push(
-            new CodeLens(anchor.lensRange, {
+          let codeLens: CodeLens;
+
+          if (lineNum) {
+            const lineNumber = parseInt(lineNum.substr(1)) - 1;
+            const options: OpenFileAndRevealLineOptions = {
+              uri: fileUri,
+              lineNumber: lineNumber,
+              at: EntryAnchor.ScrollPosition,
+            };
+
+            codeLens = new CodeLens(anchor.lensRange, {
+              command: "commentAnchors.openFileAndRevealLine",
+              title: "$(chevron-right) Click here to open file",
+              arguments: [options],
+            });
+          } else {
+            codeLens = new CodeLens(anchor.lensRange, {
               command: "vscode.open",
               title: "$(chevron-right) Click here to open file",
               arguments: [fileUri],
-            })
-          );
+            });
+          }
+
+          list.push(codeLens);
         } else {
           list.push(
             new CodeLens(anchor.lensRange, {
               command: "",
               title: "$(chrome-close) File not found",
-              arguments: [fileUri],
+              arguments: [],
             })
           );
         }
