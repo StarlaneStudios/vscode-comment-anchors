@@ -164,35 +164,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
       }
 
       success(res);
-
-      // this.provider.anchorMaps.forEach((index: AnchorIndex, document: Uri) => {
-      //     const anchors = index.anchorTree;
-
-      //     if (anchors.length == 0) return; // Skip empty files
-
-      //     let notVisible = true;
-
-      //     anchors.forEach(anchor => {
-      //         if (anchor.isVisibleInWorkspace) notVisible = false;
-      //     });
-
-      //     if (!notVisible) {
-      //         try {
-      //             res.push(new EntryEpic(this.provider, anchors));
-      //         } catch (err) {
-      //             // Simply ignore, we do not want to push this file
-      //         }
-      //     }
-      // });
-
-      // if (res.length == 0) {
-      //     success([this.provider.errorEmptyWorkspace]);
-      //     return;
-      // }
-
-      // success(res.sort((left, right) => {
-      //     return left.label!.localeCompare(right.label!)
-      // }));
     });
   }
 }
@@ -205,45 +176,44 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
   }
 
   provideCompletionItems(
-    document: TextDocument,
-    position: Position,
-    token: CancellationToken,
-    context: CompletionContext
-  ): Thenable<CompletionItem[] | CompletionList> {
-    const config = this.engine._config!;
+    _document: TextDocument,
+    _position: Position,
+    _token: CancellationToken,
+    _context: CompletionContext
+  ): CompletionItem[] | CompletionList {
+    const config = this.engine._config!
 
-    return new Promise((success) => {
-      const keyWord = document.getText(
-        document.getWordRangeAtPosition(position.translate(0, -1))
-      );
+    AnchorEngine.output("provideCompletionItems")
 
-      const hasKeyWord = Array.from(this.engine.tags.keys()).find(
-        (v) => v.toUpperCase() === keyWord
-      );
+    const keyWord = _document.getText(
+      _document.getWordRangeAtPosition(_position.translate(0, -1))
+    );
 
-      if (hasKeyWord) {
-        const epicCtr = new Map<string, number>();
+    const hasKeyWord = Array.from(this.engine.tags.keys()).find(
+      (v) => v.toUpperCase() === keyWord
+    );
 
-        this.engine.anchorMaps.forEach((anchorIndex, uri) => {
-          anchorIndex.anchorTree.forEach((entryAnchor) => {
-            const { seq, epic } = entryAnchor.attributes;
+    if (hasKeyWord) {
+      const epicCtr = new Map<string, number>();
 
-            if (epic) {
-              epicCtr.set(epic, Math.max(epicCtr.get(epic) || 0, seq));
-            }
-          });
+      this.engine.anchorMaps.forEach((anchorIndex, uri) => {
+        anchorIndex.anchorTree.forEach((entryAnchor) => {
+          const { seq, epic } = entryAnchor.attributes;
+
+          if (epic) {
+            epicCtr.set(epic, Math.max(epicCtr.get(epic) || 0, seq));
+          }
         });
+      });
 
-        success(
-          Array.from(epicCtr).map(
-            ([epic, maxSeq]) =>
-              new CompletionItem(
-                `epic=${epic},seq=${maxSeq + config.epic.seqStep}`,
-                CompletionItemKind.Enum
-              )
+      return Array.from(epicCtr).map(
+        ([epic, maxSeq]) =>
+          new CompletionItem(
+            `epic=${epic},seq=${maxSeq + config.epic.seqStep}`,
+            CompletionItemKind.Enum
           )
-        );
-      }
-    });
+      )
+    }
+    return []
   }
 }
