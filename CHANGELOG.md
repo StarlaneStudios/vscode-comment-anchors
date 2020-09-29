@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.9.1
+- Fixed IntelliSense breaking few extensions
+
 ## 1.9.0
 - Added Anchor Epics
 	- Used to group anchors into individual groups

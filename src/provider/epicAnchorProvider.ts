@@ -181,9 +181,9 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
     _token: CancellationToken,
     _context: CompletionContext
   ): CompletionItem[] | CompletionList {
-    const config = this.engine._config!
+    const config = this.engine._config!;
 
-    AnchorEngine.output("provideCompletionItems")
+    AnchorEngine.output("provideCompletionItems");
 
     const keyWord = _document.getText(
       _document.getWordRangeAtPosition(_position.translate(0, -1))
@@ -212,8 +212,8 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
             `epic=${epic},seq=${maxSeq + config.epic.seqStep}`,
             CompletionItemKind.Enum
           )
-      )
+      );
     }
-    return []
+    return [];
   }
 }
