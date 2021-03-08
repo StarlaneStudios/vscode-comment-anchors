@@ -6,6 +6,7 @@ import {
   languages,
   TextDocument,
   Uri,
+  workspace,
 } from "vscode";
 import { flattenAnchors } from "./flattener";
 import { resolve, join } from "path";
@@ -14,7 +15,7 @@ import { lstatSync } from "fs";
 import EntryAnchor from "../anchor/entryAnchor";
 import { OpenFileAndRevealLineOptions } from "../extension";
 
-const LINK_REGEX = /^(.+?)(:\d+|#[\w-]+)?$/;
+const LINK_REGEX = /^(\.{1,2}[\/\\])?(.+?)(:\d+|#[\w-]+)?$/;
 
 class LinkCodeLensProvider implements CodeLensProvider {
   readonly engine: AnchorEngine;
@@ -44,6 +45,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
 
     const flattened = flattenAnchors(index.anchorTree);
     const basePath = join(document.uri.fsPath, "..");
+    const workspacePath = workspace.getWorkspaceFolder(document.uri)?.uri?.fsPath ?? '';
 
     flattened
       .filter((anchor) => {
@@ -54,10 +56,13 @@ class LinkCodeLensProvider implements CodeLensProvider {
       })
       .forEach((anchor) => {
         const components = LINK_REGEX.exec(anchor.anchorText)!;
-        const parameter = components[2] || "";
-        const filePath = components[1];
+        const parameter = components[3] || "";
+        const filePath = components[2];
+        const relativeFolder = components[1];
 
-        const fullPath = resolve(basePath, filePath);
+        const fullPath = relativeFolder
+          ? resolve(basePath, relativeFolder, filePath)
+          : resolve(workspacePath, filePath);
         const fileUri = Uri.file(fullPath);
         const exists = lstatSync(fullPath).isFile();
 
