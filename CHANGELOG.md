@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.9.2
+- Added `dist` to excluded excluded directories (#114)
+- Added workspace path support for link anchors (#105)
+- Fixed multiple tags starting with the same characters not always working
+
 ## 1.9.1
 - Fixed IntelliSense breaking few extensions
 
