@@ -6,23 +6,23 @@ import { AnchorEngine } from "../anchorEngine";
  * Represents a caught error
  */
 export default class EntryError extends EntryBase {
-  private message: string;
+    private message: string;
 
-  constructor(engine: AnchorEngine, message: string) {
-    super(engine, message, TreeItemCollapsibleState.None);
+    constructor(engine: AnchorEngine, message: string) {
+        super(engine, message, TreeItemCollapsibleState.None);
 
-    this.message = message;
-    this.tooltip = this.message;
+        this.message = message;
+        this.tooltip = this.message;
 
-    this.iconPath = {
-      light: this.loadResourceSvg("cross"),
-      dark: this.loadResourceSvg("cross"),
-    };
-  }
+        this.iconPath = {
+            light: this.loadResourceSvg("cross"),
+            dark: this.loadResourceSvg("cross"),
+        };
+    }
 
-  toString(): string {
-    return "EntryError{}";
-  }
+    toString(): string {
+        return "EntryError{}";
+    }
 
-  contextValue = "error";
+    contextValue = "error";
 }

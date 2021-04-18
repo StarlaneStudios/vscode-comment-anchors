@@ -4,9 +4,9 @@
  * @param delay Delay in ms
  */
 export function asyncDelay(delay: number): Promise<void> {
-  return new Promise((success) => {
-    setTimeout(() => {
-      success();
-    }, delay);
-  });
+    return new Promise((success) => {
+        setTimeout(() => {
+            success();
+        }, delay);
+    });
 }
