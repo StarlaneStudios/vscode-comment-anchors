@@ -603,7 +603,10 @@ export class AnchorEngine {
             });
 
             // Create a matcher for the tags
-            const tags = matchTags.map((tag) => escape(tag)).join("|");
+            const tags = matchTags
+                .map((tag) => escape(tag))
+                .sort((left, right) => right.length - left.length)
+                .join("|");
 
             if (tags.length === 0) {
                 window.showErrorMessage("At least one tag must be defined");
@@ -611,11 +614,13 @@ export class AnchorEngine {
             }
 
             // Construct a list of separators [ +|: +| +- +]
-            const separators = config.tags.separators
-                .map((s: string) => {
-                    return escape(s).replace(/ /g, " +");
-                })
+            const separators = (config.tags.separators as string[])
+                .map((seperator) => escape(seperator).replace(/ /g, " +"))
+                .sort((left, right) => right.length - left.length)
                 .join("|");
+
+            AnchorEngine.output("Tags: " + tags);
+            AnchorEngine.output("Separators: " + separators);
 
             if (separators.length === 0) {
                 window.showErrorMessage("At least one separator must be defined");
