@@ -1,7 +1,7 @@
 # Change Log
 
 ## 1.9.2
-- Added `dist` to excluded excluded directories (#114)
+- Added `dist` to default excluded directories (#114)
 - Added workspace path support for link anchors (#105)
 - Fixed multiple tags starting with the same characters not always working
 
