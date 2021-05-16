@@ -9,11 +9,7 @@ import { AnchorEngine } from "../anchorEngine";
 export default class EntryBase extends TreeItem {
     public readonly engine: AnchorEngine;
 
-    public constructor(
-        engine: AnchorEngine,
-        label: string,
-        state?: TreeItemCollapsibleState
-    ) {
+    public constructor(engine: AnchorEngine, label: string, state?: TreeItemCollapsibleState) {
         super(label, state);
 
         this.engine = engine;

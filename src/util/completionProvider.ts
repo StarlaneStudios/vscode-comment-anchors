@@ -32,20 +32,14 @@ class TagCompletionProvider implements CompletionItemProvider {
         const endTag = config.tags.endTag;
 
         for (const tag of this.engine.tags.values()) {
-            const item = new CompletionItem(
-                tag.tag + " Anchor",
-                CompletionItemKind.Reference
-            );
+            const item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Reference);
 
             item.documentation = `Insert ${tag.tag} comment anchor`;
             item.insertText = tag.tag + separator;
             ret.items.push(item);
 
             if (tag.behavior == "region") {
-                const endItem = new CompletionItem(
-                    endTag + tag.tag + " Anchor",
-                    CompletionItemKind.Reference
-                );
+                const endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Reference);
 
                 endItem.insertText = endTag + tag.tag + separator;
                 endItem.documentation = `Insert ${endTag + tag.tag} comment anchor`;
@@ -58,8 +52,5 @@ class TagCompletionProvider implements CompletionItemProvider {
 }
 
 export function setupCompletionProvider(engine: AnchorEngine): Disposable {
-    return languages.registerCompletionItemProvider(
-        { language: "*" },
-        new TagCompletionProvider(engine)
-    );
+    return languages.registerCompletionItemProvider({ language: "*" }, new TagCompletionProvider(engine));
 }

@@ -118,10 +118,7 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
             } else if (!workspace.workspaceFolders) {
                 success([this.provider.errorFileOnly]);
                 return;
-            } else if (
-                this.provider._config!.workspace.lazyLoad &&
-                !this.provider.anchorsScanned
-            ) {
+            } else if (this.provider._config!.workspace.lazyLoad && !this.provider.anchorsScanned) {
                 success([this.provider.statusScan]);
             } else if (!this.provider.anchorsLoaded) {
                 success([this.provider.statusLoading]);
@@ -183,13 +180,9 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
 
         AnchorEngine.output("provideCompletionItems");
 
-        const keyWord = _document.getText(
-            _document.getWordRangeAtPosition(_position.translate(0, -1))
-        );
+        const keyWord = _document.getText(_document.getWordRangeAtPosition(_position.translate(0, -1)));
 
-        const hasKeyWord = Array.from(this.engine.tags.keys()).find(
-            (v) => v.toUpperCase() === keyWord
-        );
+        const hasKeyWord = Array.from(this.engine.tags.keys()).find((v) => v.toUpperCase() === keyWord);
 
         if (hasKeyWord) {
             const epicCtr = new Map<string, number>();
@@ -205,11 +198,7 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
             });
 
             return Array.from(epicCtr).map(
-                ([epic, maxSeq]) =>
-                    new CompletionItem(
-                        `epic=${epic},seq=${maxSeq + config.epic.seqStep}`,
-                        CompletionItemKind.Enum
-                    )
+                ([epic, maxSeq]) => new CompletionItem(`epic=${epic},seq=${maxSeq + config.epic.seqStep}`, CompletionItemKind.Enum)
             );
         }
         return [];

@@ -8,17 +8,8 @@ import { AnchorEngine } from "../anchorEngine";
  * Represents a workspace file holding one or more anchors
  */
 export default class EntryCachedFile extends EntryBase {
-    constructor(
-        engine: AnchorEngine,
-        public readonly file: Uri,
-        public readonly anchors: EntryAnchor[],
-        public readonly format: string
-    ) {
-        super(
-            engine,
-            EntryCachedFile.fileAnchorStats(file, anchors, format),
-            TreeItemCollapsibleState.Expanded
-        );
+    constructor(engine: AnchorEngine, public readonly file: Uri, public readonly anchors: EntryAnchor[], public readonly format: string) {
+        super(engine, EntryCachedFile.fileAnchorStats(file, anchors, format), TreeItemCollapsibleState.Expanded);
 
         this.iconPath = ThemeIcon.File;
     }

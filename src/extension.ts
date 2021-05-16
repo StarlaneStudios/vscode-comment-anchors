@@ -11,10 +11,7 @@ export function activate(context: ExtensionContext): void {
     // Register extension commands
     commands.registerCommand("commentAnchors.parse", parseCurrentAnchors);
     commands.registerCommand("commentAnchors.toggle", toggleVisibilitySetting);
-    commands.registerCommand(
-        "commentAnchors.openFileAndRevealLine",
-        openFileAndRevealLine
-    );
+    commands.registerCommand("commentAnchors.openFileAndRevealLine", openFileAndRevealLine);
     commands.registerCommand("commentAnchors.launchWorkspaceScan", launchWorkspaceScan);
     commands.registerCommand("commentAnchors.listTags", () => engine.openTagListPanel());
 

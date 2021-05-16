@@ -1,10 +1,4 @@
-import {
-    DecorationOptions,
-    TextDocument,
-    Range,
-    Uri,
-    TreeItemCollapsibleState,
-} from "vscode";
+import { DecorationOptions, TextDocument, Range, Uri, TreeItemCollapsibleState } from "vscode";
 import EntryAnchor from "./entryAnchor";
 import { AnchorEngine, TagAttributes } from "../anchorEngine";
 
@@ -29,29 +23,13 @@ export default class EntryAnchorRegion extends EntryAnchor {
         public readonly file: Uri, // The file this anchor is in
         public readonly attributes: TagAttributes // The attriibutes this tag has
     ) {
-        super(
-            engine,
-            anchorTag,
-            anchorText,
-            startIndex,
-            endIndex,
-            lineNumber,
-            iconColor,
-            scope,
-            showLine,
-            file,
-            attributes
-        );
+        super(engine, anchorTag, anchorText, startIndex, endIndex, lineNumber, iconColor, scope, showLine, file, attributes);
 
         this.label = showLine ? `[${lineNumber} - ?] ${anchorText}` : anchorText;
         this.collapsibleState = TreeItemCollapsibleState.Collapsed;
     }
 
-    setEndTag(endTag: {
-        startIndex: number;
-        endIndex: number;
-        lineNumber: number;
-    }): void {
+    setEndTag(endTag: { startIndex: number; endIndex: number; lineNumber: number }): void {
         this.closeStartIndex = endTag.startIndex;
         this.closeEndIndex = endTag.endIndex;
         this.closeLineNumber = endTag.lineNumber;

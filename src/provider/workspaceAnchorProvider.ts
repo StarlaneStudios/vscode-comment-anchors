@@ -39,13 +39,11 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
                             res.push(anchor.copy(true));
                         });
                     } else {
-                        flattenAnchors(cachedFile.anchors).forEach(
-                            (anchor: EntryAnchor) => {
-                                if (!anchor.isVisibleInWorkspace) return;
+                        flattenAnchors(cachedFile.anchors).forEach((anchor: EntryAnchor) => {
+                            if (!anchor.isVisibleInWorkspace) return;
 
-                                res.push(anchor.copy(false));
-                            }
-                        );
+                            res.push(anchor.copy(false));
+                        });
                     }
 
                     success(EntryAnchor.sortAnchors(res));
@@ -62,10 +60,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
             } else if (!workspace.workspaceFolders) {
                 success([this.provider.errorFileOnly]);
                 return;
-            } else if (
-                this.provider._config!.workspace.lazyLoad &&
-                !this.provider.anchorsScanned
-            ) {
+            } else if (this.provider._config!.workspace.lazyLoad && !this.provider.anchorsScanned) {
                 success([this.provider.statusScan]);
             } else if (!this.provider.anchorsLoaded) {
                 success([this.provider.statusLoading]);
@@ -88,9 +83,7 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 
                 if (!notVisible) {
                     try {
-                        res.push(
-                            new EntryCachedFile(this.provider, document, anchors, format)
-                        );
+                        res.push(new EntryCachedFile(this.provider, document, anchors, format));
                     } catch (err) {
                         // Simply ignore, we do not want to push this file
                     }

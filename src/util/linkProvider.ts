@@ -1,20 +1,11 @@
 import { AnchorEngine } from "../anchorEngine";
-import {
-    CodeLens,
-    CodeLensProvider,
-    Disposable,
-    languages,
-    TextDocument,
-    Uri,
-    workspace,
-} from "vscode";
+import { CodeLens, CodeLensProvider, Disposable, languages, TextDocument, Uri, window, workspace } from "vscode";
 import { flattenAnchors } from "./flattener";
 import { resolve, join } from "path";
 import { asyncDelay } from "./asyncDelay";
 import { lstatSync } from "fs";
 import EntryAnchor from "../anchor/entryAnchor";
 import { OpenFileAndRevealLineOptions } from "../extension";
-import { throws } from "assert";
 
 const LINK_REGEX = /^(\.{1,2}[/\\])?(.+?)(:\d+|#[\w-]+)?$/;
 
@@ -46,8 +37,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
 
         const flattened = flattenAnchors(index.anchorTree);
         const basePath = join(document.uri.fsPath, "..");
-        const workspacePath =
-            workspace.getWorkspaceFolder(document.uri)?.uri?.fsPath ?? "";
+        const workspacePath = workspace.getWorkspaceFolder(document.uri)?.uri?.fsPath ?? "";
 
         flattened
             .filter((anchor) => {
@@ -62,9 +52,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
                 const filePath = components[2];
                 const relativeFolder = components[1];
 
-                const fullPath = relativeFolder
-                    ? resolve(basePath, relativeFolder, filePath)
-                    : resolve(workspacePath, filePath);
+                const fullPath = relativeFolder ? resolve(basePath, relativeFolder, filePath) : resolve(workspacePath, filePath);
                 const fileUri = Uri.file(fullPath);
                 const exists = lstatSync(fullPath).isFile();
 
@@ -81,9 +69,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
 
                         codeLens = new CodeLens(anchor.lensRange, {
                             command: "commentAnchors.openFileAndRevealLine",
-                            title:
-                                "$(chevron-right) Click here to open file at line " +
-                                (lineNumber + 1),
+                            title: "$(chevron-right) Click here to open file at line " + (lineNumber + 1),
                             arguments: [options],
                         });
                     } else {
@@ -92,38 +78,34 @@ class LinkCodeLensProvider implements CodeLensProvider {
 
                             this.engine.revealAnchorOnParse = targetId;
 
-                            // if (anchor.file.path == process.cwd()) {
-                            //     const anchors = this.engine.currentAnchors;
-                            //     const flattened = flattenAnchors(anchors);
-                            //     let targetLine;
+                            if (fileUri.path == window.activeTextEditor?.document?.uri?.path) {
+                                const anchors = this.engine.currentAnchors;
+                                const flattened = flattenAnchors(anchors);
+                                let targetLine;
 
-                            //     for (const anchor of flattened) {
-                            //         if (anchor.attributes.id == targetId) {
-                            //             targetLine = anchor.lineNumber - 1;
-                            //         }
-                            //     }
+                                for (const anchor of flattened) {
+                                    if (anchor.attributes.id == targetId) {
+                                        targetLine = anchor.lineNumber - 1;
+                                    }
+                                }
 
-                            //     const options = {
-                            //         lineNumber: targetLine,
-                            //         at: 'top'
-                            //     }
+                                const options = {
+                                    lineNumber: targetLine,
+                                    at: "top",
+                                };
 
-                            //     codeLens = new CodeLens(anchor.lensRange, {
-                            //         command: "revealLine",
-                            //         title:
-                            //             "$(chevron-right) Click here to go to anchor " +
-                            //             targetId,
-                            //         arguments: [options],
-                            //     });
-                            // } else {
-                            codeLens = new CodeLens(anchor.lensRange, {
-                                command: "vscode.open",
-                                title:
-                                    "$(chevron-right) Click here to open file at anchor " +
-                                    targetId,
-                                arguments: [fileUri],
-                            });
-                            // }
+                                codeLens = new CodeLens(anchor.lensRange, {
+                                    command: "revealLine",
+                                    title: "$(chevron-right) Click here to go to anchor " + targetId,
+                                    arguments: [options],
+                                });
+                            } else {
+                                codeLens = new CodeLens(anchor.lensRange, {
+                                    command: "vscode.open",
+                                    title: "$(chevron-right) Click here to open file at anchor " + targetId,
+                                    arguments: [fileUri],
+                                });
+                            }
                         } else {
                             codeLens = new CodeLens(anchor.lensRange, {
                                 command: "vscode.open",
@@ -150,8 +132,5 @@ class LinkCodeLensProvider implements CodeLensProvider {
 }
 
 export function setupLinkProvider(engine: AnchorEngine): Disposable {
-    return languages.registerCodeLensProvider(
-        { language: "*" },
-        new LinkCodeLensProvider(engine)
-    );
+    return languages.registerCodeLensProvider({ language: "*" }, new LinkCodeLensProvider(engine));
 }

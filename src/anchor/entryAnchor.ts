@@ -66,12 +66,7 @@ export default class EntryAnchor extends EntryBase {
     }
 
     get lensRange(): Range {
-        return new Range(
-            this.lineNumber - 1,
-            this.startIndex,
-            this.lineNumber - 1,
-            this.endIndex
-        );
+        return new Range(this.lineNumber - 1, this.startIndex, this.lineNumber - 1, this.endIndex);
     }
 
     decorateDocument(document: TextDocument, options: DecorationOptions[]): void {

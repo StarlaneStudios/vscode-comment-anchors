@@ -14,11 +14,7 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
     engine.tags.forEach((tag) => {
         const isDefault = tag.iconColor == "default";
         const fileIcon = Uri.file(
-            path.join(
-                engine.context.extensionPath,
-                "res",
-                isDefault ? "anchor_white.svg" : "anchor_" + tag.iconColor + ".svg"
-            )
+            path.join(engine.context.extensionPath, "res", isDefault ? "anchor_white.svg" : "anchor_" + tag.iconColor + ".svg")
         );
 
         const icon = webview.asWebviewUri(fileIcon);

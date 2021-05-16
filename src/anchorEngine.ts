@@ -15,10 +15,7 @@ import { createViewContent } from "./anchorListView";
 import { AnchorIndex } from "./anchorIndex";
 import EntryCachedFile from "./anchor/entryCachedFile";
 import EntryEpic from "./anchor/entryEpic";
-import {
-    EpicAnchorProvider,
-    EpicAnchorIntelliSenseProvider,
-} from "./provider/epicAnchorProvider";
+import { EpicAnchorProvider, EpicAnchorIntelliSenseProvider } from "./provider/epicAnchorProvider";
 
 import {
     window,
@@ -60,12 +57,7 @@ export type FileEntry = EntryAnchor | EntryError | EntryLoading;
 export type FileEntryArray = EntryAnchor[] | EntryError[] | EntryLoading[];
 
 export type AnyEntry = EntryAnchor | EntryError | EntryCachedFile | EntryScan | EntryEpic;
-export type AnyEntryArray =
-    | EntryAnchor[]
-    | EntryError[]
-    | EntryCachedFile[]
-    | EntryScan[]
-    | EntryEpic[];
+export type AnyEntryArray = EntryAnchor[] | EntryError[] | EntryCachedFile[] | EntryScan[] | EntryEpic[];
 
 const MATCHER_TAG_INDEX = 1;
 const MATCHER_ATTR_INDEX = 2;
@@ -154,30 +146,15 @@ export class AnchorEngine {
     public static output: (msg: string) => void;
 
     // Possible error entries //
-    public errorUnusableItem: EntryError = new EntryError(
-        this,
-        "Waiting for open editor..."
-    );
+    public errorUnusableItem: EntryError = new EntryError(this, "Waiting for open editor...");
 
-    public errorEmptyItem: EntryError = new EntryError(
-        this,
-        "No comment anchors detected"
-    );
+    public errorEmptyItem: EntryError = new EntryError(this, "No comment anchors detected");
 
-    public errorEmptyWorkspace: EntryError = new EntryError(
-        this,
-        "No comment anchors in workspace"
-    );
+    public errorEmptyWorkspace: EntryError = new EntryError(this, "No comment anchors in workspace");
 
-    public errorEmptyEpics: EntryError = new EntryError(
-        this,
-        "No epics found in workspace"
-    );
+    public errorEmptyEpics: EntryError = new EntryError(this, "No epics found in workspace");
 
-    public errorWorkspaceDisabled: EntryError = new EntryError(
-        this,
-        "Workspace disabled"
-    );
+    public errorWorkspaceDisabled: EntryError = new EntryError(this, "Workspace disabled");
     public errorFileOnly: EntryError = new EntryError(this, "No open workspaces");
     public statusLoading: EntryLoading = new EntryLoading(this);
     public statusScan: EntryScan = new EntryScan(this);
@@ -185,36 +162,15 @@ export class AnchorEngine {
     constructor(context: ExtensionContext) {
         this.context = context;
 
-        window.onDidChangeActiveTextEditor(
-            (e) => this.onActiveEditorChanged(e),
-            this,
-            context.subscriptions
-        );
-        workspace.onDidChangeTextDocument(
-            (e) => this.onDocumentChanged(e),
-            this,
-            context.subscriptions
-        );
-        workspace.onDidChangeConfiguration(
-            () => this.buildResources(),
-            this,
-            context.subscriptions
-        );
-        workspace.onDidChangeWorkspaceFolders(
-            () => this.buildResources(),
-            this,
-            context.subscriptions
-        );
-        workspace.onDidCloseTextDocument(
-            (e) => this.cleanUp(e),
-            this,
-            context.subscriptions
-        );
+        window.onDidChangeActiveTextEditor((e) => this.onActiveEditorChanged(e), this, context.subscriptions);
+        workspace.onDidChangeTextDocument((e) => this.onDocumentChanged(e), this, context.subscriptions);
+        workspace.onDidChangeConfiguration(() => this.buildResources(), this, context.subscriptions);
+        workspace.onDidChangeWorkspaceFolders(() => this.buildResources(), this, context.subscriptions);
+        workspace.onDidCloseTextDocument((e) => this.cleanUp(e), this, context.subscriptions);
 
         const outputChannel = window.createOutputChannel("Comment Anchors");
 
-        AnchorEngine.output = (m: string) =>
-            outputChannel.appendLine("[Comment Anchors] " + m);
+        AnchorEngine.output = (m: string) => outputChannel.appendLine("[Comment Anchors] " + m);
 
         if (window.activeTextEditor) {
             this._editor = window.activeTextEditor;
@@ -256,9 +212,7 @@ export class AnchorEngine {
 
         this.workspaceTreeView.onDidCollapseElement((e) => {
             if (e.element instanceof EntryAnchor) {
-                const idx = this.expandedWorkspaceTreeViewItems.indexOf(
-                    e.element.anchorText
-                );
+                const idx = this.expandedWorkspaceTreeViewItems.indexOf(e.element.anchorText);
                 this.expandedWorkspaceTreeViewItems.splice(idx, 1);
             }
         });
@@ -284,11 +238,7 @@ export class AnchorEngine {
         // Provide epic auto complete
         if (config.epic.provideAutoCompletion) {
             this._subscriptions.push(
-                languages.registerCompletionItemProvider(
-                    { language: "*" },
-                    new EpicAnchorIntelliSenseProvider(this),
-                    "["
-                )
+                languages.registerCompletionItemProvider({ language: "*" }, new EpicAnchorIntelliSenseProvider(this), "[")
             );
         }
     }
@@ -312,10 +262,7 @@ export class AnchorEngine {
             this._subscriptions = [];
 
             // Store the sorting method
-            if (
-                config.tags.sortMethod &&
-                (config.tags.sortMethod == "line" || config.tags.sortMethod == "type")
-            ) {
+            if (config.tags.sortMethod && (config.tags.sortMethod == "line" || config.tags.sortMethod == "type")) {
                 EntryAnchor.SortMethod = config.tags.sortMethod;
             }
 
@@ -361,13 +308,9 @@ export class AnchorEngine {
 
             // Create a map holding the tags
             this.tags.clear();
-            this.anchorDecorators.forEach((type: TextEditorDecorationType) =>
-                type.dispose()
-            );
+            this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
             this.anchorDecorators.clear();
-            this.anchorEndDecorators.forEach((type: TextEditorDecorationType) =>
-                type.dispose()
-            );
+            this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
             this.anchorEndDecorators.clear();
 
             // Register default tags
@@ -414,12 +357,8 @@ export class AnchorEngine {
                 if (config.tagHighlights.enabled) {
                     // Create base configuration
                     let highlight: DecorationRenderOptions = {
-                        fontWeight:
-                            tag.isBold || tag.isBold == undefined ? "bold" : "normal",
-                        fontStyle:
-                            tag.isItalic || tag.isItalic == undefined
-                                ? "italic"
-                                : "normal",
+                        fontWeight: tag.isBold || tag.isBold == undefined ? "bold" : "normal",
+                        fontStyle: tag.isItalic || tag.isItalic == undefined ? "italic" : "normal",
                         color: tag.highlightColor,
                         backgroundColor: tag.backgroundColor,
                     };
@@ -506,10 +445,7 @@ export class AnchorEngine {
                             iconColors.push(iconColor);
                         }
 
-                        if (
-                            tag.behavior == "region" &&
-                            regionColors.indexOf(iconColor) < 0
-                        ) {
+                        if (tag.behavior == "region" && regionColors.indexOf(iconColor) < 0) {
                             regionColors.push(iconColor);
                         }
 
@@ -520,35 +456,19 @@ export class AnchorEngine {
                     if (config.tags.displayInGutter) {
                         if (tag.iconColor == "auto") {
                             highlight.dark = {
-                                gutterIconPath: path.join(
-                                    __dirname,
-                                    "..",
-                                    "res",
-                                    "anchor_white.svg"
-                                ),
+                                gutterIconPath: path.join(__dirname, "..", "res", "anchor_white.svg"),
                             };
 
                             highlight.light = {
-                                gutterIconPath: path.join(
-                                    __dirname,
-                                    "..",
-                                    "res",
-                                    "anchor_black.svg"
-                                ),
+                                gutterIconPath: path.join(__dirname, "..", "res", "anchor_black.svg"),
                             };
                         } else {
-                            highlight.gutterIconPath = path.join(
-                                iconCache,
-                                "anchor_" + tag.iconColor + ".svg"
-                            );
+                            highlight.gutterIconPath = path.join(iconCache, "anchor_" + tag.iconColor + ".svg");
                         }
                     }
 
                     // Create the decoration type
-                    this.anchorDecorators.set(
-                        tag.tag,
-                        window.createTextEditorDecorationType(highlight)
-                    );
+                    this.anchorDecorators.set(tag.tag, window.createTextEditorDecorationType(highlight));
 
                     if (tag.behavior == "region") {
                         const endHighlight = { ...highlight };
@@ -557,35 +477,19 @@ export class AnchorEngine {
                         if (config.tags.displayInGutter) {
                             if (tag.iconColor == "auto") {
                                 endHighlight.dark = {
-                                    gutterIconPath: path.join(
-                                        __dirname,
-                                        "..",
-                                        "res",
-                                        "anchor_end_white.svg"
-                                    ),
+                                    gutterIconPath: path.join(__dirname, "..", "res", "anchor_end_white.svg"),
                                 };
 
                                 endHighlight.light = {
-                                    gutterIconPath: path.join(
-                                        __dirname,
-                                        "..",
-                                        "res",
-                                        "anchor_end_black.svg"
-                                    ),
+                                    gutterIconPath: path.join(__dirname, "..", "res", "anchor_end_black.svg"),
                                 };
                             } else {
-                                endHighlight.gutterIconPath = path.join(
-                                    iconCache,
-                                    "anchor_end_" + tag.iconColor + ".svg"
-                                );
+                                endHighlight.gutterIconPath = path.join(iconCache, "anchor_end_" + tag.iconColor + ".svg");
                             }
                         }
 
                         // Create the ending decoration type
-                        this.anchorEndDecorators.set(
-                            tag.tag,
-                            window.createTextEditorDecorationType(endHighlight)
-                        );
+                        this.anchorEndDecorators.set(tag.tag, window.createTextEditorDecorationType(endHighlight));
                     }
                 }
             });
@@ -628,29 +532,20 @@ export class AnchorEngine {
             }
 
             // ANCHOR: Tag RegEx
-            this.matcher = new RegExp(
-                `[^\\w](${tags})(\\[.*\\])?((${separators})(.*))?`,
-                config.tags.matchCase ? "gm" : "img"
-            );
+            this.matcher = new RegExp(`[^\\w](${tags})(\\[.*\\])?((${separators})(.*))?`, config.tags.matchCase ? "gm" : "img");
 
             AnchorEngine.output("Using matcher " + this.matcher);
 
             // Write anchor icons
             iconColors.forEach((color) => {
                 const filename = "anchor_" + color.toLowerCase() + ".svg";
-                const anchorSvg = baseAnchor.replace(
-                    COLOR_PLACEHOLDER_REGEX,
-                    "#" + color
-                );
+                const anchorSvg = baseAnchor.replace(COLOR_PLACEHOLDER_REGEX, "#" + color);
 
                 fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
 
                 if (regionColors.indexOf(color) >= 0) {
                     const filenameEnd = "anchor_end_" + color.toLowerCase() + ".svg";
-                    const anchorEndSvg = baseAnchorEnd.replace(
-                        COLOR_PLACEHOLDER_REGEX,
-                        "#" + color
-                    );
+                    const anchorEndSvg = baseAnchorEnd.replace(COLOR_PLACEHOLDER_REGEX, "#" + color);
 
                     fs.writeFileSync(path.join(iconCache, filenameEnd), anchorEndSvg);
                 }
@@ -680,12 +575,7 @@ export class AnchorEngine {
 
             // Create a new file watcher
             if (config.workspace.enabled) {
-                this._watcher = workspace.createFileSystemWatcher(
-                    config.workspace.matchFiles,
-                    true,
-                    true,
-                    false
-                );
+                this._watcher = workspace.createFileSystemWatcher(config.workspace.matchFiles, true, true, false);
 
                 this._watcher.onDidDelete((file: Uri) => {
                     this.anchorMaps.forEach((_, uri) => {
@@ -711,27 +601,25 @@ export class AnchorEngine {
         this.anchorsLoaded = false;
 
         // Find all files located in this workspace
-        workspace
-            .findFiles(config.workspace.matchFiles, config.workspace.excludeFiles)
-            .then((uris) => {
-                // Clear all existing mappings
-                this.anchorMaps.clear();
+        workspace.findFiles(config.workspace.matchFiles, config.workspace.excludeFiles).then((uris) => {
+            // Clear all existing mappings
+            this.anchorMaps.clear();
 
-                // Resolve all matched URIs
-                this.loadWorkspace(uris)
-                    .then(() => {
-                        if (this._editor) {
-                            this.addMap(this._editor!.document.uri);
-                        }
+            // Resolve all matched URIs
+            this.loadWorkspace(uris)
+                .then(() => {
+                    if (this._editor) {
+                        this.addMap(this._editor!.document.uri);
+                    }
 
-                        this.anchorsLoaded = true;
-                        this.refresh();
-                    })
-                    .catch((err) => {
-                        window.showErrorMessage("Comment Anchors failed to load: " + err);
-                        AnchorEngine.output(err);
-                    });
-            });
+                    this.anchorsLoaded = true;
+                    this.refresh();
+                })
+                .catch((err) => {
+                    window.showErrorMessage("Comment Anchors failed to load: " + err);
+                    AnchorEngine.output(err);
+                });
+        });
 
         // Update workspace tree
         this._onDidChangeTreeData.fire();
@@ -764,9 +652,7 @@ export class AnchorEngine {
                     parseCount++;
                     parsePercentage = (parseCount / uris.length) * 100;
 
-                    parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(
-                        1
-                    )}%)`;
+                    parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(1)}%)`;
                 }
             } catch (err) {
                 // Ignore, already taken care of
@@ -802,9 +688,7 @@ export class AnchorEngine {
     dispose(): void {
         this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
 
-        this.anchorEndDecorators.forEach((type: TextEditorDecorationType) =>
-            type.dispose()
-        );
+        this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
 
         this.linkProvider.dispose();
     }
@@ -930,17 +814,12 @@ export class AnchorEngine {
                 // Find all anchor occurences
                 while ((match = this.matcher!.exec(text))) {
                     // Find the tagName of match
-                    const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(
-                        endTag,
-                        ""
-                    );
+                    const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(endTag, "");
 
                     const tag: TagEntry = this.tags.get(tagName)!;
                     const isRegionStart = tag.behavior == "region";
                     const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
-                    const currRegion: EntryAnchorRegion | null = currRegions.length
-                        ? currRegions[currRegions.length - 1]
-                        : null;
+                    const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
 
                     // We have found at least one anchor
                     anchorsFound = true;
@@ -960,19 +839,11 @@ export class AnchorEngine {
 
                         currRegions.pop();
 
-                        folds.push(
-                            new FoldingRange(
-                                currRegion.lineNumber - 1,
-                                lineNumber - 1,
-                                FoldingRangeKind.Comment
-                            )
-                        );
+                        folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
                         continue;
                     }
 
-                    const rangeLength = tag.styleComment
-                        ? match[0].length - 1
-                        : tag.tag.length;
+                    const rangeLength = tag.styleComment ? match[0].length - 1 : tag.tag.length;
 
                     const startPos = match.index + 1;
                     const deltaText = text.substr(0, startPos);
@@ -983,12 +854,9 @@ export class AnchorEngine {
                     let display = "";
 
                     const rawAttributeStr = match[MATCHER_ATTR_INDEX] || "[]";
-                    const attributes = this.parseAttributes(
-                        rawAttributeStr.substr(1, rawAttributeStr.length - 2),
-                        {
-                            seq: lineNumber,
-                        }
-                    );
+                    const attributes = this.parseAttributes(rawAttributeStr.substr(1, rawAttributeStr.length - 2), {
+                        seq: lineNumber,
+                    });
 
                     // Clean up the comment and adjust the endPos
                     if (comment.endsWith("-->")) {
@@ -1102,27 +970,17 @@ export class AnchorEngine {
             const document = this._editor!.document;
             const doc = document.uri;
             const index = this.anchorMaps.get(doc);
-            const tags = new Map<
-                string,
-                [TextEditorDecorationType, DecorationOptions[]]
-            >();
-            const tagsEnd = new Map<
-                string,
-                [TextEditorDecorationType, DecorationOptions[]]
-            >();
+            const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
+            const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
 
             // Create a mapping between tags and decorators
-            this.anchorDecorators.forEach(
-                (decorator: TextEditorDecorationType, tag: string) => {
-                    tags.set(tag.toUpperCase(), [decorator, []]);
-                }
-            );
+            this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
+                tags.set(tag.toUpperCase(), [decorator, []]);
+            });
 
-            this.anchorEndDecorators.forEach(
-                (decorator: TextEditorDecorationType, tag: string) => {
-                    tagsEnd.set(tag.toUpperCase(), [decorator, []]);
-                }
-            );
+            this.anchorEndDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
+                tagsEnd.set(tag.toUpperCase(), [decorator, []]);
+            });
 
             // Create a function to handle decorating
             const applyDecorators = (anchors: EntryAnchor[]) => {
@@ -1132,10 +990,7 @@ export class AnchorEngine {
                     anchor.decorateDocument(document, deco);
 
                     if (anchor instanceof EntryAnchorRegion) {
-                        anchor.decorateDocumentEnd(
-                            document,
-                            tagsEnd.get(anchor.anchorTag.toUpperCase())![1]
-                        );
+                        anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag.toUpperCase())![1]);
                     }
 
                     if (anchor.children) {
