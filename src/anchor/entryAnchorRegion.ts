@@ -26,7 +26,9 @@ export default class EntryAnchorRegion extends EntryAnchor {
         super(engine, anchorTag, anchorText, startIndex, endIndex, lineNumber, iconColor, scope, showLine, file, attributes);
 
         this.label = showLine ? `[${lineNumber} - ?] ${anchorText}` : anchorText;
-        this.collapsibleState = TreeItemCollapsibleState.Collapsed;
+
+        const autoExpand = engine._config!.tags.expandSections;
+        this.collapsibleState = autoExpand ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed;
     }
 
     setEndTag(endTag: { startIndex: number; endIndex: number; lineNumber: number }): void {

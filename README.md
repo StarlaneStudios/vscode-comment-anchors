@@ -262,6 +262,13 @@ Use `commentAnchors.tags.sortMethod` to set the method used to sort anchors by i
 }
 ```
 
+Use `commentAnchors.tags.expandSections` to choose whether sections are automatically expanded in the anchor tree.
+```
+{
+	"commentAnchors.tags.expandSections": true
+}
+```
+
 Use `commentAnchors.tags.separators` to set the list of accepted separators
 
 ```
