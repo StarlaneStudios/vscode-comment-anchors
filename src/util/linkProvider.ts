@@ -14,6 +14,7 @@ import { asyncDelay } from "./asyncDelay";
 import { lstatSync } from "fs";
 import EntryAnchor from "../anchor/entryAnchor";
 import { OpenFileAndRevealLineOptions } from "../extension";
+import { throws } from "assert";
 
 const LINK_REGEX = /^(\.{1,2}[/\\])?(.+?)(:\d+|#[\w-]+)?$/;
 
@@ -91,6 +92,30 @@ class LinkCodeLensProvider implements CodeLensProvider {
 
                             this.engine.revealAnchorOnParse = targetId;
 
+                            // if (anchor.file.path == process.cwd()) {
+                            //     const anchors = this.engine.currentAnchors;
+                            //     const flattened = flattenAnchors(anchors);
+                            //     let targetLine;
+
+                            //     for (const anchor of flattened) {
+                            //         if (anchor.attributes.id == targetId) {
+                            //             targetLine = anchor.lineNumber - 1;
+                            //         }
+                            //     }
+
+                            //     const options = {
+                            //         lineNumber: targetLine,
+                            //         at: 'top'
+                            //     }
+
+                            //     codeLens = new CodeLens(anchor.lensRange, {
+                            //         command: "revealLine",
+                            //         title:
+                            //             "$(chevron-right) Click here to go to anchor " +
+                            //             targetId,
+                            //         arguments: [options],
+                            //     });
+                            // } else {
                             codeLens = new CodeLens(anchor.lensRange, {
                                 command: "vscode.open",
                                 title:
@@ -98,6 +123,7 @@ class LinkCodeLensProvider implements CodeLensProvider {
                                     targetId,
                                 arguments: [fileUri],
                             });
+                            // }
                         } else {
                             codeLens = new CodeLens(anchor.lensRange, {
                                 command: "vscode.open",
