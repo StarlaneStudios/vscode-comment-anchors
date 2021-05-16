@@ -9,8 +9,10 @@ import { OpenFileAndRevealLineOptions } from "../extension";
 
 const LINK_REGEX = /^(\.{1,2}[/\\])?(.+?)(:\d+|#[\w-]+)?$/;
 
-class LinkCodeLensProvider implements CodeLensProvider {
+export class LinkCodeLensProvider implements CodeLensProvider {
     readonly engine: AnchorEngine;
+
+    public lensCache: CodeLens[] = [];
 
     constructor(engine: AnchorEngine) {
         this.engine = engine;
@@ -21,18 +23,11 @@ class LinkCodeLensProvider implements CodeLensProvider {
             return [];
         }
 
-        // While this seems like an extremely crude solution,
-        // it does provide a much better visual experience
-        // compared to directly parsing anchors.
-        while (this.engine.anchorsDirty) {
-            await asyncDelay(100);
-        }
-
         const index = this.engine.anchorMaps.get(document.uri);
         const list: CodeLens[] = [];
 
         if (!index) {
-            return [];
+            return Promise.resolve(this.lensCache);
         }
 
         const flattened = flattenAnchors(index.anchorTree);
@@ -127,10 +122,8 @@ class LinkCodeLensProvider implements CodeLensProvider {
                 }
             });
 
+        this.lensCache = list;
+
         return list;
     }
-}
-
-export function setupLinkProvider(engine: AnchorEngine): Disposable {
-    return languages.registerCodeLensProvider({ language: "*" }, new LinkCodeLensProvider(engine));
 }

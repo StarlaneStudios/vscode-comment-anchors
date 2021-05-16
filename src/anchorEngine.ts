@@ -7,6 +7,7 @@ import EntryAnchor from "./anchor/entryAnchor";
 import EntryError from "./anchor/entryError";
 import { FileAnchorProvider } from "./provider/fileAnchorProvider";
 import { WorkspaceAnchorProvider } from "./provider/workspaceAnchorProvider";
+import { LinkCodeLensProvider } from "./util/linkProvider";
 import EntryLoading from "./anchor/entryLoading";
 import EntryScan from "./anchor/entryScan";
 import EntryAnchorRegion from "./anchor/entryAnchorRegion";
@@ -42,7 +43,6 @@ import {
     commands,
 } from "vscode";
 import { setupCompletionProvider } from "./util/completionProvider";
-import { setupLinkProvider } from "./util/linkProvider";
 import { asyncDelay } from "./util/asyncDelay";
 import { flattenAnchors } from "./util/flattener";
 
@@ -119,7 +119,7 @@ export class AnchorEngine {
     public epicTreeView: TreeView<AnyEntry>;
 
     /** The resource for the link provider */
-    public linkProvider: Disposable;
+    public linkProvider: LinkCodeLensProvider;
 
     /** The currently expanded file tree items */
     public expandedFileTreeViewItems: string[] = [];
@@ -141,6 +141,7 @@ export class AnchorEngine {
 
     /** List of build subscriptions */
     private _subscriptions: Disposable[] = [];
+    private linkDisposable!: Disposable;
 
     /** The debug output for comment anchors */
     public static output: (msg: string) => void;
@@ -224,7 +225,10 @@ export class AnchorEngine {
         });
 
         // Setup the link lens
-        this.linkProvider = setupLinkProvider(this);
+        const provider = new LinkCodeLensProvider(this);
+
+        this.linkDisposable = languages.registerCodeLensProvider({ language: "*" }, provider);
+        this.linkProvider = provider;
     }
 
     public registerProviders(): void {
@@ -687,10 +691,9 @@ export class AnchorEngine {
      */
     dispose(): void {
         this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
-
         this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
-
-        this.linkProvider.dispose();
+        this._subscriptions.forEach((s) => s.dispose());
+        this.linkDisposable.dispose();
     }
 
     /**
@@ -950,6 +953,7 @@ export class AnchorEngine {
 
                 this.matcher!.lastIndex = 0;
                 this.anchorMaps.set(document, new AnchorIndex(anchors));
+                this.linkProvider.lensCache = [];
 
                 // this.foldMaps.set(document, folds);
             } catch (err) {
