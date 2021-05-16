@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.9.3
+- Fixed link anchors not always working in the same file
+- Anchor sections are now expanded by default
+	- Added a setting to revert to the previous behavior
+
 ## 1.9.2
 - Added `dist` to default excluded directories (#114)
 - Added workspace path support for link anchors (#105)
