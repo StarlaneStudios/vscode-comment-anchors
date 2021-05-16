@@ -126,7 +126,7 @@ export class AnchorEngine {
     /** The epic view used for displaying workspace anchors */
     public epicTreeView: TreeView<AnyEntry>;
 
-    /** The resource for the lkink provider */
+    /** The resource for the link provider */
     public linkProvider: Disposable;
 
     /** The currently expanded file tree items */
