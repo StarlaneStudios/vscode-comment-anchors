@@ -1,50 +1,53 @@
 const debounce = require("debounce");
 
-import * as path from "path";
-import * as fs from "fs";
 import * as escape from "escape-string-regexp";
-import EntryAnchor from "./anchor/entryAnchor";
-import EntryError from "./anchor/entryError";
-import { FileAnchorProvider } from "./provider/fileAnchorProvider";
-import { WorkspaceAnchorProvider } from "./provider/workspaceAnchorProvider";
-import { LinkCodeLensProvider } from "./util/linkProvider";
-import EntryLoading from "./anchor/entryLoading";
-import EntryScan from "./anchor/entryScan";
-import EntryAnchorRegion from "./anchor/entryAnchorRegion";
-import registerDefaults from "./util/defaultTags";
-import { createViewContent } from "./anchorListView";
-import { AnchorIndex } from "./anchorIndex";
-import EntryCachedFile from "./anchor/entryCachedFile";
-import EntryEpic from "./anchor/entryEpic";
-import { EpicAnchorProvider, EpicAnchorIntelliSenseProvider } from "./provider/epicAnchorProvider";
+import * as fs from "fs";
+import * as path from "path";
 
 import {
-    window,
-    workspace,
-    EventEmitter,
-    TextEditor,
-    TextDocument,
-    TextEditorDecorationType,
-    OverviewRulerLane,
-    WorkspaceConfiguration,
-    ExtensionContext,
-    DecorationRenderOptions,
-    StatusBarAlignment,
-    Uri,
-    FileSystemWatcher,
     DecorationOptions,
-    TextDocumentChangeEvent,
-    languages,
+    DecorationRenderOptions,
+    Disposable,
+    EventEmitter,
+    ExtensionContext,
+    FileSystemWatcher,
     FoldingRange,
     FoldingRangeKind,
-    Disposable,
-    ViewColumn,
+    OverviewRulerLane,
+    StatusBarAlignment,
+    TextDocument,
+    TextDocumentChangeEvent,
+    TextEditor,
+    TextEditorDecorationType,
     TreeView,
+    Uri,
+    ViewColumn,
+    WorkspaceConfiguration,
     commands,
+    languages,
+    window,
+    workspace,
 } from "vscode";
-import { setupCompletionProvider } from "./util/completionProvider";
+import { EpicAnchorIntelliSenseProvider, EpicAnchorProvider } from "./provider/epicAnchorProvider";
+
+import { AnchorIndex } from "./anchorIndex";
+import EntryAnchor from "./anchor/entryAnchor";
+import EntryAnchorRegion from "./anchor/entryAnchorRegion";
+import EntryBase from "./anchor/entryBase";
+import EntryCachedFile from "./anchor/entryCachedFile";
+import EntryCursor from "./anchor/entryCursor";
+import EntryEpic from "./anchor/entryEpic";
+import EntryError from "./anchor/entryError";
+import EntryLoading from "./anchor/entryLoading";
+import EntryScan from "./anchor/entryScan";
+import { FileAnchorProvider } from "./provider/fileAnchorProvider";
+import { LinkCodeLensProvider } from "./util/linkProvider";
+import { WorkspaceAnchorProvider } from "./provider/workspaceAnchorProvider";
 import { asyncDelay } from "./util/asyncDelay";
+import { createViewContent } from "./anchorListView";
 import { flattenAnchors } from "./util/flattener";
+import registerDefaults from "./util/defaultTags";
+import { setupCompletionProvider } from "./util/completionProvider";
 
 /* -- Constants -- */
 
@@ -53,11 +56,11 @@ const COLOR_PLACEHOLDER_REGEX = /%COLOR%/g;
 
 /* -- Anchor entry type aliases -- */
 
-export type FileEntry = EntryAnchor | EntryError | EntryLoading;
-export type FileEntryArray = EntryAnchor[] | EntryError[] | EntryLoading[];
+export type FileEntry = EntryAnchor | EntryError | EntryLoading | EntryCursor;
+export type FileEntryArray = EntryAnchor[] | EntryError[] | EntryLoading[] | EntryCursor[];
 
-export type AnyEntry = EntryAnchor | EntryError | EntryCachedFile | EntryScan | EntryEpic;
-export type AnyEntryArray = EntryAnchor[] | EntryError[] | EntryCachedFile[] | EntryScan[] | EntryEpic[];
+export type AnyEntry = EntryBase;
+export type AnyEntryArray = EntryBase[];
 
 const MATCHER_TAG_INDEX = 1;
 const MATCHER_ATTR_INDEX = 2;
@@ -110,7 +113,7 @@ export class AnchorEngine {
     public revealAnchorOnParse: string | undefined;
 
     /** The tree view used for displaying file anchors */
-    public fileTreeView: TreeView<FileEntry>;
+    public fileTreeView: TreeView<EntryBase>;
 
     /** The tree view used for displaying workspace anchors */
     public workspaceTreeView: TreeView<AnyEntry>;
@@ -159,6 +162,8 @@ export class AnchorEngine {
     public errorFileOnly: EntryError = new EntryError(this, "No open workspaces");
     public statusLoading: EntryLoading = new EntryLoading(this);
     public statusScan: EntryScan = new EntryScan(this);
+
+    private cursorTask?: NodeJS.Timer;
 
     constructor(context: ExtensionContext) {
         this.context = context;
@@ -275,21 +280,6 @@ export class AnchorEngine {
                 EntryAnchor.ScrollPosition = config.scrollPosition;
             }
 
-            /*
-            "default",
-            "red",
-            "purple",
-            "teal",
-            "green",
-            "orange",
-            "pink",
-            "blue",
-            "blurple",
-            "emerald",
-            "yellow",
-            "none"
-            */
-
             // Prepare icon cache
             const storage = this.context.globalStoragePath;
             const iconCache = path.join(storage, "icons");
@@ -350,6 +340,25 @@ export class AnchorEngine {
                 laneStyle = OverviewRulerLane.Center;
             } else {
                 laneStyle = OverviewRulerLane.Full;
+            }
+
+            // Start the cursor tracker
+            if (this.cursorTask) {
+                clearInterval(this.cursorTask);
+            }
+
+            let prevLine = 0;
+
+            if (config.showCursor) {
+                this.cursorTask = setInterval(() => {
+                    const cursor = window.activeTextEditor?.selection?.active?.line;
+
+                    if (cursor !== undefined && prevLine != cursor) {
+                        AnchorEngine.output("Updating cursor position");
+                        this._onDidChangeTreeData.fire();
+                        prevLine = cursor;
+                    }
+                }, 100);
             }
 
             // Configure all tags
@@ -694,6 +703,10 @@ export class AnchorEngine {
         this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
         this._subscriptions.forEach((s) => s.dispose());
         this.linkDisposable.dispose();
+
+        if (this.cursorTask) {
+            clearInterval(this.cursorTask);
+        }
     }
 
     /**
@@ -953,7 +966,10 @@ export class AnchorEngine {
 
                 this.matcher!.lastIndex = 0;
                 this.anchorMaps.set(document, new AnchorIndex(anchors));
-                this.linkProvider.lensCache = [];
+
+                if (this.linkProvider) {
+                    this.linkProvider.lensCache = [];
+                }
 
                 // this.foldMaps.set(document, folds);
             } catch (err) {

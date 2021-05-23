@@ -115,6 +115,12 @@ Takes you here: `// ANCHOR[id=my-anchor] This is the destination!`
 
 ![Link Anchors](media/link-anchors.png)
 
+## Display cursor position
+
+Enable the `commentAnchors.showCursor` setting to display a file view entry for your current cursor position, making it even easier to see where you are in your current file relative to your anchors.
+
+![Cursor](media/cursor.png)
+
 ## IntelliSense support
 
 Comment Anchors can be autocompleted by IntelliSense.
@@ -146,6 +152,14 @@ Use `commentAnchors.scrollPosition` to alter where to position the anchor when s
 ```
 {
 	"commentAnchors.scrollPosition": "top"
+}
+```
+
+Use `commentAnchors.showCursor` to display the current cursor as entry in the file anchor view. (Default false)
+
+```
+{
+	"commentAnchors.showCursor": false
 }
 ```
 

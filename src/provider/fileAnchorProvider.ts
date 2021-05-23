@@ -1,13 +1,20 @@
-import { TreeDataProvider, Event, TreeItem } from "vscode";
-import EntryAnchor from "../anchor/entryAnchor";
 import { AnchorEngine, FileEntry, FileEntryArray } from "../anchorEngine";
+import { Event, TreeDataProvider, TreeItem } from "vscode";
+
+import EntryAnchor from "../anchor/entryAnchor";
+import EntryBase from "../anchor/entryBase";
+import EntryCursor from "../anchor/entryCursor";
+import { window } from "vscode";
 
 /**
  * AnchorProvider implementation in charge of returning the anchors in the current file
  */
-export class FileAnchorProvider implements TreeDataProvider<FileEntry> {
+export class FileAnchorProvider implements TreeDataProvider<EntryBase> {
     readonly provider: AnchorEngine;
     readonly onDidChangeTreeData: Event<undefined>;
+
+    private renderCursor = true;
+    private cursorFound = false;
 
     constructor(provider: AnchorEngine) {
         this.onDidChangeTreeData = provider._onDidChangeTreeData.event;
@@ -18,14 +25,22 @@ export class FileAnchorProvider implements TreeDataProvider<FileEntry> {
         return element;
     }
 
-    getChildren(element?: FileEntry): Thenable<FileEntryArray> {
+    getChildren(element?: FileEntry): Thenable<EntryBase[]> {
         if (element) {
             if (element instanceof EntryAnchor && element.children) {
-                return Promise.resolve(element.children);
+                let children: EntryBase[] = element.children;
+
+                if (this.renderCursor) {
+                    children = this.insertCursor(children);
+                }
+
+                return Promise.resolve(children); // Insert
             }
 
             return Promise.resolve([]);
         }
+
+        this.cursorFound = false;
 
         // Return result
         return new Promise((resolve) => {
@@ -36,8 +51,35 @@ export class FileAnchorProvider implements TreeDataProvider<FileEntry> {
             } else if (this.provider.currentAnchors.length == 0) {
                 resolve([this.provider.errorEmptyItem]);
             } else {
-                resolve(EntryAnchor.sortAnchors(this.provider.currentAnchors));
+                let anchors: EntryBase[] = EntryAnchor.sortAnchors(this.provider.currentAnchors);
+
+                if (this.renderCursor) {
+                    anchors = this.insertCursor(anchors);
+                }
+
+                resolve(anchors); // Insert
             }
         });
+    }
+
+    insertCursor(anchors: EntryBase[]): EntryBase[] {
+        const cursor = window.activeTextEditor?.selection?.active?.line;
+
+        if (!this.provider._config!.showCursor || cursor === undefined) {
+            return anchors;
+        }
+
+        const ret = [];
+
+        for (const anchor of anchors) {
+            if (!this.cursorFound && anchor instanceof EntryAnchor && anchor.lineNumber > cursor) {
+                ret.push(new EntryCursor(this.provider, cursor + 1));
+                this.cursorFound = true;
+            }
+
+            ret.push(anchor);
+        }
+
+        return ret;
     }
 }

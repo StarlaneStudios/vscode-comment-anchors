@@ -113,6 +113,12 @@
 					"description": "Where to position the anchor when scrolled to",
 					"scope": "window"
 				},
+				"commentAnchors.showCursor": {
+					"type": "boolean",
+					"default": false,
+					"description": "Display the current cursor position as entry in the file anchor list",
+					"scope": "window"
+				},
 				"commentAnchors.workspace.enabled": {
 					"type": "boolean",
 					"default": true,

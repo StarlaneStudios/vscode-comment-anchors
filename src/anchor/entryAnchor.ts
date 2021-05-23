@@ -1,6 +1,7 @@
-import { DecorationOptions, Uri, window, TextDocument, Range } from "vscode";
-import EntryBase from "./entryBase";
 import { AnchorEngine, TagAttributes } from "../anchorEngine";
+import { DecorationOptions, Range, TextDocument, Uri, window } from "vscode";
+
+import EntryBase from "./entryBase";
 
 /**
  * Represents an Anchor found a file
@@ -62,7 +63,7 @@ export default class EntryAnchor extends EntryBase {
     }
 
     get children(): EntryAnchor[] {
-        return this.childAnchors;
+        return [...this.childAnchors];
     }
 
     get lensRange(): Range {
