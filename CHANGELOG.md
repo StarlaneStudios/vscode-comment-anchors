@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.9.4
+- Added Show Cursor setting
+	- Renders a sidebar entry representing the current cursor position
+	- Useful to view your cursors position relative to your anchors
+	- Disabled by default, enable in settings to use
+
 ## 1.9.3
 - Fixed link anchors not always working in the same file
 - Anchor sections are now expanded by default
