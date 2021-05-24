@@ -62,7 +62,7 @@ export class LinkCodeLensProvider implements CodeLensProvider {
                             at: EntryAnchor.ScrollPosition,
                         };
 
-                        codeLens = new CodeLens(anchor.lensRange, {
+                        codeLens = new CodeLens(anchor.linkRange, {
                             command: "commentAnchors.openFileAndRevealLine",
                             title: "$(chevron-right) Click here to open file at line " + (lineNumber + 1),
                             arguments: [options],
@@ -89,20 +89,20 @@ export class LinkCodeLensProvider implements CodeLensProvider {
                                     at: "top",
                                 };
 
-                                codeLens = new CodeLens(anchor.lensRange, {
+                                codeLens = new CodeLens(anchor.linkRange, {
                                     command: "revealLine",
                                     title: "$(chevron-right) Click here to go to anchor " + targetId,
                                     arguments: [options],
                                 });
                             } else {
-                                codeLens = new CodeLens(anchor.lensRange, {
+                                codeLens = new CodeLens(anchor.linkRange, {
                                     command: "vscode.open",
                                     title: "$(chevron-right) Click here to open file at anchor " + targetId,
                                     arguments: [fileUri],
                                 });
                             }
                         } else {
-                            codeLens = new CodeLens(anchor.lensRange, {
+                            codeLens = new CodeLens(anchor.linkRange, {
                                 command: "vscode.open",
                                 title: "$(chevron-right) Click here to open file",
                                 arguments: [fileUri],
@@ -113,7 +113,7 @@ export class LinkCodeLensProvider implements CodeLensProvider {
                     list.push(codeLens);
                 } else {
                     list.push(
-                        new CodeLens(anchor.lensRange, {
+                        new CodeLens(anchor.linkRange, {
                             command: "",
                             title: "$(chrome-close) File not found",
                             arguments: [],

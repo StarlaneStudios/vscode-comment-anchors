@@ -66,7 +66,7 @@ export default class EntryAnchor extends EntryBase {
         return [...this.childAnchors];
     }
 
-    get lensRange(): Range {
+    get linkRange(): Range {
         return new Range(this.lineNumber - 1, this.startIndex, this.lineNumber - 1, this.endIndex);
     }
 

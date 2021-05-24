@@ -48,6 +48,7 @@ import { createViewContent } from "./anchorListView";
 import { flattenAnchors } from "./util/flattener";
 import registerDefaults from "./util/defaultTags";
 import { setupCompletionProvider } from "./util/completionProvider";
+import { LinkProvider } from "./util/newLinkProvider";
 
 /* -- Constants -- */
 
@@ -76,8 +77,8 @@ export class AnchorEngine {
     /** Then event emitter in charge of refreshing the file trees */
     public _onDidChangeTreeData: EventEmitter<undefined> = new EventEmitter<undefined>();
 
-    /** Then event emitter in charge of refreshing the link lens */
-    public _onDidChangeLensData: EventEmitter<undefined> = new EventEmitter<undefined>();
+    /** Then event emitter in charge of refreshing the document link */
+    public _onDidChangeLinkData: EventEmitter<undefined> = new EventEmitter<undefined>();
 
     /** Debounced function for performance improvements */
     private _idleRefresh: (() => void) | undefined;
@@ -122,7 +123,7 @@ export class AnchorEngine {
     public epicTreeView: TreeView<AnyEntry>;
 
     /** The resource for the link provider */
-    public linkProvider: LinkCodeLensProvider;
+    public linkProvider: LinkProvider;
 
     /** The currently expanded file tree items */
     public expandedFileTreeViewItems: string[] = [];
@@ -229,11 +230,16 @@ export class AnchorEngine {
             showCollapseAll: true,
         });
 
-        // Setup the link lens
-        const provider = new LinkCodeLensProvider(this);
+        // Setup the link provider
+		const provider = new LinkProvider(this);
 
-        this.linkDisposable = languages.registerCodeLensProvider({ language: "*" }, provider);
-        this.linkProvider = provider;
+		this.linkDisposable = languages.registerDocumentLinkProvider({ language: "*" }, provider);
+		this.linkProvider = provider;
+
+        // const provider = new LinkCodeLensProvider(this);
+
+        // this.linkDisposable = languages.registerCodeLensProvider({ language: "*" }, provider);
+        // this.linkProvider = provider;
     }
 
     public registerProviders(): void {
@@ -967,10 +973,6 @@ export class AnchorEngine {
                 this.matcher!.lastIndex = 0;
                 this.anchorMaps.set(document, new AnchorIndex(anchors));
 
-                if (this.linkProvider) {
-                    this.linkProvider.lensCache = [];
-                }
-
                 // this.foldMaps.set(document, folds);
             } catch (err) {
                 AnchorEngine.output("Error: " + err.message);
@@ -1039,7 +1041,7 @@ export class AnchorEngine {
         this.expandedWorkspaceTreeViewItems = [];
 
         // Update the file trees
-        this._onDidChangeLensData.fire();
+        this._onDidChangeLinkData.fire();
         this._onDidChangeTreeData.fire();
         this.anchorsDirty = false;
     }
