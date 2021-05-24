@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.9.5
+- LINK Anchors now render a clickable highlight instead of a CodeLens
+	- As a result the weird "jumpy" behaviour with CodeLens is no longer an issue (#109)
+
 ## 1.9.4
 - Added Show Cursor setting
 	- Renders a sidebar entry representing the current cursor position
