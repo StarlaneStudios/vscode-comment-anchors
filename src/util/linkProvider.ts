@@ -1,38 +1,39 @@
+import { CancellationToken, DocumentLink, DocumentLinkProvider, ProviderResult, TextDocument, Uri, window, workspace } from "vscode";
+import { join, resolve } from "path";
+
 import { AnchorEngine } from "../anchorEngine";
-import { CodeLens, CodeLensProvider, Disposable, languages, TextDocument, Uri, window, workspace } from "vscode";
 import { flattenAnchors } from "./flattener";
-import { resolve, join } from "path";
-import { asyncDelay } from "./asyncDelay";
 import { lstatSync } from "fs";
-import EntryAnchor from "../anchor/entryAnchor";
-import { OpenFileAndRevealLineOptions } from "../extension";
 
 const LINK_REGEX = /^(\.{1,2}[/\\])?(.+?)(:\d+|#[\w-]+)?$/;
 
-export class LinkCodeLensProvider implements CodeLensProvider {
+export class LinkProvider implements DocumentLinkProvider {
     readonly engine: AnchorEngine;
-
-    public lensCache: CodeLens[] = [];
 
     constructor(engine: AnchorEngine) {
         this.engine = engine;
     }
 
-    async provideCodeLenses(document: TextDocument): Promise<CodeLens[]> {
+    createTarget(uri: Uri, line: number): Uri {
+        return Uri.parse(`file://${uri.path}#${line}`);
+    }
+
+    provideDocumentLinks(document: TextDocument, _token: CancellationToken): ProviderResult<DocumentLink[]> {
         if (document.uri.scheme == "output") {
             return [];
         }
 
         const index = this.engine.anchorMaps.get(document.uri);
-        const list: CodeLens[] = [];
+        const list: DocumentLink[] = [];
 
         if (!index) {
-            return Promise.resolve(this.lensCache);
+            return [];
         }
 
         const flattened = flattenAnchors(index.anchorTree);
         const basePath = join(document.uri.fsPath, "..");
         const workspacePath = workspace.getWorkspaceFolder(document.uri)?.uri?.fsPath ?? "";
+        const tasks: Promise<unknown>[] = [];
 
         flattened
             .filter((anchor) => {
@@ -46,84 +47,63 @@ export class LinkCodeLensProvider implements CodeLensProvider {
                 const parameter = components[3] || "";
                 const filePath = components[2];
                 const relativeFolder = components[1];
-
                 const fullPath = relativeFolder ? resolve(basePath, relativeFolder, filePath) : resolve(workspacePath, filePath);
                 const fileUri = Uri.file(fullPath);
                 const exists = lstatSync(fullPath).isFile();
 
                 if (exists) {
-                    let codeLens: CodeLens;
+                    const anchorRange = anchor.getAnchorRange(document, true);
+                    let docLink: DocumentLink;
+                    let task: Promise<unknown>;
 
                     if (parameter.startsWith(":")) {
-                        const lineNumber = parseInt(parameter.substr(1)) - 1;
-                        const options: OpenFileAndRevealLineOptions = {
-                            uri: fileUri,
-                            lineNumber: lineNumber,
-                            at: EntryAnchor.ScrollPosition,
-                        };
+                        const lineNumber = parseInt(parameter.substr(1));
+                        const targetURI = this.createTarget(fileUri, lineNumber);
 
-                        codeLens = new CodeLens(anchor.linkRange, {
-                            command: "commentAnchors.openFileAndRevealLine",
-                            title: "$(chevron-right) Click here to open file at line " + (lineNumber + 1),
-                            arguments: [options],
-                        });
+                        docLink = new DocumentLink(anchorRange, targetURI);
+                        docLink.tooltip = "Click here to open file at line " + (lineNumber + 1);
+                        task = Promise.resolve();
                     } else {
                         if (parameter.startsWith("#")) {
                             const targetId = parameter.substr(1);
 
-                            this.engine.revealAnchorOnParse = targetId;
-
-                            if (fileUri.path == window.activeTextEditor?.document?.uri?.path) {
-                                const anchors = this.engine.currentAnchors;
+                            task = this.engine.getAnchors(fileUri).then((anchors) => {
                                 const flattened = flattenAnchors(anchors);
-                                let targetLine;
+                                let targetLine = 0;
 
                                 for (const anchor of flattened) {
                                     if (anchor.attributes.id == targetId) {
-                                        targetLine = anchor.lineNumber - 1;
+                                        targetLine = anchor.lineNumber;
                                     }
                                 }
 
-                                const options = {
-                                    lineNumber: targetLine,
-                                    at: "top",
-                                };
+                                const targetURI = this.createTarget(fileUri, targetLine);
 
-                                codeLens = new CodeLens(anchor.linkRange, {
-                                    command: "revealLine",
-                                    title: "$(chevron-right) Click here to go to anchor " + targetId,
-                                    arguments: [options],
-                                });
-                            } else {
-                                codeLens = new CodeLens(anchor.linkRange, {
-                                    command: "vscode.open",
-                                    title: "$(chevron-right) Click here to open file at anchor " + targetId,
-                                    arguments: [fileUri],
-                                });
-                            }
-                        } else {
-                            codeLens = new CodeLens(anchor.linkRange, {
-                                command: "vscode.open",
-                                title: "$(chevron-right) Click here to open file",
-                                arguments: [fileUri],
+                                if (fileUri.path == window.activeTextEditor?.document?.uri?.path) {
+                                    docLink = new DocumentLink(anchorRange, targetURI);
+                                    docLink.tooltip = "Click here to go to anchor " + targetId;
+                                } else {
+                                    docLink = new DocumentLink(anchorRange, targetURI);
+                                    docLink.tooltip = "Click here to open file at anchor " + targetId;
+                                }
                             });
+                        } else {
+                            docLink = new DocumentLink(anchorRange, fileUri);
+                            docLink.tooltip = "Click here to open file";
+                            task = Promise.resolve();
                         }
                     }
 
-                    list.push(codeLens);
-                } else {
-                    list.push(
-                        new CodeLens(anchor.linkRange, {
-                            command: "",
-                            title: "$(chrome-close) File not found",
-                            arguments: [],
-                        })
-                    );
+                    const completion = task.then(() => {
+                        list.push(docLink);
+                    });
+
+                    tasks.push(completion);
                 }
             });
 
-        this.lensCache = list;
-
-        return list;
+        return Promise.all(tasks).then(() => {
+            return list;
+        });
     }
 }

@@ -34,21 +34,18 @@ import { AnchorIndex } from "./anchorIndex";
 import EntryAnchor from "./anchor/entryAnchor";
 import EntryAnchorRegion from "./anchor/entryAnchorRegion";
 import EntryBase from "./anchor/entryBase";
-import EntryCachedFile from "./anchor/entryCachedFile";
 import EntryCursor from "./anchor/entryCursor";
-import EntryEpic from "./anchor/entryEpic";
 import EntryError from "./anchor/entryError";
 import EntryLoading from "./anchor/entryLoading";
 import EntryScan from "./anchor/entryScan";
 import { FileAnchorProvider } from "./provider/fileAnchorProvider";
-import { LinkCodeLensProvider } from "./util/linkProvider";
+import { LinkProvider } from "./util/linkProvider";
 import { WorkspaceAnchorProvider } from "./provider/workspaceAnchorProvider";
 import { asyncDelay } from "./util/asyncDelay";
 import { createViewContent } from "./anchorListView";
 import { flattenAnchors } from "./util/flattener";
 import registerDefaults from "./util/defaultTags";
 import { setupCompletionProvider } from "./util/completionProvider";
-import { LinkProvider } from "./util/newLinkProvider";
 
 /* -- Constants -- */
 
@@ -109,9 +106,6 @@ export class AnchorEngine {
 
     /** Holds whether anchors may be outdated */
     public anchorsDirty = true;
-
-    /** The id of an anchor to reveal on parse */
-    public revealAnchorOnParse: string | undefined;
 
     /** The tree view used for displaying file anchors */
     public fileTreeView: TreeView<EntryBase>;
@@ -231,10 +225,10 @@ export class AnchorEngine {
         });
 
         // Setup the link provider
-		const provider = new LinkProvider(this);
+        const provider = new LinkProvider(this);
 
-		this.linkDisposable = languages.registerDocumentLinkProvider({ language: "*" }, provider);
-		this.linkProvider = provider;
+        this.linkDisposable = languages.registerDocumentLinkProvider({ language: "*" }, provider);
+        this.linkProvider = provider;
 
         // const provider = new LinkCodeLensProvider(this);
 
@@ -728,16 +722,6 @@ export class AnchorEngine {
     }
 
     /**
-     * Travel to the cached anchor
-     */
-    private travelToCachedAnchor() {
-        if (this.revealAnchorOnParse) {
-            this.travelToAnchor(this.revealAnchorOnParse);
-            this.revealAnchorOnParse = undefined;
-        }
-    }
-
-    /**
      * Travel to the specified anchor id
      *
      * @param The anchor id
@@ -835,9 +819,7 @@ export class AnchorEngine {
 
                 // Find all anchor occurences
                 while ((match = this.matcher!.exec(text))) {
-                    // Find the tagName of match
                     const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(endTag, "");
-
                     const tag: TagEntry = this.tags.get(tagName)!;
                     const isRegionStart = tag.behavior == "region";
                     const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
@@ -860,13 +842,11 @@ export class AnchorEngine {
                         });
 
                         currRegions.pop();
-
                         folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
                         continue;
                     }
 
                     const rangeLength = tag.styleComment ? match[0].length - 1 : tag.tag.length;
-
                     const startPos = match.index + 1;
                     const deltaText = text.substr(0, startPos);
                     const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
@@ -934,6 +914,7 @@ export class AnchorEngine {
                             display,
                             startPos,
                             endPos,
+                            match[0].length - 1,
                             lineNumber,
                             tag.iconColor!,
                             tag.scope!,
@@ -948,6 +929,7 @@ export class AnchorEngine {
                             display,
                             startPos,
                             endPos,
+                            match[0].length - 1,
                             lineNumber,
                             tag.iconColor!,
                             tag.scope!,
@@ -982,6 +964,24 @@ export class AnchorEngine {
                 success(anchorsFound);
             }
         });
+    }
+
+    /**
+     * Returns the list of anchors parsed from the given
+     * file.
+     *
+     * @param file The file URI
+     * @returns The anchor array
+     */
+    async getAnchors(file: Uri): Promise<EntryAnchor[]> {
+        const cached = this.anchorMaps.get(file)?.anchorTree;
+
+        if (cached) {
+            return Promise.resolve(cached);
+        } else {
+            await this.parse(file);
+            return await this.getAnchors(file);
+        }
     }
 
     /**
@@ -1112,11 +1112,9 @@ export class AnchorEngine {
 
             this.parse(editor.document.uri).then(() => {
                 this.refresh();
-                this.travelToCachedAnchor();
             });
         } else {
             this.refresh();
-            this.travelToCachedAnchor();
         }
     }
 

@@ -24,6 +24,7 @@ export default class EntryAnchor extends EntryBase {
         public readonly anchorText: string, // The text after the anchor tag
         public readonly startIndex: number, // The start column of the anchor
         public readonly endIndex: number, // The end column of the tag
+        public readonly anchorLength: number, // The full length of the matched anchor string
         public readonly lineNumber: number, // The line number the tag was found on
         public readonly iconColor: string, // The icon color to use
         public readonly scope: string, // The anchor scope
@@ -66,17 +67,22 @@ export default class EntryAnchor extends EntryBase {
         return [...this.childAnchors];
     }
 
-    get linkRange(): Range {
-        return new Range(this.lineNumber - 1, this.startIndex, this.lineNumber - 1, this.endIndex);
+    getAnchorRange(document: TextDocument, includeText: boolean): Range {
+        let ending: number;
+
+        if (includeText) {
+            ending = this.startIndex + this.anchorLength;
+        } else {
+            ending = this.endIndex;
+        }
+
+        return new Range(document.positionAt(this.startIndex), document.positionAt(ending));
     }
 
     decorateDocument(document: TextDocument, options: DecorationOptions[]): void {
-        const startPos = document.positionAt(this.startIndex);
-        const endPos = document.positionAt(this.endIndex);
-
         options.push({
             hoverMessage: "Comment Anchor: " + this.anchorText,
-            range: new Range(startPos, endPos),
+            range: this.getAnchorRange(document, false),
         });
     }
 
@@ -95,6 +101,7 @@ export default class EntryAnchor extends EntryBase {
             this.anchorText,
             this.startIndex,
             this.endIndex,
+            this.anchorLength,
             this.lineNumber,
             this.iconColor,
             this.scope,

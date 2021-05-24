@@ -1,6 +1,7 @@
-import { DecorationOptions, TextDocument, Range, Uri, TreeItemCollapsibleState } from "vscode";
-import EntryAnchor from "./entryAnchor";
 import { AnchorEngine, TagAttributes } from "../anchorEngine";
+import { DecorationOptions, Range, TextDocument, TreeItemCollapsibleState, Uri } from "vscode";
+
+import EntryAnchor from "./entryAnchor";
 
 /**
  * Represents an Anchor found a file
@@ -16,6 +17,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
         public readonly anchorText: string, // The text after the anchor tag
         public readonly startIndex: number, // The start column of the anchor
         public readonly endIndex: number, // The end column of the tag
+        public readonly anchorLength: number, // The full length of the matched anchor string
         public readonly lineNumber: number, // The line number the tag was found on
         public readonly iconColor: string, // The icon color to use
         public readonly scope: string, // The anchor scope
@@ -23,7 +25,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
         public readonly file: Uri, // The file this anchor is in
         public readonly attributes: TagAttributes // The attriibutes this tag has
     ) {
-        super(engine, anchorTag, anchorText, startIndex, endIndex, lineNumber, iconColor, scope, showLine, file, attributes);
+        super(engine, anchorTag, anchorText, startIndex, endIndex, anchorLength, lineNumber, iconColor, scope, showLine, file, attributes);
 
         this.label = showLine ? `[${lineNumber} - ?] ${anchorText}` : anchorText;
 
@@ -64,6 +66,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
             this.anchorText,
             this.startIndex,
             this.endIndex,
+            this.anchorLength,
             this.lineNumber,
             this.iconColor,
             this.scope,
