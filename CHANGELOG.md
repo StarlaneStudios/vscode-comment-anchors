@@ -2,7 +2,7 @@
 
 ## 1.9.5
 - Replace link anchor CodeLens with clickable link
-	- Fixes many issues related to lens jittering
+	- Fixes many issues related to lens jittering such as (#109)
 
 ## 1.9.4
 - Added Show Cursor setting
