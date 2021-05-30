@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.9.5
+- Replace link anchor CodeLens with clickable link
+	- Fixes many issues related to lens jittering
+
 ## 1.9.4
 - Added Show Cursor setting
 	- Renders a sidebar entry representing the current cursor position
