@@ -316,7 +316,7 @@ Use `commentAnchors.epic.seqStep` to config how much should auto-completion-item
 
 **Required properties:**
 - tag - *Specifies the name of the tag*
-- scope - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list*
+- scope - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list, while "hidden" completely hides it from the anchor list*
 - highlightColor - *The color used for highlighting the tag*
 
 **Optional properties:**
@@ -350,6 +350,18 @@ You can use the `enabled` property to disable one or more default tags like so:
 	{
 		"tag": "NOTE",
 		"enabled": false
+	},
+	...
+]
+```
+
+If you would like for tags to only provide highlighting without rendering in the anchor sidebar, set the `scope` property to `hidden`:
+
+```
+"commentAnchors.tags.list": [
+	{
+		"tag": "NOTE",
+		"scope": "hidden"
 	},
 	...
 ]
