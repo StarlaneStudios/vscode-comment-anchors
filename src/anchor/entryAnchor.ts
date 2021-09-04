@@ -59,6 +59,10 @@ export default class EntryAnchor extends EntryBase {
     contextValue = "anchor";
     tooltip = `${this.anchorText} (Click to reveal)`;
 
+    get isHidden(): boolean {
+        return this.scope == "hidden";
+    }
+
     get isVisibleInWorkspace(): boolean {
         return this.scope == "workspace";
     }

@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.9.6
+- Added new "hidden" scope (#128)
+	- Prevents anchors from displaying in the sidebar
+	- Useful for creating highlight-only anchors
+
 ## 1.9.5
 - Replace link anchor CodeLens with clickable link
 	- Fixes many issues related to lens jittering such as (#109)

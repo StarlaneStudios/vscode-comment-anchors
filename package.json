@@ -2,7 +2,7 @@
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file & workspace navigation.",
-	"version": "1.9.5",
+	"version": "1.9.6",
 	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.38.0"
@@ -371,10 +371,11 @@
 							"scope": {
 								"type": "string",
 								"enum": [
+									"hidden",
 									"file",
 									"workspace"
 								],
-								"description": "Defines the scope of this tag. Setting this to \"file\" makes these tags only visible in the 'File Anchors' list",
+								"description": "Defines the scope of this tag. Setting this to \"file\" makes these tags only visible in the 'File Anchors' list, while \"hidden\" completely hides it from the anchor list",
 								"default": "workspace"
 							},
 							"behavior": {

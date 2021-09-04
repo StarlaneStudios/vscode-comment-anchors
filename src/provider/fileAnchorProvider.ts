@@ -28,7 +28,7 @@ export class FileAnchorProvider implements TreeDataProvider<EntryBase> {
     getChildren(element?: FileEntry): Thenable<EntryBase[]> {
         if (element) {
             if (element instanceof EntryAnchor && element.children) {
-                let children: EntryBase[] = element.children;
+                let children: EntryBase[] = element.children.filter((child) => !child.isHidden);
 
                 if (this.renderCursor) {
                     children = this.insertCursor(children);
@@ -42,16 +42,18 @@ export class FileAnchorProvider implements TreeDataProvider<EntryBase> {
 
         this.cursorFound = false;
 
+        const fileAnchors = this.provider.currentAnchors.filter((child) => !child.isHidden);
+
         // Return result
         return new Promise((resolve) => {
             if (!this.provider.anchorsLoaded) {
                 resolve([this.provider.statusLoading]);
             } else if (this.provider._editor == undefined) {
                 resolve([this.provider.errorUnusableItem]);
-            } else if (this.provider.currentAnchors.length == 0) {
+            } else if (fileAnchors.length == 0) {
                 resolve([this.provider.errorEmptyItem]);
             } else {
-                let anchors: EntryBase[] = EntryAnchor.sortAnchors(this.provider.currentAnchors);
+                let anchors: EntryBase[] = EntryAnchor.sortAnchors(fileAnchors);
 
                 if (this.renderCursor) {
                     anchors = this.insertCursor(anchors);
