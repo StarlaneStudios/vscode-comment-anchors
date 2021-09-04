@@ -229,11 +229,6 @@ export class AnchorEngine {
 
         this.linkDisposable = languages.registerDocumentLinkProvider({ language: "*" }, provider);
         this.linkProvider = provider;
-
-        // const provider = new LinkCodeLensProvider(this);
-
-        // this.linkDisposable = languages.registerCodeLensProvider({ language: "*" }, provider);
-        // this.linkProvider = provider;
     }
 
     public registerProviders(): void {
@@ -602,7 +597,7 @@ export class AnchorEngine {
 
             // Register editor providers
             this.registerProviders();
-        } catch (err) {
+        } catch (err: any) {
             AnchorEngine.output("Failed to build resources: " + err.message);
             AnchorEngine.output(err);
         }
@@ -956,7 +951,7 @@ export class AnchorEngine {
                 this.anchorMaps.set(document, new AnchorIndex(anchors));
 
                 // this.foldMaps.set(document, folds);
-            } catch (err) {
+            } catch (err: any) {
                 AnchorEngine.output("Error: " + err.message);
                 AnchorEngine.output(err.stack);
                 reject(err);
