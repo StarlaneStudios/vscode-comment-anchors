@@ -51,7 +51,7 @@ export class LinkProvider implements DocumentLinkProvider {
 				const fileUri = Uri.file(fullPath);
 
 				if (!existsSync(fullPath) || !lstatSync(fullPath).isFile()) {
-					return
+					return;
 				}
 
 				const anchorRange = anchor.getAnchorRange(document, true);
