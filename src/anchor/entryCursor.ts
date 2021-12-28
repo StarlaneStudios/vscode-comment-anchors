@@ -7,7 +7,7 @@ import { TreeItemCollapsibleState } from "vscode";
  */
 export default class EntryCursor extends EntryBase {
     constructor(engine: AnchorEngine, line: number) {
-        super(engine, `➤ Cursor position (line ${line})`, TreeItemCollapsibleState.None);
+        super(engine, `➤ Cursor (line ${line})`, TreeItemCollapsibleState.None);
         this.tooltip = this.label!;
 
         this.iconPath = {
