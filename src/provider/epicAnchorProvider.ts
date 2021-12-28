@@ -51,26 +51,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
                     );
                     return;
                 } else if (element instanceof EntryEpic) {
-                    // it is EntryEpic
-                    // let res: EntryAnchor[] = [];
-
-                    // const cachedFile = (element as EntryCachedFile);
-
-                    // if (this.provider._config!.tags.displayHierarchyInWorkspace) {
-                    //     cachedFile.anchors.forEach((anchor: EntryAnchor) => {
-                    //         if (!anchor.isVisibleInWorkspace) return;
-
-                    //         res.push(anchor.copy(true));
-                    //     });
-                    // } else {
-                    //     EpicAnchorProvider.flattenAnchors(cachedFile.anchors).forEach((anchor: EntryAnchor) => {
-                    //         if (!anchor.isVisibleInWorkspace) return;
-
-                    //         res.push(anchor.copy(false));
-                    //     });
-                    // }
-
-                    // success(EntryAnchor.sortAnchors(res));
                     const res: EntryAnchor[] = [];
 
                     const epic = element as EntryEpic;
@@ -130,7 +110,7 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
 
             // Build the epic entries
             Array.from(this.provider.anchorMaps).forEach(([, anchorIndex], _: number) => {
-                anchorIndex.anchorTree.forEach((anchor) => {
+                flattenAnchors(anchorIndex.anchorTree).forEach((anchor) => {
                     const epic = anchor.attributes.epic;
                     if (!epic) return;
 
@@ -147,7 +127,7 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
             // Sort and build the entry list
             epicMaps.forEach((anchorArr: EntryAnchor[], epic: string) => {
                 anchorArr.sort((left, right) => {
-                    return left.attributes.seq - left.attributes.seq;
+                    return left.attributes.seq - right.attributes.seq;
                 });
 
                 res.push(new EntryEpic(epic, `${epic}`, anchorArr, this.provider));
