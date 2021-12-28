@@ -62,7 +62,7 @@ export type AnyEntryArray = EntryBase[];
 
 const MATCHER_TAG_INDEX = 1;
 const MATCHER_ATTR_INDEX = 2;
-const MATCHER_COMMENT_INDEX = 5;
+const MATCHER_COMMENT_INDEX = 3;
 
 /**
  * The main anchor parsing and caching engine
@@ -146,13 +146,9 @@ export class AnchorEngine {
 
     // Possible error entries //
     public errorUnusableItem: EntryError = new EntryError(this, "Waiting for open editor...");
-
     public errorEmptyItem: EntryError = new EntryError(this, "No comment anchors detected");
-
     public errorEmptyWorkspace: EntryError = new EntryError(this, "No comment anchors in workspace");
-
     public errorEmptyEpics: EntryError = new EntryError(this, "No epics found in workspace");
-
     public errorWorkspaceDisabled: EntryError = new EntryError(this, "Workspace disabled");
     public errorFileOnly: EntryError = new EntryError(this, "No open workspaces");
     public statusLoading: EntryLoading = new EntryLoading(this);
@@ -503,19 +499,19 @@ export class AnchorEngine {
             });
 
             // Fetch an array of tags
-            const matchTags = Array.from(this.tags.keys());
+            const tagList = Array.from(this.tags.keys());
 
             // Generate region end tags
             const endTag = this._config.tags.endTag;
 
             this.tags.forEach((entry, tag) => {
                 if (entry.behavior == "region") {
-                    matchTags.push(endTag + tag);
+                    tagList.push(endTag + tag);
                 }
             });
 
-            // Create a matcher for the tags
-            const tags = matchTags
+            // Create a selection of tags
+            const tags = tagList
                 .map((tag) => escape(tag))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
@@ -525,22 +521,32 @@ export class AnchorEngine {
                 return;
             }
 
-            // Construct a list of separators [ +|: +| +- +]
+            // Create a selection of separators
             const separators = (config.tags.separators as string[])
                 .map((seperator) => escape(seperator).replace(/ /g, " +"))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
-
-            AnchorEngine.output("Tags: " + tags);
-            AnchorEngine.output("Separators: " + separators);
 
             if (separators.length === 0) {
                 window.showErrorMessage("At least one separator must be defined");
                 return;
             }
 
-            // ANCHOR: Tag RegEx
-            this.matcher = new RegExp(`[^\\w](${tags})(\\[.*\\])?((${separators})(.*))?`, config.tags.matchCase ? "gm" : "img");
+            // Create a selection of prefixes
+            const prefixes = (config.tags.matchStart as string[])
+                .map((match) => escape(match).replace(/ /g, " +"))
+                .sort((left, right) => right.length - left.length)
+                .join("|");
+
+            // ANCHOR: Regex for matching tags
+            // group 1 - Anchor tag
+            // group 2 - Attributes
+            // group 3 - Text
+
+            const regex = `(?:${prefixes})(?:\\s{0,4})(${tags})(\\[.*\\])?(?:(?:${separators})(.*))?`;
+            const flags = config.tags.matchCase ? "gm" : "img";
+
+            this.matcher = new RegExp(regex, flags);
 
             AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -814,25 +820,29 @@ export class AnchorEngine {
 
                 // Find all anchor occurences
                 while ((match = this.matcher!.exec(text))) {
-                    const tagName = match[MATCHER_TAG_INDEX].toUpperCase().replace(endTag, "");
-                    const tag: TagEntry = this.tags.get(tagName)!;
-                    const isRegionStart = tag.behavior == "region";
-                    const isRegionEnd = match[MATCHER_TAG_INDEX].startsWith(endTag);
+                    const tagMatch = match[MATCHER_TAG_INDEX];
+                    const tagName = tagMatch.toUpperCase().replace(endTag, "");
+                    const tagEntry: TagEntry = this.tags.get(tagName)!;
+                    const isRegionStart = tagEntry.behavior == "region";
+                    const isRegionEnd = tagMatch.startsWith(endTag);
                     const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+
+                    // Compute positions and lengths
+                    const offsetPos = match[0].indexOf(tagMatch);
+                    const startPos = match.index + offsetPos;
+                    const rangeLength = tagEntry.styleComment ? match[0].length - offsetPos : tagMatch.length;
+                    const lineNumber = text.substr(0, startPos).split(/\r\n|\r|\n/g).length;
 
                     // We have found at least one anchor
                     anchorsFound = true;
 
                     // Handle the closing of a region
                     if (isRegionEnd) {
-                        if (!currRegion || currRegion.anchorTag != tag.tag) continue;
-
-                        const deltaText = text.substr(0, match.index + 1);
-                        const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
+                        if (!currRegion || currRegion.anchorTag != tagEntry.tag) continue;
 
                         currRegion.setEndTag({
-                            startIndex: match.index + 1,
-                            endIndex: match.index + 1 + match[MATCHER_TAG_INDEX].length,
+                            startIndex: startPos,
+                            endIndex: startPos + rangeLength,
                             lineNumber: lineNumber,
                         });
 
@@ -840,11 +850,6 @@ export class AnchorEngine {
                         folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
                         continue;
                     }
-
-                    const rangeLength = tag.styleComment ? match[0].length - 1 : tag.tag.length;
-                    const startPos = match.index + 1;
-                    const deltaText = text.substr(0, startPos);
-                    const lineNumber = deltaText.split(/\r\n|\r|\n/g).length;
 
                     let endPos = startPos + rangeLength;
                     let comment = (match[MATCHER_COMMENT_INDEX] || "").trim();
@@ -856,44 +861,29 @@ export class AnchorEngine {
                     });
 
                     // Clean up the comment and adjust the endPos
-                    if (comment.endsWith("-->")) {
-                        if (tag.styleComment) {
-                            const skip = [" ", "-", ">"];
-                            let end = comment.length - 1;
+                    for (const endMatch of config.tags.matchEnd) {
+                        if (comment.endsWith(endMatch)) {
+                            comment = comment.substr(0, comment.length - endMatch.length);
 
-                            while (skip.indexOf(comment[end]) >= 0) {
-                                endPos--;
-                                end--;
+                            if (tagEntry.styleComment) {
+                                endPos = startPos + comment.length;
                             }
+
+                            break;
                         }
-
-                        comment = comment.substring(0, comment.lastIndexOf("-->"));
-                    } else if (comment.endsWith("*/")) {
-                        if (tag.styleComment) {
-                            const skip = [" ", "*", "/"];
-                            let end = comment.length - 1;
-
-                            while (skip.indexOf(comment[end]) >= 0) {
-                                endPos--;
-                                end--;
-                            }
-                        }
-
-                        comment = comment.substring(0, comment.lastIndexOf("*/"));
                     }
 
-                    comment = comment.trim();
-
+                    // Construct the resulting string to display
                     if (comment.length == 0) {
-                        display = tag.tag;
-                    } else if (config.tags.displayInSidebar && tag.behavior != "link") {
-                        display = tag.tag + ": " + comment;
+                        display = tagEntry.tag;
+                    } else if (config.tags.displayInSidebar && tagEntry.behavior != "link") {
+                        display = tagEntry.tag + ": " + comment;
                     } else {
                         display = comment;
                     }
 
                     // Remove epics when tag is not workspace visible
-                    if (tag.scope != "workspace") {
+                    if (tagEntry.scope != "workspace") {
                         attributes.epic = undefined;
                     }
 
@@ -905,14 +895,14 @@ export class AnchorEngine {
                     if (isRegionStart) {
                         anchor = new EntryAnchorRegion(
                             this,
-                            tag.tag,
+                            tagEntry.tag,
                             display,
                             startPos,
                             endPos,
                             match[0].length - 1,
                             lineNumber,
-                            tag.iconColor!,
-                            tag.scope!,
+                            tagEntry.iconColor!,
+                            tagEntry.scope!,
                             displayLineNumber,
                             document,
                             attributes
@@ -920,14 +910,14 @@ export class AnchorEngine {
                     } else {
                         anchor = new EntryAnchor(
                             this,
-                            tag.tag,
+                            tagEntry.tag,
                             display,
                             startPos,
                             endPos,
                             match[0].length - 1,
                             lineNumber,
-                            tag.iconColor!,
-                            tag.scope!,
+                            tagEntry.iconColor!,
+                            tagEntry.scope!,
                             displayLineNumber,
                             document,
                             attributes
