@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.10.0
+- Fixed anchors appearing outside of comments (#116)
+	- Due to the way in which the matcher has been changed, existing anchors *may* break. Please use the new `matchPrefix` and `matchSuffix` settings to further tweak the matcher to your environment.
+- Added `matchPrefix` and `matchSuffix` settings
+- Fixed epics within regions not displaying in the sidebar
+- Fixed instances where a single broken link breaks all links
+- Slightly adjust the cursor appearance
+
 ## 1.9.6
 - Added new "hidden" scope (#128)
 	- Prevents anchors from displaying in the sidebar
