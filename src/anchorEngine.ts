@@ -533,10 +533,15 @@ export class AnchorEngine {
             }
 
             // Create a selection of prefixes
-            const prefixes = (config.tags.matchStart as string[])
+            const prefixes = (config.tags.matchPrefix as string[])
                 .map((match) => escape(match).replace(/ /g, " +"))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
+
+            if (prefixes.length === 0) {
+                window.showErrorMessage("At least one match prefix must be defined");
+                return;
+            }
 
             // ANCHOR: Regex for matching tags
             // group 1 - Anchor tag
@@ -861,7 +866,7 @@ export class AnchorEngine {
                     });
 
                     // Clean up the comment and adjust the endPos
-                    for (const endMatch of config.tags.matchEnd) {
+                    for (const endMatch of config.tags.matchSuffix) {
                         if (comment.endsWith(endMatch)) {
                             comment = comment.substr(0, comment.length - endMatch.length);
 

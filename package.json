@@ -255,6 +255,32 @@
 					"description": "List of separators that can be placed between tags and comments",
 					"scope": "window"
 				},
+				"commentAnchors.tags.matchPrefix": {
+					"type": "array",
+					"default": [
+						"<!--",
+						"//",
+						"/*",
+						"#"
+					],
+					"items": {
+						"type": "string"
+					},
+					"description": "List of strings which may prefix a matched comment",
+					"scope": "window"
+				},
+				"commentAnchors.tags.matchSuffix": {
+					"type": "array",
+					"default": [
+						"-->",
+						"*/"
+					],
+					"items": {
+						"type": "string"
+					},
+					"description": "List of strings which may suffix a matched comment",
+					"scope": "window"
+				},
 				"commentAnchors.tags.endTag": {
 					"type": "string",
 					"default": "!",
