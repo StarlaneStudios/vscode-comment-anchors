@@ -841,21 +841,6 @@ export class AnchorEngine {
                     // We have found at least one anchor
                     anchorsFound = true;
 
-                    // Handle the closing of a region
-                    if (isRegionEnd) {
-                        if (!currRegion || currRegion.anchorTag != tagEntry.tag) continue;
-
-                        currRegion.setEndTag({
-                            startIndex: startPos,
-                            endIndex: startPos + rangeLength,
-                            lineNumber: lineNumber,
-                        });
-
-                        currRegions.pop();
-                        folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
-                        continue;
-                    }
-
                     let endPos = startPos + rangeLength;
                     let comment = (match[MATCHER_COMMENT_INDEX] || "").trim();
                     let display = "";
@@ -871,11 +856,26 @@ export class AnchorEngine {
                             comment = comment.substr(0, comment.length - endMatch.length);
 
                             if (tagEntry.styleComment) {
-                                endPos = startPos + comment.length;
+                                endPos -= endMatch.length;
                             }
 
                             break;
                         }
+                    }
+
+                    // Handle the closing of a region
+                    if (isRegionEnd) {
+                        if (!currRegion || currRegion.anchorTag != tagEntry.tag) continue;
+
+                        currRegion.setEndTag({
+                            startIndex: startPos,
+                            endIndex: endPos,
+                            lineNumber: lineNumber,
+                        });
+
+                        currRegions.pop();
+                        folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
+                        continue;
                     }
 
                     // Construct the resulting string to display
