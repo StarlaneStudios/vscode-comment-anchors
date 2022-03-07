@@ -329,7 +329,7 @@ Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of 
 - borderRadius - *The curvature radius of the border (Requires borderStyle)*
 - isBold - *Whether to apply bold formatting to the tag*
 - isItalic - *Whether to apply italicized formatting to the tag*
-- isRegion - *Mark this anchor as a region anchor*
+- behavior - *Either "link" for link tags, "region" for region tags, or "anchor" for regular tags*
 - enabled - *Allows the disabling of default (and custom) tags*
 
 ```
