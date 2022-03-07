@@ -295,8 +295,6 @@ Use `commentAnchors.tags.separators` to set the list of accepted separators
 }
 ```
 
-Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of properties each tag can have.
-
 Use `commentAnchors.epic.provideAutoCompletion` to enable autocompletion support for epic. (Default true)
 
 ```
@@ -312,6 +310,10 @@ Use `commentAnchors.epic.seqStep` to config how much should auto-completion-item
 	"commentAnchors.epic.seqStep": 1
 }
 ```
+
+## Custom anchor tags
+
+Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of properties each tag can have.
 
 
 **Required properties:**
