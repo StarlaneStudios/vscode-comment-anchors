@@ -394,7 +394,7 @@ Besides specifying a custom hex color, the following names may be used as shortc
 Found a problem or missing feature in Comment Anchors?
 Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
 
-If you prefer more direct help, you can join the [Exodius Studios Discord](https://discord.gg/exaQDX2) where you can find most developers of this extension.
+If you prefer more direct help, you can join the [Starlane Studios Discord](https://discord.gg/exaQDX2) where you can find most developers of this extension.
 
 ## Poor performance?
 
