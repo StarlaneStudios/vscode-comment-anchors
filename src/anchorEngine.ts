@@ -303,12 +303,12 @@ export class AnchorEngine {
 
             // Add custom tags
             config.tags.list.forEach((tag: TagEntry) => {
-                const def = this.tags.get(tag.tag.toUpperCase()) || {};
+                const def = this.tags.get(tag.tag) || {};
                 const opts = { ...def, ...tag };
 
                 // Skip disabled default tags
                 if (tag.enabled === false) {
-                    this.tags.delete(tag.tag.toUpperCase());
+                    this.tags.delete(tag.tag);
                     return;
                 }
 
@@ -317,7 +317,7 @@ export class AnchorEngine {
                     opts.behavior = "region";
                 }
 
-                this.tags.set(tag.tag.toUpperCase(), opts);
+                this.tags.set(tag.tag, opts);
             });
 
             // Detect the lane style
@@ -826,7 +826,7 @@ export class AnchorEngine {
                 // Find all anchor occurences
                 while ((match = this.matcher!.exec(text))) {
                     const tagMatch = match[MATCHER_TAG_INDEX];
-                    const tagName = tagMatch.toUpperCase().replace(endTag, "");
+                    const tagName = tagMatch.replace(endTag, "");
                     const tagEntry: TagEntry = this.tags.get(tagName)!;
                     const isRegionStart = tagEntry.behavior == "region";
                     const isRegionEnd = tagMatch.startsWith(endTag);
@@ -987,22 +987,22 @@ export class AnchorEngine {
 
             // Create a mapping between tags and decorators
             this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
-                tags.set(tag.toUpperCase(), [decorator, []]);
+                tags.set(tag, [decorator, []]);
             });
 
             this.anchorEndDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
-                tagsEnd.set(tag.toUpperCase(), [decorator, []]);
+                tagsEnd.set(tag, [decorator, []]);
             });
 
             // Create a function to handle decorating
             const applyDecorators = (anchors: EntryAnchor[]) => {
                 anchors.forEach((anchor) => {
-                    const deco = tags.get(anchor.anchorTag.toUpperCase())![1];
+                    const deco = tags.get(anchor.anchorTag)![1];
 
                     anchor.decorateDocument(document, deco);
 
                     if (anchor instanceof EntryAnchorRegion) {
-                        anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag.toUpperCase())![1]);
+                        anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag)![1]);
                     }
 
                     if (anchor.children) {
