@@ -91,6 +91,8 @@ See the configuration section for a complete list of tag properties.
 
 ![Workspace Anchors](media/custom-tags.png)
 
+![Case Sensitive Anchors](media/case-sensitive-anchors.png)
+
 ## Link Anchors
 
 Sometimes you might want to link to a file from within a comment. In these cases, a link anchor
@@ -376,18 +378,18 @@ currentl theme (black or white).
 
 Besides specifying a custom hex color, the following names may be used as shortcuts.
 
-| Color         | Hex     |
-| :------------ |--------:|
-| blue          | #3ea8ff |
-| blurple       | #7d5afc |
-| red           | #F44336 |
-| purple        | #BA68C8 |
-| teal          | #00cec9 |
-| orange        | #ffa100 |
-| green         | #64DD17 |
-| pink          | #e84393 |
-| emerald       | #2ecc71 |
-| yellow        | #f4d13d |
+| Color   |     Hex |
+|:--------|--------:|
+| blue    | #3ea8ff |
+| blurple | #7d5afc |
+| red     | #F44336 |
+| purple  | #BA68C8 |
+| teal    | #00cec9 |
+| orange  | #ffa100 |
+| green   | #64DD17 |
+| pink    | #e84393 |
+| emerald | #2ecc71 |
+| yellow  | #f4d13d |
 
 # Issues
 
