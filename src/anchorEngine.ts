@@ -826,10 +826,18 @@ export class AnchorEngine {
                 // Find all anchor occurences
                 while ((match = this.matcher!.exec(text))) {
                     const tagMatch = match[MATCHER_TAG_INDEX];
-                    const tagName = tagMatch.replace(endTag, "");
+                    let tagName;
+                    let isRegionEnd;
+                    if (this.tags.has(tagMatch)) {
+                        tagName = tagMatch;
+                        isRegionEnd = false;
+                    } else {
+                        if (!tagMatch.startsWith(endTag)) throw new TypeError("matched non-existent tag");
+                        tagName = tagMatch.slice(endTag.length);
+                        isRegionEnd = true;
+                    }
                     const tagEntry: TagEntry = this.tags.get(tagName)!;
                     const isRegionStart = tagEntry.behavior == "region";
-                    const isRegionEnd = tagMatch.startsWith(endTag);
                     const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
 
                     // Compute positions and lengths
