@@ -162,7 +162,7 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
 
         const keyWord = _document.getText(_document.getWordRangeAtPosition(_position.translate(0, -1)));
 
-        const hasKeyWord = Array.from(this.engine.tags.keys()).find((v) => v.toUpperCase() === keyWord);
+        const hasKeyWord = Array.from(this.engine.tags.keys()).find((v) => v === keyWord);
 
         if (hasKeyWord) {
             const epicCtr = new Map<string, number>();
