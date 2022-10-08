@@ -307,8 +307,7 @@
 					"additionalProperties": {
 						"type": "object",
 						"required": [
-							"scope",
-							"highlightColor"
+							"scope"
 						],
 						"properties": {
 							"enabled": {

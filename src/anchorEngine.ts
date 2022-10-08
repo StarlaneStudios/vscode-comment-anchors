@@ -367,7 +367,7 @@ export class AnchorEngine {
                     }
 
                     // Save the icon color
-                    let iconColor = tag.iconColor || tag.highlightColor;
+                    let iconColor = tag.iconColor || tag.highlightColor || 'default';
                     let skipColor = false;
 
                     switch (iconColor) {
@@ -1134,7 +1134,7 @@ export interface TagEntry {
     tag: string;
     enabled?: boolean;
     iconColor?: string;
-    highlightColor: string;
+    highlightColor?: string;
     backgroundColor?: string;
     styleComment?: boolean;
     borderStyle?: string;

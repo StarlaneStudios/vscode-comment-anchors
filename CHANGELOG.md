@@ -6,6 +6,7 @@
 - Updated the anchor tag configuration syntax
 	- The legacy array-based syntax will continue to work
 	- Since the new syntax is defined using an object notation, individual tags can now be collapsed (#152)
+- Made `highlightColor` property optional for tags, allowing uncolored anchors
 - Fixed epics within regions not displaying in the sidebar
 - Fixed instances where a single broken link breaks all links
 - Fixed anchors appearing outside of comments (#116)
