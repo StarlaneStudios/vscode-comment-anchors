@@ -11,7 +11,6 @@ specifiers:
   escape-string-regexp: ^2.0.0
   eslint: ^8.24.0
   eslint-plugin-unused-imports: ^2.0.0
-  husky: ^8.0.1
   typescript: ^4.8.4
 
 dependencies:
@@ -27,7 +26,6 @@ devDependencies:
   '@typescript-eslint/parser': 5.39.0_z4bbprzjrhnsfa24uvmcbu7f5q
   eslint: 8.25.0
   eslint-plugin-unused-imports: 2.0.0_fd4zt552xrtdl27rs5sr76joou
-  husky: 8.0.1
   typescript: 4.8.4
 
 packages:
@@ -638,12 +636,6 @@ packages:
   /has-flag/4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
-    dev: true
-
-  /husky/8.0.1:
-    resolution: {integrity: sha512-xs7/chUH/CKdOCs7Zy0Aev9e/dKOMZf3K1Az1nar3tzlv0jfqnYtu235bstsWTmXOR0EfINrPa97yy4Lz6RiKw==}
-    engines: {node: '>=14'}
-    hasBin: true
     dev: true
 
   /ignore/5.2.0:
