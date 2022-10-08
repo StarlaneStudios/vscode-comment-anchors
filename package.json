@@ -246,6 +246,12 @@
 					"description": "Whether to display line numbers in the sidebar",
 					"scope": "window"
 				},
+				"commentAnchors.tags.displayTagName": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to display tag names in the sidebar",
+					"scope": "window"
+				},
 				"commentAnchors.tags.sortMethod": {
 					"type": "string",
 					"default": "line",

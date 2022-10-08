@@ -787,6 +787,9 @@ export class AnchorEngine {
         try {
             const config = this._config!;
             const endTag = config.tags.endTag;
+            const displayTagName = config.tags.displayTagName;
+            const displayInSidebar = config.tags.displayInSidebar;
+            const displayLineNumber = config.tags.displayLineNumber;
 
             let text = null;
 
@@ -819,6 +822,7 @@ export class AnchorEngine {
                 const tagMatch = match[MATCHER_TAG_INDEX];
                 let tagName;
                 let isRegionEnd;
+
                 if (this.tags.has(tagMatch)) {
                     tagName = tagMatch;
                     isRegionEnd = false;
@@ -827,6 +831,7 @@ export class AnchorEngine {
                     tagName = tagMatch.slice(endTag.length);
                     isRegionEnd = true;
                 }
+
                 const tagEntry: TagEntry = this.tags.get(tagName)!;
                 const isRegionStart = tagEntry.behavior == "region";
                 const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
@@ -880,8 +885,8 @@ export class AnchorEngine {
                 // Construct the resulting string to display
                 if (comment.length == 0) {
                     display = tagEntry.tag;
-                } else if (config.tags.displayInSidebar && tagEntry.behavior != "link") {
-                    display = tagEntry.tag + ": " + comment;
+                } else if (displayInSidebar && tagEntry.behavior != "link") {
+                    display = displayTagName ? (tagEntry.tag + ": " + comment) : comment;
                 } else {
                     display = comment;
                 }
@@ -894,8 +899,6 @@ export class AnchorEngine {
                 let anchor: EntryAnchor;
 
                 // Create a regular or region anchor
-                const displayLineNumber = config.tags.displayLineNumber;
-
                 if (isRegionStart) {
                     anchor = new EntryAnchorRegion(
                         this,

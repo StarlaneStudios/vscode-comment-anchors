@@ -274,6 +274,14 @@ Use `commentAnchors.tags.displayLineNumber` to set whether line numbers are disp
 }
 ```
 
+Use `commentAnchors.tags.displayTagName` to set whether tag names are displayed in the sidebar (Default true)
+
+```
+{
+	"commentAnchors.tags.displayTagName": true
+}
+```
+
 Use `commentAnchors.tags.rulerStyle` to set the appearance in the overview ruler (Default "center")
 
 ```
