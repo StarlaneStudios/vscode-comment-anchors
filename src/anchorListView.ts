@@ -1,6 +1,5 @@
-import * as path from "path";
 import { AnchorEngine } from "./anchorEngine";
-import { Uri, Webview } from "vscode";
+import { Webview } from "vscode";
 
 /**
  * Generate the contents of the anchor list view
@@ -13,11 +12,6 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
 
     engine.tags.forEach((tag) => {
         const isDefault = tag.iconColor == "default";
-        const fileIcon = Uri.file(
-            path.join(engine.context.extensionPath, "res", isDefault ? "anchor_white.svg" : "anchor_" + tag.iconColor + ".svg")
-        );
-
-        const icon = webview.asWebviewUri(fileIcon);
         const tagFlags = [];
 
         let tagStyle = "";
@@ -67,14 +61,9 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
         tagList += `
 		<section class="tag-entry">
 			<div class="tag-wrapper">
-				<div class="side-container">
-					<img class="tag-icon ${isDefault ? "default-icon" : ""}" src="${icon}">
-				</div>
-				<div class="tag-content">
-					<span class="comment-pre">// </span>
-					<span class="anchor-tag" style="${tagStyle}">${tag.tag}</span>
-					<span class="tag-flags">(${flags})</span>
-				</div>
+				<span class="comment-pre">// </span>
+				<span class="anchor-tag" style="${tagStyle}">${tag.tag}</span>
+				<span class="tag-flags">(${flags})</span>
 			</div>
 		</section>
 		`;
@@ -96,21 +85,8 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
 					padding: 12px;
 				}
 
-				.tag-wrapper {
-					display: flex;
-				}
-
-				.side-container, .tag-content {
-					flex: 1;
-				}
-
-				.side-container {
-					max-width: 30px;
-				}
-
 				.tag-content {
 					padding-top: 3px;
-					padding-left: 12px;
 				}
 
 				.tag-icon {
