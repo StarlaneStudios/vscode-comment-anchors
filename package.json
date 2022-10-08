@@ -3,7 +3,7 @@
 	"displayName": "Comment Anchors",
 	"description": "Place anchor tags within comments for easy file and workspace navigation.",
 	"version": "1.10.0",
-	"publisher": "StarlaneStudios",
+	"publisher": "ExodiusStudios",
 	"engines": {
 		"vscode": "^1.66.0"
 	},
