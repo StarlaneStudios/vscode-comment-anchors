@@ -787,9 +787,12 @@ export class AnchorEngine {
         try {
             const config = this._config!;
             const endTag = config.tags.endTag;
-            const displayTagName = config.tags.displayTagName;
-            const displayInSidebar = config.tags.displayInSidebar;
-            const displayLineNumber = config.tags.displayLineNumber;
+            
+            const {
+                displayTagName,
+                displayInSidebar,
+                displayLineNumber,
+            } = config.tags;
 
             let text = null;
 
