@@ -12,7 +12,7 @@
 	],
 	"icon": "media/icon.png",
 	"galleryBanner": {
-		"color": "#0c5b82",
+		"color": "#314f88",
 		"theme": "dark"
 	},
 	"homepage": "https://github.com/StarlaneStudios/vscode-comment-anchors/blob/master/README.md",
