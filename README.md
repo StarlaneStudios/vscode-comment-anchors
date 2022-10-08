@@ -323,11 +323,8 @@ Use `commentAnchors.epic.seqStep` to config how much should auto-completion-item
 Use `commentAnchors.tags.anchors` to configure the anchor tags. Below is a list of properties each tag can have.
 
 
-**Required properties:**
-- scope - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list, while "hidden" completely hides it from the anchor list*
+- scope **(required)** - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list, while "hidden" completely hides it from the anchor list*
 - highlightColor - *The color used for highlighting the tag*
-
-**Optional properties:**
 - backgroundColor - *The color used as tag background*
 - iconColor - *An optional color to apply to the icon, or "auto" for automatic theme detection. Defaults to using highlightColor*
 - styleComment - *Boolean indicating whether to style the entire comment, or just the tag*
