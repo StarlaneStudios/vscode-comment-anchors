@@ -3,6 +3,9 @@
 ## 1.10.0
 - Fixed anchors appearing outside of comments (#116)
 	- Due to the way in which the matcher has been changed, existing anchors *may* break. Please use the new `matchPrefix` and `matchSuffix` settings to further tweak the matcher to your environment.
+- Updated the anchor tag configuration syntax
+	- The legacy array-based syntax will continue to work
+	- Since the new syntax is defined using an object notation, individual tags can now be collapsed (#152)
 - Added `matchPrefix` and `matchSuffix` settings
 - Fixed epics within regions not displaying in the sidebar
 - Fixed instances where a single broken link breaks all links

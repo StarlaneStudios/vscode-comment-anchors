@@ -315,11 +315,10 @@ Use `commentAnchors.epic.seqStep` to config how much should auto-completion-item
 
 ## Custom anchor tags
 
-Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of properties each tag can have.
+Use `commentAnchors.tags.anchors` to configure the anchor tags. Below is a list of properties each tag can have.
 
 
 **Required properties:**
-- tag - *Specifies the name of the tag*
 - scope - *The scope of a tag. Specifying "file" will only make these visible in the 'File Anchors' list, while "hidden" completely hides it from the anchor list*
 - highlightColor - *The color used for highlighting the tag*
 
@@ -335,40 +334,37 @@ Use `commentAnchors.tags.list` to configure the anchor tags. Below is a list of 
 - enabled - *Allows the disabling of default (and custom) tags*
 
 ```
-"commentAnchors.tags.list": [
-	{
-		"tag": "ANCHOR",
+"commentAnchors.tags.anchors": {
+	"ANCHOR": {
 		"scope": "file",
 		"iconColor": "default",
 		"highlightColor": "#A8C023",
 		"styleComment": true
 	},
 	...
-]
+}
 ```
 
 You can use the `enabled` property to disable one or more default tags like so:
 
 ```
-"commentAnchors.tags.list": [
-	{
-		"tag": "NOTE",
+"commentAnchors.tags.anchors": {
+	"ANCHOR": {
 		"enabled": false
 	},
 	...
-]
+}
 ```
 
 If you would like for tags to only provide highlighting without rendering in the anchor sidebar, set the `scope` property to `hidden`:
 
 ```
-"commentAnchors.tags.list": [
-	{
-		"tag": "NOTE",
+"commentAnchors.tags.anchors": {
+	"NOTE": {
 		"scope": "hidden"
 	},
 	...
-]
+}
 ```
 
 ## Icon colors
