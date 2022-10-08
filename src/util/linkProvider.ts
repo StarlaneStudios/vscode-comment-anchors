@@ -5,7 +5,7 @@ import { AnchorEngine } from "../anchorEngine";
 import { flattenAnchors } from "./flattener";
 import { existsSync, lstatSync } from "fs";
 
-const LINK_REGEX = /^(\.{1,2}[/\\])?(.+?)(:\d+|#[\w-]+)?$/;
+const LINK_REGEX = /^(\.{1,2}[/\\])?([^:#]+)?(:\d+|#[\w-]+)?$/;
 
 export class LinkProvider implements DocumentLinkProvider {
 	
@@ -45,8 +45,8 @@ export class LinkProvider implements DocumentLinkProvider {
             })
             .forEach((anchor) => {
                 const components = LINK_REGEX.exec(anchor.anchorText)!;
-                const parameter = components[3] || "";
-                const filePath = components[2];
+                const parameter = components[3] || '';
+                const filePath = components[2] || document?.uri?.fsPath || '';
                 const relativeFolder = components[1];
                 const fullPath = relativeFolder ? resolve(basePath, relativeFolder, filePath) : resolve(workspacePath, filePath);
                 const fileUri = Uri.file(fullPath);
