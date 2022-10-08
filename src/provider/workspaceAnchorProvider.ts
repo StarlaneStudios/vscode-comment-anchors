@@ -97,7 +97,10 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
 
             success(
                 res.sort((left, right) => {
-                    return left.label!.localeCompare(right.label!);
+                    const leftLabel = left.label as string;
+                    const rightLabel = right.label as string;
+
+                    return leftLabel.localeCompare(rightLabel);
                 })
             );
         });

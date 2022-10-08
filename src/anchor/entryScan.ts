@@ -1,6 +1,6 @@
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import EntryBase from "./entryBase";
+import { TreeItemCollapsibleState } from "vscode";
 import { AnchorEngine } from "../anchorEngine";
+import EntryBase from "./entryBase";
 
 /**
  * Represents a pending workspace scan
@@ -20,7 +20,7 @@ export default class EntryScan extends EntryBase {
         };
     }
 
-    tooltip = this.label!;
+    tooltip = this.label as string;
 
     toString(): string {
         return "EntryLaunch{}";

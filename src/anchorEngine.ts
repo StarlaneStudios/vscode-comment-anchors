@@ -346,7 +346,7 @@ export class AnchorEngine {
 
                     if (cursor !== undefined && prevLine != cursor) {
                         AnchorEngine.output("Updating cursor position");
-                        this._onDidChangeTreeData.fire();
+                        this._onDidChangeTreeData.fire(undefined);
                         prevLine = cursor;
                     }
                 }, 100);
@@ -641,7 +641,7 @@ export class AnchorEngine {
         });
 
         // Update workspace tree
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     private async loadWorkspace(uris: Uri[]): Promise<void> {
@@ -1039,8 +1039,8 @@ export class AnchorEngine {
         this.expandedWorkspaceTreeViewItems = [];
 
         // Update the file trees
-        this._onDidChangeLinkData.fire();
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeLinkData.fire(undefined);
+        this._onDidChangeTreeData.fire(undefined);
         this.anchorsDirty = false;
     }
 

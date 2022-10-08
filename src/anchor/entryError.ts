@@ -1,6 +1,6 @@
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import EntryBase from "./entryBase";
+import { TreeItemCollapsibleState } from "vscode";
 import { AnchorEngine } from "../anchorEngine";
+import EntryBase from "./entryBase";
 
 /**
  * Represents a caught error

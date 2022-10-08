@@ -30,10 +30,6 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
         this.provider = provider;
     }
 
-    private generateLabel(i: number, e: EntryAnchor): string {
-        return e.label!;
-    }
-
     getTreeItem(element: AnyEntry): TreeItem {
         return element;
     }
@@ -43,12 +39,7 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
             // The default is empty, so you have to build a tree
             if (element) {
                 if (element instanceof EntryAnchor && element.children) {
-                    success(
-                        element.children.map((v, i) => {
-                            v.label = this.generateLabel(i, v);
-                            return v;
-                        })
-                    );
+                    success(element.children);
                     return;
                 } else if (element instanceof EntryEpic) {
                     const res: EntryAnchor[] = [];
@@ -74,14 +65,9 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
                         });
                     }
 
-                    const anchors = res
-                        .sort((left, right) => {
-                            return left.attributes.seq - right.attributes.seq;
-                        })
-                        .map((v, i) => {
-                            v.label = this.generateLabel(i, v);
-                            return v;
-                        });
+                    const anchors = res.sort((left, right) => {
+                        return left.attributes.seq - right.attributes.seq;
+                    });
 
                     success(anchors);
                 } else {

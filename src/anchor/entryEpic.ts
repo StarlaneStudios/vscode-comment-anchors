@@ -1,7 +1,6 @@
-import { TreeItem, TreeItemCollapsibleState, DecorationOptions, Uri, OutputChannel, workspace } from "vscode";
-import * as path from "path";
-import EntryAnchor from "./entryAnchor";
+import { TreeItemCollapsibleState } from "vscode";
 import { AnchorEngine } from "../anchorEngine";
+import EntryAnchor from "./entryAnchor";
 import EntryBase from "./entryBase";
 
 /**
@@ -24,7 +23,7 @@ export default class EntryEpic extends EntryBase {
     }
 
     toString(): string {
-        return this.label!;
+        return this.label as string;
     }
 
     contextValue = "epic";
