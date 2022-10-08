@@ -28,7 +28,6 @@ import {
     window,
     workspace,
 } from "vscode";
-import { EpicAnchorIntelliSenseProvider, EpicAnchorProvider } from "./provider/epicAnchorProvider";
 
 import { AnchorIndex } from "./anchorIndex";
 import EntryAnchor from "./anchor/entryAnchor";
@@ -38,8 +37,9 @@ import EntryCursor from "./anchor/entryCursor";
 import EntryError from "./anchor/entryError";
 import EntryLoading from "./anchor/entryLoading";
 import EntryScan from "./anchor/entryScan";
-import { FileAnchorProvider } from "./provider/fileAnchorProvider";
 import { LinkProvider } from "./util/linkProvider";
+import { FileAnchorProvider } from "./provider/fileAnchorProvider";
+import { EpicAnchorIntelliSenseProvider, EpicAnchorProvider } from "./provider/epicAnchorProvider";
 import { WorkspaceAnchorProvider } from "./provider/workspaceAnchorProvider";
 import { asyncDelay } from "./util/asyncDelay";
 import { createViewContent } from "./anchorListView";
@@ -68,6 +68,7 @@ const MATCHER_COMMENT_INDEX = 3;
  * The main anchor parsing and caching engine
  */
 export class AnchorEngine {
+
     /** The context of Comment Anchors */
     public context: ExtensionContext;
 
@@ -85,9 +86,6 @@ export class AnchorEngine {
 
     /** A cache holding all documents */
     public anchorMaps: Map<Uri, AnchorIndex> = new Map();
-
-    /** List of folds created by anchor regions */
-    // public foldMaps: Map<Uri, FoldingRange[]> = new Map();
 
     /** The decorators used for decorating the anchors */
     public anchorDecorators: Map<string, TextEditorDecorationType> = new Map();
@@ -156,7 +154,7 @@ export class AnchorEngine {
 
     private cursorTask?: NodeJS.Timer;
 
-    constructor(context: ExtensionContext) {
+    public constructor(context: ExtensionContext) {
         this.context = context;
 
         window.onDidChangeActiveTextEditor((e) => this.onActiveEditorChanged(e), this, context.subscriptions);
@@ -704,7 +702,7 @@ export class AnchorEngine {
     /**
      * Dispose anchor list resources
      */
-    dispose(): void {
+    public dispose(): void {
         this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
         this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
         this._subscriptions.forEach((s) => s.dispose());
@@ -796,172 +794,167 @@ export class AnchorEngine {
      *
      * @returns true when anchors were found
      */
-    public parse(document: Uri): Promise<boolean> {
-        return new Promise(async (success, reject) => {
-            let anchorsFound = false;
+    public async parse(document: Uri): Promise<boolean> {
+        let anchorsFound = false;
 
-            try {
-                let text = null;
+        try {
+            let text = null;
 
-                workspace.textDocuments.forEach((td) => {
-                    if (td.uri == document) {
-                        text = td.getText();
-                        return false;
-                    }
+            workspace.textDocuments.forEach((td) => {
+                if (td.uri == document) {
+                    text = td.getText();
+                    return false;
+                }
+            });
+
+            if (text == null) {
+                text = await this.readDocument(document);
+            }
+
+            const currRegions: EntryAnchorRegion[] = [];
+            const anchors: EntryAnchor[] = [];
+            const folds: FoldingRange[] = [];
+
+            let match;
+
+            const config = this._config!;
+            const endTag = config.tags.endTag;
+
+            // Find all anchor occurences
+            while ((match = this.matcher!.exec(text))) {
+                const tagMatch = match[MATCHER_TAG_INDEX];
+                let tagName;
+                let isRegionEnd;
+                if (this.tags.has(tagMatch)) {
+                    tagName = tagMatch;
+                    isRegionEnd = false;
+                } else {
+                    if (!tagMatch.startsWith(endTag)) throw new TypeError("matched non-existent tag");
+                    tagName = tagMatch.slice(endTag.length);
+                    isRegionEnd = true;
+                }
+                const tagEntry: TagEntry = this.tags.get(tagName)!;
+                const isRegionStart = tagEntry.behavior == "region";
+                const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+
+                // Compute positions and lengths
+                const offsetPos = match[0].indexOf(tagMatch);
+                const startPos = match.index + offsetPos;
+                const rangeLength = tagEntry.styleComment ? match[0].length - offsetPos : tagMatch.length;
+                const lineNumber = text.substr(0, startPos).split(/\r\n|\r|\n/g).length;
+
+                // We have found at least one anchor
+                anchorsFound = true;
+
+                let endPos = startPos + rangeLength;
+                let comment = (match[MATCHER_COMMENT_INDEX] || "").trim();
+                let display = "";
+
+                const rawAttributeStr = match[MATCHER_ATTR_INDEX] || "[]";
+                const attributes = this.parseAttributes(rawAttributeStr.substr(1, rawAttributeStr.length - 2), {
+                    seq: lineNumber,
                 });
 
-                if (text == null) {
-                    text = await this.readDocument(document);
+                // Clean up the comment and adjust the endPos
+                for (const endMatch of config.tags.matchSuffix) {
+                    if (comment.endsWith(endMatch)) {
+                        comment = comment.substr(0, comment.length - endMatch.length);
+
+                        if (tagEntry.styleComment) {
+                            endPos -= endMatch.length;
+                        }
+
+                        break;
+                    }
                 }
 
-                const currRegions: EntryAnchorRegion[] = [];
-                const anchors: EntryAnchor[] = [];
-                const folds: FoldingRange[] = [];
+                // Handle the closing of a region
+                if (isRegionEnd) {
+                    if (!currRegion || currRegion.anchorTag != tagEntry.tag) continue;
 
-                let match;
-
-                const config = this._config!;
-                const endTag = config.tags.endTag;
-
-                // Find all anchor occurences
-                while ((match = this.matcher!.exec(text))) {
-                    const tagMatch = match[MATCHER_TAG_INDEX];
-                    let tagName;
-                    let isRegionEnd;
-                    if (this.tags.has(tagMatch)) {
-                        tagName = tagMatch;
-                        isRegionEnd = false;
-                    } else {
-                        if (!tagMatch.startsWith(endTag)) throw new TypeError("matched non-existent tag");
-                        tagName = tagMatch.slice(endTag.length);
-                        isRegionEnd = true;
-                    }
-                    const tagEntry: TagEntry = this.tags.get(tagName)!;
-                    const isRegionStart = tagEntry.behavior == "region";
-                    const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
-
-                    // Compute positions and lengths
-                    const offsetPos = match[0].indexOf(tagMatch);
-                    const startPos = match.index + offsetPos;
-                    const rangeLength = tagEntry.styleComment ? match[0].length - offsetPos : tagMatch.length;
-                    const lineNumber = text.substr(0, startPos).split(/\r\n|\r|\n/g).length;
-
-                    // We have found at least one anchor
-                    anchorsFound = true;
-
-                    let endPos = startPos + rangeLength;
-                    let comment = (match[MATCHER_COMMENT_INDEX] || "").trim();
-                    let display = "";
-
-                    const rawAttributeStr = match[MATCHER_ATTR_INDEX] || "[]";
-                    const attributes = this.parseAttributes(rawAttributeStr.substr(1, rawAttributeStr.length - 2), {
-                        seq: lineNumber,
+                    currRegion.setEndTag({
+                        startIndex: startPos,
+                        endIndex: endPos,
+                        lineNumber: lineNumber,
                     });
 
-                    // Clean up the comment and adjust the endPos
-                    for (const endMatch of config.tags.matchSuffix) {
-                        if (comment.endsWith(endMatch)) {
-                            comment = comment.substr(0, comment.length - endMatch.length);
-
-                            if (tagEntry.styleComment) {
-                                endPos -= endMatch.length;
-                            }
-
-                            break;
-                        }
-                    }
-
-                    // Handle the closing of a region
-                    if (isRegionEnd) {
-                        if (!currRegion || currRegion.anchorTag != tagEntry.tag) continue;
-
-                        currRegion.setEndTag({
-                            startIndex: startPos,
-                            endIndex: endPos,
-                            lineNumber: lineNumber,
-                        });
-
-                        currRegions.pop();
-                        folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
-                        continue;
-                    }
-
-                    // Construct the resulting string to display
-                    if (comment.length == 0) {
-                        display = tagEntry.tag;
-                    } else if (config.tags.displayInSidebar && tagEntry.behavior != "link") {
-                        display = tagEntry.tag + ": " + comment;
-                    } else {
-                        display = comment;
-                    }
-
-                    // Remove epics when tag is not workspace visible
-                    if (tagEntry.scope != "workspace") {
-                        attributes.epic = undefined;
-                    }
-
-                    let anchor: EntryAnchor;
-
-                    // Create a regular or region anchor
-                    const displayLineNumber = config.tags.displayLineNumber;
-
-                    if (isRegionStart) {
-                        anchor = new EntryAnchorRegion(
-                            this,
-                            tagEntry.tag,
-                            display,
-                            startPos,
-                            endPos,
-                            match[0].length - 1,
-                            lineNumber,
-                            tagEntry.iconColor!,
-                            tagEntry.scope!,
-                            displayLineNumber,
-                            document,
-                            attributes
-                        );
-                    } else {
-                        anchor = new EntryAnchor(
-                            this,
-                            tagEntry.tag,
-                            display,
-                            startPos,
-                            endPos,
-                            match[0].length - 1,
-                            lineNumber,
-                            tagEntry.iconColor!,
-                            tagEntry.scope!,
-                            displayLineNumber,
-                            document,
-                            attributes
-                        );
-                    }
-
-                    // Push this region onto the stack
-                    if (isRegionStart) {
-                        currRegions.push(anchor as EntryAnchorRegion);
-                    }
-
-                    // Place this anchor on root or child level
-                    if (currRegion) {
-                        currRegion.addChild(anchor);
-                    } else {
-                        anchors.push(anchor);
-                    }
+                    currRegions.pop();
+                    folds.push(new FoldingRange(currRegion.lineNumber - 1, lineNumber - 1, FoldingRangeKind.Comment));
+                    continue;
                 }
 
-                this.matcher!.lastIndex = 0;
-                this.anchorMaps.set(document, new AnchorIndex(anchors));
+                // Construct the resulting string to display
+                if (comment.length == 0) {
+                    display = tagEntry.tag;
+                } else if (config.tags.displayInSidebar && tagEntry.behavior != "link") {
+                    display = tagEntry.tag + ": " + comment;
+                } else {
+                    display = comment;
+                }
 
-                // this.foldMaps.set(document, folds);
-            } catch (err: any) {
-                AnchorEngine.output("Error: " + err.message);
-                AnchorEngine.output(err.stack);
-                reject(err);
-            } finally {
-                success(anchorsFound);
+                // Remove epics when tag is not workspace visible
+                if (tagEntry.scope != "workspace") {
+                    attributes.epic = undefined;
+                }
+
+                let anchor: EntryAnchor;
+
+                // Create a regular or region anchor
+                const displayLineNumber = config.tags.displayLineNumber;
+
+                if (isRegionStart) {
+                    anchor = new EntryAnchorRegion(
+                        this,
+                        tagEntry.tag,
+                        display,
+                        startPos,
+                        endPos,
+                        match[0].length - 1,
+                        lineNumber,
+                        tagEntry.iconColor!,
+                        tagEntry.scope!,
+                        displayLineNumber,
+                        document,
+                        attributes
+                    );
+                } else {
+                    anchor = new EntryAnchor(
+                        this,
+                        tagEntry.tag,
+                        display,
+                        startPos,
+                        endPos,
+                        match[0].length - 1,
+                        lineNumber,
+                        tagEntry.iconColor!,
+                        tagEntry.scope!,
+                        displayLineNumber,
+                        document,
+                        attributes
+                    );
+                }
+
+                // Push this region onto the stack
+                if (isRegionStart) {
+                    currRegions.push(anchor as EntryAnchorRegion);
+                }
+
+                // Place this anchor on root or child level
+                if (currRegion) {
+                    currRegion.addChild(anchor);
+                } else {
+                    anchors.push(anchor);
+                }
             }
-        });
+
+            this.matcher!.lastIndex = 0;
+            this.anchorMaps.set(document, new AnchorIndex(anchors));
+        } catch (err: any) {
+            AnchorEngine.output("Error: " + err.message);
+            AnchorEngine.output(err.stack);
+        }
+
+        return anchorsFound;
     }
 
     /**
@@ -971,7 +964,7 @@ export class AnchorEngine {
      * @param file The file URI
      * @returns The anchor array
      */
-    async getAnchors(file: Uri): Promise<EntryAnchor[]> {
+    public async getAnchors(file: Uri): Promise<EntryAnchor[]> {
         const cached = this.anchorMaps.get(file)?.anchorTree;
 
         if (cached) {
@@ -985,7 +978,7 @@ export class AnchorEngine {
     /**
      * Refresh the visual representation of the anchors
      */
-    refresh(): void {
+    public refresh(): void {
         if (this._editor && this._config!.tagHighlights.enabled) {
             const document = this._editor!.document;
             const doc = document.uri;

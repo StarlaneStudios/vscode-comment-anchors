@@ -7,11 +7,12 @@ import EntryAnchor from "./entryAnchor";
  * Represents an Anchor found a file
  */
 export default class EntryAnchorRegion extends EntryAnchor {
+	
     public closeStartIndex = -1;
     public closeEndIndex = -1;
     public closeLineNumber = -1;
 
-    constructor(
+    public constructor(
         engine: AnchorEngine,
         public readonly anchorTag: string, // The tag e.g. "ANCHOR"
         public readonly anchorText: string, // The text after the anchor tag
@@ -33,7 +34,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
         this.collapsibleState = autoExpand ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed;
     }
 
-    setEndTag(endTag: { startIndex: number; endIndex: number; lineNumber: number }): void {
+    public setEndTag(endTag: { startIndex: number; endIndex: number; lineNumber: number }): void {
         this.closeStartIndex = endTag.startIndex;
         this.closeEndIndex = endTag.endIndex;
         this.closeLineNumber = endTag.lineNumber;
@@ -43,7 +44,7 @@ export default class EntryAnchorRegion extends EntryAnchor {
         }
     }
 
-    decorateDocumentEnd(document: TextDocument, options: DecorationOptions[]): void {
+    public decorateDocumentEnd(document: TextDocument, options: DecorationOptions[]): void {
         if (this.closeStartIndex < 0 || this.closeEndIndex < 0) return;
 
         const startPos = document.positionAt(this.closeStartIndex);
@@ -55,11 +56,11 @@ export default class EntryAnchorRegion extends EntryAnchor {
         });
     }
 
-    toString(): string {
+    public toString(): string {
         return "EntryAnchorRegion(" + this.label! + ")";
     }
 
-    copy(copyChilds: boolean): EntryAnchorRegion {
+    public copy(copyChilds: boolean): EntryAnchorRegion {
         const copy = new EntryAnchorRegion(
             this.engine,
             this.anchorTag,

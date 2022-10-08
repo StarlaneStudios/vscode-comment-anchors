@@ -6,7 +6,8 @@ import EntryBase from "./entryBase";
  * Represents the current cursor
  */
 export default class EntryCursor extends EntryBase {
-    constructor(engine: AnchorEngine, line: number) {
+	
+    public constructor(engine: AnchorEngine, line: number) {
         super(engine, `➤ Cursor (line ${line})`, TreeItemCollapsibleState.None);
 
         this.tooltip = this.label as string;
@@ -17,9 +18,9 @@ export default class EntryCursor extends EntryBase {
         };
     }
 
-    toString(): string {
+    public toString(): string {
         return "EntryCursor{}";
     }
 
-    contextValue = "cursor";
+    public contextValue = "cursor";
 }

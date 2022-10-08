@@ -22,19 +22,20 @@ import { flattenAnchors } from "../util/flattener";
  * AnchorProvider implementation in charge of returning the anchors in the current workspace
  */
 export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
-    readonly provider: AnchorEngine;
-    readonly onDidChangeTreeData: Event<undefined>;
+	
+    public readonly provider: AnchorEngine;
+    public readonly onDidChangeTreeData: Event<undefined>;
 
-    constructor(provider: AnchorEngine) {
+    public constructor(provider: AnchorEngine) {
         this.onDidChangeTreeData = provider._onDidChangeTreeData.event;
         this.provider = provider;
     }
 
-    getTreeItem(element: AnyEntry): TreeItem {
+    public getTreeItem(element: AnyEntry): TreeItem {
         return element;
     }
 
-    getChildren(element?: AnyEntry): Thenable<AnyEntryArray> {
+    public getChildren(element?: AnyEntry): Thenable<AnyEntryArray> {
         return new Promise((success) => {
             // The default is empty, so you have to build a tree
             if (element) {
@@ -132,11 +133,11 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
 export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
     public readonly engine: AnchorEngine;
 
-    constructor(engine: AnchorEngine) {
+    public constructor(engine: AnchorEngine) {
         this.engine = engine;
     }
 
-    provideCompletionItems(
+    public provideCompletionItems(
         _document: TextDocument,
         _position: Position,
         _token: CancellationToken,

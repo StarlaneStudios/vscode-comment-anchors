@@ -6,7 +6,8 @@ import EntryBase from "./entryBase";
  * Represents a pending workspace scan
  */
 export default class EntryScan extends EntryBase {
-    constructor(engine: AnchorEngine) {
+	
+    public constructor(engine: AnchorEngine) {
         super(engine, "Click to start scanning", TreeItemCollapsibleState.None);
 
         this.iconPath = {
@@ -20,11 +21,11 @@ export default class EntryScan extends EntryBase {
         };
     }
 
-    tooltip = this.label as string;
+    public tooltip = this.label as string;
+    public contextValue = "launch";
 
-    toString(): string {
+    public toString(): string {
         return "EntryLaunch{}";
     }
 
-    contextValue = "launch";
 }

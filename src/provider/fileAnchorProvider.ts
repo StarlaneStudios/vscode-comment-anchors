@@ -1,4 +1,4 @@
-import { AnchorEngine, FileEntry, FileEntryArray } from "../anchorEngine";
+import { AnchorEngine, FileEntry } from "../anchorEngine";
 import { Event, TreeDataProvider, TreeItem } from "vscode";
 
 import EntryAnchor from "../anchor/entryAnchor";
@@ -10,22 +10,23 @@ import { window } from "vscode";
  * AnchorProvider implementation in charge of returning the anchors in the current file
  */
 export class FileAnchorProvider implements TreeDataProvider<EntryBase> {
-    readonly provider: AnchorEngine;
-    readonly onDidChangeTreeData: Event<undefined>;
+	
+    public readonly provider: AnchorEngine;
+    public readonly onDidChangeTreeData: Event<undefined>;
 
     private renderCursor = true;
     private cursorFound = false;
 
-    constructor(provider: AnchorEngine) {
+    public constructor(provider: AnchorEngine) {
         this.onDidChangeTreeData = provider._onDidChangeTreeData.event;
         this.provider = provider;
     }
 
-    getTreeItem(element: FileEntry): TreeItem {
+    public getTreeItem(element: FileEntry): TreeItem {
         return element;
     }
 
-    getChildren(element?: FileEntry): Thenable<EntryBase[]> {
+    public getChildren(element?: FileEntry): Thenable<EntryBase[]> {
         if (element) {
             if (element instanceof EntryAnchor && element.children) {
                 let children: EntryBase[] = element.children.filter((child) => !child.isHidden);
@@ -64,7 +65,7 @@ export class FileAnchorProvider implements TreeDataProvider<EntryBase> {
         });
     }
 
-    insertCursor(anchors: EntryBase[]): EntryBase[] {
+    public insertCursor(anchors: EntryBase[]): EntryBase[] {
         const cursor = window.activeTextEditor?.selection?.active?.line;
 
         if (!this.provider._config!.showCursor || cursor === undefined) {

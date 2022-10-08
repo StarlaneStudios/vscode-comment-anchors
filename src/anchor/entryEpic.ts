@@ -7,10 +7,11 @@ import EntryBase from "./entryBase";
  * Represents an Anchor found a Epic
  */
 export default class EntryEpic extends EntryBase {
+	
     public readonly epic: string;
     public readonly anchors: EntryAnchor[];
 
-    constructor(epic: string, label: string, anchors: EntryAnchor[], engine: AnchorEngine) {
+    public constructor(epic: string, label: string, anchors: EntryAnchor[], engine: AnchorEngine) {
         super(engine, label, TreeItemCollapsibleState.Expanded);
 
         this.epic = epic;
@@ -22,9 +23,9 @@ export default class EntryEpic extends EntryBase {
         // };
     }
 
-    toString(): string {
+    public toString(): string {
         return this.label as string;
     }
 
-    contextValue = "epic";
+    public contextValue = "epic";
 }

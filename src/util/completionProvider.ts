@@ -14,13 +14,14 @@ import {
 } from "vscode";
 
 class TagCompletionProvider implements CompletionItemProvider {
+	
     private engine: AnchorEngine;
 
-    constructor(engine: AnchorEngine) {
+    public constructor(engine: AnchorEngine) {
         this.engine = engine;
     }
 
-    provideCompletionItems(
+    public provideCompletionItems(
         _document: TextDocument,
         _position: Position,
         _token: CancellationToken,

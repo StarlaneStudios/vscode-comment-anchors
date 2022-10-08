@@ -7,6 +7,7 @@ import { AnchorEngine } from "../anchorEngine";
  * which represent an entity in the anchor panel.
  */
 export default class EntryBase extends TreeItem {
+	
     public readonly engine: AnchorEngine;
 
     public constructor(engine: AnchorEngine, label: string, state?: TreeItemCollapsibleState) {
@@ -21,7 +22,7 @@ export default class EntryBase extends TreeItem {
      * @param name Icon name
      * @returns The path
      */
-    loadResourceSvg(name: string): string {
+    public loadResourceSvg(name: string): string {
         return path.join(__dirname, "../../res", name + ".svg");
     }
 
@@ -32,7 +33,7 @@ export default class EntryBase extends TreeItem {
      * @param name Icon color
      * @returns The path
      */
-    loadCacheSvg(color: string): string {
+    public loadCacheSvg(color: string): string {
         return path.join(this.engine.iconCache, "anchor_" + color + ".svg");
     }
 }

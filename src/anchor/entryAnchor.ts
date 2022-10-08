@@ -7,6 +7,7 @@ import EntryBase from "./entryBase";
  * Represents an Anchor found a file
  */
 export default class EntryAnchor extends EntryBase {
+	
     /** The sorting method to use, defaults to line */
     public static SortMethod = "line";
 
@@ -18,7 +19,7 @@ export default class EntryAnchor extends EntryBase {
      */
     private childAnchors: EntryAnchor[] = [];
 
-    constructor(
+    public constructor(
         engine: AnchorEngine,
         public readonly anchorTag: string, // The tag e.g. "ANCHOR"
         public readonly anchorText: string, // The text after the anchor tag
@@ -56,22 +57,22 @@ export default class EntryAnchor extends EntryBase {
         }
     }
 
-    contextValue = "anchor";
-    tooltip = `${this.anchorText} (Click to reveal)`;
+    public contextValue = "anchor";
+    public tooltip = `${this.anchorText} (Click to reveal)`;
 
-    get isHidden(): boolean {
+    public get isHidden(): boolean {
         return this.scope == "hidden";
     }
 
-    get isVisibleInWorkspace(): boolean {
+    public get isVisibleInWorkspace(): boolean {
         return this.scope == "workspace";
     }
 
-    get children(): EntryAnchor[] {
+    public get children(): EntryAnchor[] {
         return [...this.childAnchors];
     }
 
-    getAnchorRange(document: TextDocument, includeText: boolean): Range {
+    public getAnchorRange(document: TextDocument, includeText: boolean): Range {
         let ending: number;
 
         if (includeText) {
@@ -83,22 +84,22 @@ export default class EntryAnchor extends EntryBase {
         return new Range(document.positionAt(this.startIndex), document.positionAt(ending));
     }
 
-    decorateDocument(document: TextDocument, options: DecorationOptions[]): void {
+    public decorateDocument(document: TextDocument, options: DecorationOptions[]): void {
         options.push({
             hoverMessage: "Comment Anchor: " + this.anchorText,
             range: this.getAnchorRange(document, false),
         });
     }
 
-    addChild(child: EntryAnchor): void {
+    public addChild(child: EntryAnchor): void {
         this.childAnchors.push(child);
     }
 
-    toString(): string {
+    public toString(): string {
         return "EntryAnchor(" + this.label! + ")";
     }
 
-    copy(copyChilds: boolean, showLine: boolean | undefined = undefined): EntryAnchor {
+    public copy(copyChilds: boolean, showLine: boolean | undefined = undefined): EntryAnchor {
         const copy = new EntryAnchor(
             this.engine,
             this.anchorTag,
@@ -128,7 +129,7 @@ export default class EntryAnchor extends EntryBase {
      *
      * @param anchors Anchors to sort
      */
-    static sortAnchors(anchors: EntryAnchor[]): EntryAnchor[] {
+    public static sortAnchors(anchors: EntryAnchor[]): EntryAnchor[] {
         return anchors.sort((left, right) => {
             switch (this.SortMethod) {
                 case "line": {

@@ -8,17 +8,18 @@ import { existsSync, lstatSync } from "fs";
 const LINK_REGEX = /^(\.{1,2}[/\\])?(.+?)(:\d+|#[\w-]+)?$/;
 
 export class LinkProvider implements DocumentLinkProvider {
-    readonly engine: AnchorEngine;
+	
+    public readonly engine: AnchorEngine;
 
-    constructor(engine: AnchorEngine) {
+    public constructor(engine: AnchorEngine) {
         this.engine = engine;
     }
 
-    createTarget(uri: Uri, line: number): Uri {
+    public createTarget(uri: Uri, line: number): Uri {
         return Uri.parse(`file://${uri.path}#${line}`);
     }
 
-    provideDocumentLinks(document: TextDocument, _token: CancellationToken): ProviderResult<DocumentLink[]> {
+    public provideDocumentLinks(document: TextDocument, _token: CancellationToken): ProviderResult<DocumentLink[]> {
         if (document.uri.scheme == "output") {
             return [];
         }

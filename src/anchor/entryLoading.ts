@@ -6,7 +6,8 @@ import EntryBase from "./entryBase";
  * Represents an active workspace scan
  */
 export default class EntryLoading extends EntryBase {
-    constructor(engine: AnchorEngine) {
+	
+    public constructor(engine: AnchorEngine) {
         super(engine, "Searching for anchors...", TreeItemCollapsibleState.None);
 
         this.iconPath = {
@@ -15,11 +16,11 @@ export default class EntryLoading extends EntryBase {
         };
     }
 
-    tooltip = this.label as string;
+    public tooltip = this.label as string;
+    public contextValue = "loading";
 
-    toString(): string {
+    public toString(): string {
         return "EntryLoading{}";
     }
 
-    contextValue = "loading";
 }

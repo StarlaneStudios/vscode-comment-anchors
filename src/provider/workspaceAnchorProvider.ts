@@ -9,19 +9,20 @@ import { flattenAnchors } from "../util/flattener";
  * AnchorProvider implementation in charge of returning the anchors in the current workspace
  */
 export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
-    readonly provider: AnchorEngine;
-    readonly onDidChangeTreeData: Event<undefined>;
+	
+    public readonly provider: AnchorEngine;
+    public readonly onDidChangeTreeData: Event<undefined>;
 
-    constructor(provider: AnchorEngine) {
+    public constructor(provider: AnchorEngine) {
         this.onDidChangeTreeData = provider._onDidChangeTreeData.event;
         this.provider = provider;
     }
 
-    getTreeItem(element: AnyEntry): TreeItem {
+    public getTreeItem(element: AnyEntry): TreeItem {
         return element;
     }
 
-    getChildren(element?: AnyEntry): Thenable<AnyEntryArray> {
+    public getChildren(element?: AnyEntry): Thenable<AnyEntryArray> {
         return new Promise((success) => {
             if (element) {
                 if (element instanceof EntryAnchor && element.children) {

@@ -6,9 +6,10 @@ import EntryBase from "./entryBase";
  * Represents a caught error
  */
 export default class EntryError extends EntryBase {
+	
     private message: string;
 
-    constructor(engine: AnchorEngine, message: string) {
+    public constructor(engine: AnchorEngine, message: string) {
         super(engine, message, TreeItemCollapsibleState.None);
 
         this.message = message;
@@ -20,9 +21,9 @@ export default class EntryError extends EntryBase {
         };
     }
 
-    toString(): string {
+    public toString(): string {
         return "EntryError{}";
     }
 
-    contextValue = "error";
+    public contextValue = "error";
 }

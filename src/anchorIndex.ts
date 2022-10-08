@@ -4,6 +4,7 @@ import EntryAnchor from "./anchor/entryAnchor";
  * An index of all anchors found within a file
  */
 export class AnchorIndex {
+	
     /** Constant empty index */
     public static EMPTY = new AnchorIndex([]);
 
@@ -13,7 +14,7 @@ export class AnchorIndex {
     /** Collection of anchors indexed by their content text*/
     public textIndex: Map<string, EntryAnchor> = new Map();
 
-    constructor(anchorTree: EntryAnchor[]) {
+    public constructor(anchorTree: EntryAnchor[]) {
         this.anchorTree = anchorTree;
         this.indexAnchors(anchorTree);
     }

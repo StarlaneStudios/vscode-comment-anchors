@@ -8,22 +8,24 @@ import { AnchorEngine } from "../anchorEngine";
  * Represents a workspace file holding one or more anchors
  */
 export default class EntryCachedFile extends EntryBase {
-    constructor(engine: AnchorEngine, public readonly file: Uri, public readonly anchors: EntryAnchor[], public readonly format: string) {
+	
+    public constructor(engine: AnchorEngine, public readonly file: Uri, public readonly anchors: EntryAnchor[], public readonly format: string) {
         super(engine, EntryCachedFile.fileAnchorStats(file, anchors, format), TreeItemCollapsibleState.Expanded);
 
         this.iconPath = ThemeIcon.File;
     }
 
-    tooltip = `${this.file.path}`;
+    public tooltip = `${this.file.path}`;
+    public contextValue = "cachedFile";
 
-    toString(): string {
+    public toString(): string {
         return this.label as string;
     }
 
     /**
      * Formats a file stats string using the given anchors array
      */
-    static fileAnchorStats(file: Uri, anchors: EntryAnchor[], format: string): string {
+    public static fileAnchorStats(file: Uri, anchors: EntryAnchor[], format: string): string {
         let visible = 0;
         let hidden = 0;
 
@@ -93,5 +95,4 @@ export default class EntryCachedFile extends EntryBase {
         return title;
     }
 
-    contextValue = "cachedFile";
 }
