@@ -546,7 +546,7 @@ export class AnchorEngine {
             // group 2 - Attributes
             // group 3 - Text
 
-            const regex = `(?:${prefixes})(?:\\s{0,4})(${tags})(\\[.*\\])?(?:(?:${separators})(.*))?`;
+            const regex = `(?:${prefixes})(?:\\x20{0,4}|\\t{0,1})(${tags})(\\[.*\\])?(?:(?:${separators})(.*))?$`;
             const flags = config.tags.matchCase ? "gm" : "img";
 
             this.matcher = new RegExp(regex, flags);
