@@ -353,7 +353,7 @@ export class AnchorEngine {
 
                     // Optionally insert rulers
                     if (config.tags.displayInRuler) {
-                        highlight.overviewRulerColor = tag.highlightColor;
+                        highlight.overviewRulerColor = tag.highlightColor || '#828282';
                         highlight.overviewRulerLane = laneStyle;
                     }
 
