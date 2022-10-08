@@ -39,7 +39,7 @@
 			},
 			{
 				"command": "commentAnchors.exportAnchors",
-				"title": "Export all workspace anchors to CSV",
+				"title": "Export all workspace anchors",
 				"category": "Comment Anchors"
 			},
 			{

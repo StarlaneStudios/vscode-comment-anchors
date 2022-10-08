@@ -20,6 +20,7 @@ The changelog can be found [here](CHANGELOG.md)
 * Scope anchors to be visible in your entire workspace, or just the current file
 * Place your anchors into hierarchical sections using region anchors
 * Group anchors into custom lists by tagging anchors with an epic
+* Export all anchors in your workspace as JSON or CSV
 
 # Usage
 
@@ -138,6 +139,10 @@ Displays all configured tags in a preview tab, useful for when you are creating 
 \> **Toggle the visibility of comment anchors**
 
 Toggles the visibility of comment anchors (Duh!). Note that his command will update your settings in order to toggle the visibility.
+
+\> **Export all workspace anchors**
+
+Export all workspace anchors to a CSV or JSON file
 
 # Configuration
 
