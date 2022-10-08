@@ -44,8 +44,9 @@ import { WorkspaceAnchorProvider } from "./provider/workspaceAnchorProvider";
 import { asyncDelay } from "./util/asyncDelay";
 import { createViewContent } from "./anchorListView";
 import { flattenAnchors } from "./util/flattener";
-import registerDefaults from "./util/defaultTags";
+import { registerDefaults } from "./util/defaultTags";
 import { setupCompletionProvider } from "./util/completionProvider";
+import { parseCustomAnchors } from "./util/customTags";
 
 /* -- Constants -- */
 
@@ -300,23 +301,7 @@ export class AnchorEngine {
             registerDefaults(this.tags);
 
             // Add custom tags
-            config.tags.list.forEach((tag: TagEntry) => {
-                const def = this.tags.get(tag.tag) || {};
-                const opts = { ...def, ...tag };
-
-                // Skip disabled default tags
-                if (tag.enabled === false) {
-                    this.tags.delete(tag.tag);
-                    return;
-                }
-
-                // Fix legacy isRegion tag
-                if (opts.isRegion) {
-                    opts.behavior = "region";
-                }
-
-                this.tags.set(tag.tag, opts);
-            });
+            parseCustomAnchors(config, this.tags);
 
             // Detect the lane style
             let laneStyle: OverviewRulerLane;

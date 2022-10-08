@@ -288,71 +288,19 @@
 					"scope": "window"
 				},
 				"commentAnchors.tags.list": {
-					"type": "array",
-					"default": [
-						{
-							"tag": "ANCHOR",
-							"iconColor": "default",
-							"highlightColor": "#A8C023",
-							"scope": "file"
-						},
-						{
-							"tag": "TODO",
-							"iconColor": "blue",
-							"highlightColor": "#3ea8ff",
-							"scope": "workspace"
-						},
-						{
-							"tag": "FIXME",
-							"iconColor": "red",
-							"highlightColor": "#F44336",
-							"scope": "workspace"
-						},
-						{
-							"tag": "STUB",
-							"iconColor": "purple",
-							"highlightColor": "#BA68C8",
-							"scope": "file"
-						},
-						{
-							"tag": "NOTE",
-							"iconColor": "orange",
-							"highlightColor": "#FFB300",
-							"scope": "file"
-						},
-						{
-							"tag": "REVIEW",
-							"iconColor": "green",
-							"highlightColor": "#64DD17",
-							"scope": "workspace"
-						},
-						{
-							"tag": "SECTION",
-							"iconColor": "blurple",
-							"highlightColor": "#896afc",
-							"scope": "workspace",
-							"behavior": "region"
-						},
-						{
-							"tag": "LINK",
-							"iconColor": "#2ecc71",
-							"highlightColor": "#2ecc71",
-							"scope": "workspace",
-							"behavior": "link"
-						}
-					],
-					"items": {
+					"deprecationMessage": "Please migrate to the new commentAnchors.tags.anchors property."	
+				},
+				"commentAnchors.tags.anchors": {
+					"type": "object",
+					"description": "List of additional custom Comment Anchor tags",
+					"scope": "window",
+					"additionalProperties": {
 						"type": "object",
 						"required": [
-							"tag",
 							"scope",
 							"highlightColor"
 						],
 						"properties": {
-							"tag": {
-								"type": "string",
-								"description": "The text to match for this tag"
-							},
 							"enabled": {
 								"type": "boolean",
 								"default": true,
@@ -416,8 +364,50 @@
 							}
 						}
 					},
-					"description": "List of additional custom Comment Anchor tags",
-					"scope": "window"
+					"default": {
+						"ANCHOR": {
+							"iconColor": "default",
+							"highlightColor": "#A8C023",
+							"scope": "file"
+						},
+						"TODO": {
+							"iconColor": "blue",
+							"highlightColor": "#3ea8ff",
+							"scope": "workspace"
+						},
+						"FIXME": {
+							"iconColor": "red",
+							"highlightColor": "#F44336",
+							"scope": "workspace"
+						},
+						"STUB": {
+							"iconColor": "purple",
+							"highlightColor": "#BA68C8",
+							"scope": "file"
+						},
+						"NOTE": {
+							"iconColor": "orange",
+							"highlightColor": "#FFB300",
+							"scope": "file"
+						},
+						"REVIEW": {
+							"iconColor": "green",
+							"highlightColor": "#64DD17",
+							"scope": "workspace"
+						},
+						"SECTION": {
+							"iconColor": "blurple",
+							"highlightColor": "#896afc",
+							"scope": "workspace",
+							"behavior": "region"
+						},
+						"LINK": {
+							"iconColor": "#2ecc71",
+							"highlightColor": "#2ecc71",
+							"scope": "workspace",
+							"behavior": "link"
+						}
+					}
 				}
 			}
 		}
