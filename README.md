@@ -407,7 +407,7 @@ Besides specifying a custom hex color, the following names may be used as shortc
 # Issues
 
 Found a problem or missing feature in Comment Anchors?
-Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/ExodiusStudios/vscode-comment-anchors/issues)
+Issues and suggestions can be submitted in the GitHub repository [here](https://github.com/StarlaneStudios/vscode-comment-anchors/issues)
 
 If you prefer more direct help, you can join the [Starlane Studios Discord](https://discord.gg/exaQDX2) where you can find most developers of this extension.
 
@@ -420,7 +420,7 @@ If you'd rather disable workspace anchors all together, you can disable these in
 
 # Contribution
 
-You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/ExodiusStudios/vscode-comment-anchors) and submitting pull requests.
+You can contribute to comment-anchors by forking the GitHub [repository](https://github.com/StarlaneStudios/vscode-comment-anchors) and submitting pull requests.
 
 ## Are you enjoying Comment Anchors?
 

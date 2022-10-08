@@ -11,7 +11,7 @@ $ yarn install
 
 ## Submitting changes
 
-Please send a [GitHub Pull Request to Comment-anchors](https://github.com/ExodiusStudios/vscode-comment-anchors/pull/new/master) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, make sure to commit what you have patched/added. Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). 
+Please send a [GitHub Pull Request to Comment-anchors](https://github.com/StarlaneStudios/vscode-comment-anchors/pull/new/master) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, make sure to commit what you have patched/added. Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). 
 
 Always write a clear log message for your commits. Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines while writing your commits. The following commit types are in use in this repository:
 
@@ -22,9 +22,9 @@ Always write a clear log message for your commits. Use [Conventional Commits](ht
 
 #### **Did you find a bug?**
 
-* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/ExodiusStudios/vscode-comment-anchors/issues).
+* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/StarlaneStudios/vscode-comment-anchors/issues).
 
-* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/ExodiusStudios/vscode-comment-anchors/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
+* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/StarlaneStudios/vscode-comment-anchors/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
 
 
 #### **Did you write a patch that fixes a bug?**
@@ -46,8 +46,8 @@ Always write a clear log message for your commits. Use [Conventional Commits](ht
 * Open an issue ticket, clearly specifying your question, however it is still recommended to ask on our discord first.
 
 Comment-Anchors is a volunteer effort. We encourage you to pitch in and join!
-This repository is maintained by the Exodius Studios team.
+This repository is maintained by the Starlane Studios team.
 
 Thanks! :heart:
 
-~Exodius Studios Team
+~Starlane Studios Team

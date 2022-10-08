@@ -15,9 +15,9 @@
 		"color": "#0c5b82",
 		"theme": "dark"
 	},
-	"homepage": "https://github.com/ExodiusStudios/vscode-comment-anchors/blob/master/README.md",
+	"homepage": "https://github.com/StarlaneStudios/vscode-comment-anchors/blob/master/README.md",
 	"repository": {
-		"url": "https://github.com/ExodiusStudios/vscode-comment-anchors",
+		"url": "https://github.com/StarlaneStudios/vscode-comment-anchors",
 		"type": "git"
 	},
 	"contributes": {
