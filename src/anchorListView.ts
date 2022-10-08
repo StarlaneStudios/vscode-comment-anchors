@@ -46,8 +46,8 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
             tagFlags.push("File Scope");
         }
 
-        if (tag.styleComment) {
-            tagFlags.push("Style Comment");
+        if (tag.styleMode) {
+            tagFlags.push(`Style mode: ${tag.styleMode}`);
         }
 
         if (tag.behavior == "region") {

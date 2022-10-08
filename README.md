@@ -342,7 +342,7 @@ Use `commentAnchors.tags.anchors` to configure the anchor tags. Below is a list 
 - highlightColor - *The color used for highlighting the tag*
 - backgroundColor - *The color used as tag background*
 - iconColor - *An optional color to apply to the icon, or "auto" for automatic theme detection. Defaults to using highlightColor*
-- styleComment - *Boolean indicating whether to style the entire comment, or just the tag*
+- styleMode - *Customize what part of the comment is highlighted*
 - borderStyle - *Style to be applied to the tag border (See https://www.w3schools.com/cssref/pr_border.asp)*
 - borderRadius - *The curvature radius of the border (Requires borderStyle)*
 - isBold - *Whether to apply bold formatting to the tag*
@@ -356,7 +356,7 @@ Use `commentAnchors.tags.anchors` to configure the anchor tags. Below is a list 
 		"scope": "file",
 		"iconColor": "default",
 		"highlightColor": "#A8C023",
-		"styleComment": true
+		"styleMode": "comment"
 	},
 	...
 }

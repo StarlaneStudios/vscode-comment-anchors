@@ -356,9 +356,14 @@
 								"type": "string",
 								"description": "The background color applied to the anchor"
 							},
-							"styleComment": {
-								"type": "boolean",
-								"description": "When true, highlights the comment as well"
+							"styleMode": {
+								"type": "string",
+								"description": "The style mode to use when styling the anchor. Replaces the legacy 'styleComment' option",
+								"enum": [
+									"tag",
+									"comment",
+									"full"
+								]
 							},
 							"borderStyle": {
 								"type": "string",

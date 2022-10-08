@@ -838,12 +838,17 @@ export class AnchorEngine {
                 const tagEntry: TagEntry = this.tags.get(tagName)!;
                 const isRegionStart = tagEntry.behavior == "region";
                 const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+                const style = tagEntry.styleMode;
 
                 // Compute positions and lengths
                 const offsetPos = match[0].indexOf(tagMatch);
-                const startPos = match.index + offsetPos;
-                const rangeLength = tagEntry.styleComment ? match[0].length - offsetPos : tagMatch.length;
+                const startPos = match.index + (style == 'full' ? 0 : offsetPos);
                 const lineNumber = text.substr(0, startPos).split(/\r\n|\r|\n/g).length;
+                const rangeLength = style == 'full'
+                    ? match[0].length
+                    : style == 'comment'
+                        ? match[0].length - offsetPos
+                        : tagMatch.length;
 
                 // We have found at least one anchor
                 anchorsFound = true;
@@ -862,7 +867,7 @@ export class AnchorEngine {
                     if (comment.endsWith(endMatch)) {
                         comment = comment.substr(0, comment.length - endMatch.length);
 
-                        if (tagEntry.styleComment) {
+                        if (style == 'comment') {
                             endPos -= endMatch.length;
                         }
 
@@ -1180,13 +1185,12 @@ export interface TagEntry {
     iconColor?: string;
     highlightColor?: string;
     backgroundColor?: string;
-    styleComment?: boolean;
+    styleMode?: 'tag' | 'comment' | 'full';
     borderStyle?: string;
     borderRadius?: number;
     isBold?: boolean;
     isItalic?: boolean;
     scope?: string;
-    isRegion?: boolean;
     isSequential?: boolean;
     isEpic?: boolean;
     behavior: "anchor" | "region" | "link";
