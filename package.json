@@ -1,7 +1,7 @@
 {
 	"name": "comment-anchors",
 	"displayName": "Comment Anchors",
-	"description": "Place anchor tags within comments for easy file & workspace navigation.",
+	"description": "Place anchor tags within comments for easy file and workspace navigation.",
 	"version": "1.10.0",
 	"publisher": "StarlaneStudios",
 	"engines": {
