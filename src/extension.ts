@@ -1,6 +1,16 @@
 import { commands, ExtensionContext } from "vscode";
 import { AnchorEngine } from "./anchorEngine";
-import { parseCurrentAnchors, toggleVisibilitySetting, launchWorkspaceScan, openFileAndRevealLine, openTagListPanel, exportAnchors } from "./commands";
+
+import {
+    parseCurrentAnchors,
+    toggleVisibilitySetting,
+    launchWorkspaceScan,
+    openFileAndRevealLine,
+    openTagListPanel,
+    exportAnchors,
+    goToNextAnchor,
+    goToPreviousAnchor
+} from "./commands";
 
 export let anchorEngine: AnchorEngine;
 
@@ -14,6 +24,8 @@ export function activate(context: ExtensionContext): void {
     commands.registerCommand("commentAnchors.launchWorkspaceScan", launchWorkspaceScan);
     commands.registerCommand("commentAnchors.exportAnchors", exportAnchors);
     commands.registerCommand("commentAnchors.listTags", openTagListPanel);
+    commands.registerCommand("commentAnchors.previousAnchor", goToPreviousAnchor);
+    commands.registerCommand("commentAnchors.nextAnchor", goToNextAnchor);
 }
 
 export function deactivate(): void {

@@ -3,6 +3,7 @@
 ## 1.10.0
 - Added a command to export all anchors in your workspace as JSON or CSV
 - Added `matchPrefix` and `matchSuffix` settings
+- Added keyboard navigation (Shift+Alt+Up & Shift+Alt+Down) (#27)
 - Updated the anchor tag configuration syntax
 	- The legacy array-based syntax will continue to work
 	- Since the new syntax is defined using an object notation, individual tags can now be collapsed (#152)

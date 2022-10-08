@@ -65,6 +65,20 @@ export async function exportAnchors() {
 }
 
 /**
+ * Go to the previous anchor relative to the cursor
+ */
+export function goToPreviousAnchor() {
+    anchorEngine.jumpToRelativeAnchor('up');
+}
+
+/**
+ * Go to the next anchor relative to the cursor
+ */
+export function goToNextAnchor() {
+    anchorEngine.jumpToRelativeAnchor('down');
+}
+
+/**
  * Opens a file and reveales the given line number
  */
 export function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {

@@ -43,12 +43,34 @@
 				"category": "Comment Anchors"
 			},
 			{
+				"command": "commentAnchors.previousAnchor",
+				"title": "Go to previous anchor",
+				"category": "Comment Anchors"
+			},
+			{
+				"command": "commentAnchors.nextAnchor",
+				"title": "Go to next anchor",
+				"category": "Comment Anchors"
+			},
+			{
 				"command": "commentAnchors.openFileAndRevealLine",
 				"title": "Open a file and reveal a line"
 			},
 			{
 				"command": "commentAnchors.launchWorkspaceScan",
 				"title": "Initiate a workspace scan"
+			}
+		],
+		"keybindings": [
+			{
+				"key": "shift+alt+up",
+				"when": "editorTextFocus",
+				"command": "commentAnchors.previousAnchor"
+			},
+			{
+				"key": "shift+alt+down",
+				"when": "editorTextFocus",
+				"command": "commentAnchors.nextAnchor"
 			}
 		],
 		"viewsContainers": {

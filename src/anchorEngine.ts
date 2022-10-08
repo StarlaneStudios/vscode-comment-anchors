@@ -27,6 +27,7 @@ import {
     languages,
     window,
     workspace,
+    Selection,
 } from "vscode";
 
 import * as minimatch from 'minimatch';
@@ -1074,6 +1075,43 @@ export class AnchorEngine {
         });
 
         panel.webview.html = createViewContent(this, panel.webview);
+    }
+
+    /**
+     * Move the cursor to the anchor relative to the current position
+     * 
+     * @param direction The direction
+     */
+    public jumpToRelativeAnchor(direction: 'up'|'down') {
+        const current = this._editor!.selection.active.line + 1;
+        const anchors = [...this.currentAnchors].sort((a, b) => a.lineNumber - b.lineNumber);
+
+        const goTo = (anchor: EntryAnchor) => {
+            const selection = new Selection(anchor.lineNumber - 1, 0, anchor.lineNumber - 1, 0);
+
+            this._editor!.selection = selection;
+            this._editor!.revealRange(selection);
+        };
+
+        if (direction == 'up') {
+            for (let i = anchors.length - 1; i >= 0; i--) {
+                const anchor = anchors[i];
+
+                if (anchor.lineNumber < current) {
+                    goTo(anchor);
+                    break;
+                }
+            }
+        } else {
+            for (let i = 0; i < anchors.length; i++) {
+                const anchor = anchors[i];
+
+                if (anchor.lineNumber > current) {
+                    goTo(anchor);
+                    break;
+                }
+            }
+        }
     }
 
     private onActiveEditorChanged(editor: TextEditor | undefined): void {

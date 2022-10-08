@@ -15,6 +15,7 @@ The changelog can be found [here](CHANGELOG.md)
 * Anchors can be viewed in the anchor list sidebar
 * Anchor names, colors, highlight colors, and much more can be customized (See below for examples)
 * Click an anchor in the anchor list to scroll it into view
+* Naviate to the previous or next anchor using keybinds
 * Quickly toggle tag visibility with commands
 * View anchors across your entire workspace
 * Scope anchors to be visible in your entire workspace, or just the current file
@@ -37,6 +38,8 @@ The default settings come with anchors for the following tags:
 
 Of course you can add your own anchors as well!
 In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
+
+You can also easily navigate between the anchors in the current file using `Shift+Alt+Up` or `Shift+Alt+Down`.
 
 ![Preview](media/preview.gif)
 
