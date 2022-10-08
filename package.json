@@ -5,7 +5,7 @@
 	"version": "1.10.0",
 	"publisher": "StarlaneStudios",
 	"engines": {
-		"vscode": "^1.38.0"
+		"vscode": "^1.66.0"
 	},
 	"categories": [
 		"Other"
@@ -455,11 +455,14 @@
 		}
 	},
 	"activationEvents": [
-		"*"
+		"onStartupFinished"
 	],
+	"vsce": {
+		"yarn": true
+	},
 	"main": "./out/extension",
 	"scripts": {
-		"vscode:prepublish": "pnpm compile",
+		"vscode:prepublish": "yarn compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"lint": "eslint src --ext .ts",
@@ -469,7 +472,7 @@
 		"@types/debounce": "^1.0.0",
 		"@types/mocha": "^10.0.0",
 		"@types/node": "16.x",
-		"@types/vscode": "^1.72.0",
+		"@types/vscode": "^1.66.0",
 		"@typescript-eslint/eslint-plugin": "^5.38.1",
 		"@typescript-eslint/parser": "^5.38.1",
 		"eslint": "^8.24.0",
