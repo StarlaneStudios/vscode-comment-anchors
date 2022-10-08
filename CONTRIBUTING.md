@@ -2,11 +2,11 @@
 Welcome to the Comment Anchors Contribution guide! ⚓
 Thank you for showing interest in supporting and maintaining the project.
 
-Before you start, make sure to install yarn for the project.
+Before you start, make sure to install pnpm for the project.
 
 ```
-$ npm install -g yarn
-$ yarn install
+$ npm install -g pnpm
+$ pnpm install
 ```
 
 ## Submitting changes

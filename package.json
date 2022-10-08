@@ -427,7 +427,7 @@
 	],
 	"main": "./out/extension",
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
+		"vscode:prepublish": "pnpm compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"lint": "eslint src --ext .ts",
@@ -439,20 +439,19 @@
 		"@types/node": "16.x",
 		"@types/vscode": "^1.72.0",
 		"@typescript-eslint/eslint-plugin": "^5.38.1",
-    	"@typescript-eslint/parser": "^5.38.1",
-		"eslint-plugin-unused-imports": "^2.0.0",
+		"@typescript-eslint/parser": "^5.38.1",
 		"eslint": "^8.24.0",
-		"husky": "^4.2.5",
+		"eslint-plugin-unused-imports": "^2.0.0",
+		"husky": "^8.0.1",
 		"typescript": "^4.8.4"
 	},
 	"dependencies": {
 		"debounce": "^1.2.0",
-		"escape-string-regexp": "^2.0.0",
-		"opn": "^6.0.0"
+		"escape-string-regexp": "^2.0.0"
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "npm run lint:fix"
+			"pre-commit": "pnpm run lint:fix"
 		}
 	}
 }
