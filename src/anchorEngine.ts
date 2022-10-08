@@ -29,6 +29,7 @@ import {
     workspace,
 } from "vscode";
 
+import * as minimatch from 'minimatch';
 import { AnchorIndex } from "./anchorIndex";
 import EntryAnchor from "./anchor/entryAnchor";
 import EntryAnchorRegion from "./anchor/entryAnchorRegion";
@@ -783,8 +784,17 @@ export class AnchorEngine {
         let anchorsFound = false;
 
         try {
+            const config = this._config!;
+            const endTag = config.tags.endTag;
+
             let text = null;
 
+            // Match the document against the configured glob
+            if(!minimatch(document.path, config.workspace.matchFiles)) {
+                return false;
+            }
+
+            // Read text from open documents
             workspace.textDocuments.forEach((td) => {
                 if (td.uri == document) {
                     text = td.getText();
@@ -792,6 +802,7 @@ export class AnchorEngine {
                 }
             });
 
+            // Read the text from the file system
             if (text == null) {
                 text = await this.readDocument(document);
             }
@@ -801,9 +812,6 @@ export class AnchorEngine {
             const folds: FoldingRange[] = [];
 
             let match;
-
-            const config = this._config!;
-            const endTag = config.tags.endTag;
 
             // Find all anchor occurences
             while ((match = this.matcher!.exec(text))) {
