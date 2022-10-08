@@ -33,17 +33,21 @@ class TagCompletionProvider implements CompletionItemProvider {
         const endTag = config.tags.endTag;
 
         for (const tag of this.engine.tags.values()) {
-            const item = new CompletionItem(tag.tag + " Anchor", CompletionItemKind.Reference);
+            const name = `${tag.tag} Anchor`;
+            const item = new CompletionItem(name, CompletionItemKind.Event);
 
-            item.documentation = `Insert ${tag.tag} comment anchor`;
             item.insertText = tag.tag + separator;
+            item.detail = `Insert ${tag.tag} anchor`;
+
             ret.items.push(item);
 
             if (tag.behavior == "region") {
-                const endItem = new CompletionItem(endTag + tag.tag + " Anchor", CompletionItemKind.Reference);
+                const endItem = new CompletionItem(endTag + name, CompletionItemKind.Event);
 
-                endItem.insertText = endTag + tag.tag + separator;
-                endItem.documentation = `Insert ${endTag + tag.tag} comment anchor`;
+                endItem.insertText = endTag + tag.tag;
+                endItem.detail = `Insert ${endTag + tag.tag} comment anchor`;
+                item.keepWhitespace = true;
+
                 ret.items.push(endItem);
             }
         }
@@ -53,5 +57,12 @@ class TagCompletionProvider implements CompletionItemProvider {
 }
 
 export function setupCompletionProvider(engine: AnchorEngine): Disposable {
-    return languages.registerCompletionItemProvider({ language: "*" }, new TagCompletionProvider(engine));
+    const prefixes = engine._config!.tags.matchPrefix;
+    const triggers = [...new Set<string>(prefixes.map((p: string) => p[p.length - 1]))];
+
+    return languages.registerCompletionItemProvider(
+        { language: "*" },
+        new TagCompletionProvider(engine),
+        ...triggers
+    );
 }
