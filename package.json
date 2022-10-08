@@ -38,6 +38,11 @@
 				"category": "Comment Anchors"
 			},
 			{
+				"command": "commentAnchors.exportAnchors",
+				"title": "Export all workspace anchors to CSV",
+				"category": "Comment Anchors"
+			},
+			{
 				"command": "commentAnchors.openFileAndRevealLine",
 				"title": "Open a file and reveal a line"
 			},
@@ -82,6 +87,11 @@
 				{
 					"command": "commentAnchors.listTags",
 					"when": "view == fileAnchors",
+					"group": "operations"
+				},
+				{
+					"command": "commentAnchors.exportAnchors",
+					"when": "view == workspaceAnchors",
 					"group": "operations"
 				}
 			]
@@ -288,7 +298,7 @@
 					"scope": "window"
 				},
 				"commentAnchors.tags.list": {
-					"deprecationMessage": "Please migrate to the new commentAnchors.tags.anchors property."	
+					"deprecationMessage": "Please migrate to the new commentAnchors.tags.anchors property."
 				},
 				"commentAnchors.tags.anchors": {
 					"type": "object",
@@ -435,6 +445,7 @@
 		"typescript": "^4.8.4"
 	},
 	"dependencies": {
+		"csv-stringify": "^6.2.0",
 		"debounce": "^1.2.0",
 		"escape-string-regexp": "^2.0.0"
 	}

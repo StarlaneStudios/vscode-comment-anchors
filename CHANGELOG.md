@@ -1,14 +1,15 @@
 # Change Log
 
 ## 1.10.0
-- Fixed anchors appearing outside of comments (#116)
-	- Due to the way in which the matcher has been changed, existing anchors *may* break. Please use the new `matchPrefix` and `matchSuffix` settings to further tweak the matcher to your environment.
+- Added a command to export all anchors in your workspace as JSON or CSV
+- Added `matchPrefix` and `matchSuffix` settings
 - Updated the anchor tag configuration syntax
 	- The legacy array-based syntax will continue to work
 	- Since the new syntax is defined using an object notation, individual tags can now be collapsed (#152)
-- Added `matchPrefix` and `matchSuffix` settings
 - Fixed epics within regions not displaying in the sidebar
 - Fixed instances where a single broken link breaks all links
+- Fixed anchors appearing outside of comments (#116)
+	- Due to the way in which the matcher has been changed, existing anchors *may* break. Please use the new `matchPrefix` and `matchSuffix` settings to further tweak the matcher to your environment.
 - Slightly adjust the cursor appearance
 
 ## 1.9.6
