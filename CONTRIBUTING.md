@@ -35,7 +35,7 @@ Always write a clear log message for your commits. Use [Conventional Commits](ht
 
 #### **Do you intend to add a new feature or change an existing one?**
 
-* Optionally, suggest your change in [our community Discord](https://discord.gg/jCDCU2W), in the #comment-anchors channel, and start writing code in a local fork.
+* Optionally, suggest your change in [our community Discord](https://discord.gg/exaQDX2), in the #anchor-chat channel, and start writing code in a local fork.
 
 * Do not open an issue on GitHub until you have collected positive feedback about the change. GitHub issues are primarily intended for bug reports and fixes.
 
