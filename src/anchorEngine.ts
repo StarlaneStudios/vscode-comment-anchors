@@ -344,27 +344,21 @@ export class AnchorEngine {
                 }
 
                 if (config.tagHighlights.enabled) {
+
                     // Create base configuration
-                    let highlight: DecorationRenderOptions = {
+                    const highlight: DecorationRenderOptions = {
                         fontWeight: tag.isBold || tag.isBold == undefined ? "bold" : "normal",
                         fontStyle: tag.isItalic || tag.isItalic == undefined ? "italic" : "normal",
                         color: tag.highlightColor,
                         backgroundColor: tag.backgroundColor,
+                        border: tag.borderStyle,
+                        borderRadius: tag.borderRadius ? tag.borderRadius + "px" : undefined
                     };
 
                     // Optionally insert rulers
                     if (config.tags.displayInRuler) {
                         highlight.overviewRulerColor = tag.highlightColor || '#828282';
                         highlight.overviewRulerLane = laneStyle;
-                    }
-
-                    // Optional border
-                    if (tag.borderStyle) {
-                        highlight = {
-                            ...highlight,
-                            border: tag.borderStyle,
-                            borderRadius: tag.borderRadius + "px",
-                        };
                     }
 
                     // Save the icon color
