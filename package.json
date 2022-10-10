@@ -52,6 +52,11 @@
 				"title": "Go to next anchor",
 				"category": "Comment Anchors"
 			},
+            {
+				"command": "commentAnchors.navigateToAnchor",
+				"title": "Navigate to an anchor in the current file",
+				"category": "Comment Anchors"
+			},
 			{
 				"command": "commentAnchors.openFileAndRevealLine",
 				"title": "Open a file and reveal a line"
@@ -71,6 +76,11 @@
 				"key": "alt+pageDown",
 				"when": "editorTextFocus",
 				"command": "commentAnchors.nextAnchor"
+			},
+            {
+				"key": "alt+c alt+l",
+				"when": "editorTextFocus",
+				"command": "commentAnchors.navigateToAnchor"
 			}
 		],
 		"viewsContainers": {

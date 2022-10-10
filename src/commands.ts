@@ -79,6 +79,28 @@ export function goToNextAnchor() {
 }
 
 /**
+ * Open a list of anchors to jump to
+ */
+export function openAnchorList() {
+    const anchors = anchorEngine.currentAnchors.map(anchor => ({
+        label: anchor.anchorText,
+        detail: 'Line ' + anchor.lineNumber,
+        anchor: anchor
+    }));
+
+    if (!anchors.length) {
+        window.showInformationMessage('No anchors found in this file');
+        return;
+    }
+
+    window.showQuickPick(anchors).then(result => {
+        if (result) {
+            anchorEngine.jumpToAnchor(result.anchor);
+        }
+    });
+}
+
+/**
  * Opens a file and reveales the given line number
  */
 export function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {

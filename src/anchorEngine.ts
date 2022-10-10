@@ -1083,6 +1083,18 @@ export class AnchorEngine {
     }
 
     /**
+     * Jump to an anchor in the current document
+     * 
+     * @param anchor The anchor to jump to
+     */
+    public jumpToAnchor(anchor: EntryAnchor) {
+        const selection = new Selection(anchor.lineNumber - 1, 999, anchor.lineNumber - 1, 999);
+
+        this._editor!.selection = selection;
+        this._editor!.revealRange(selection);
+    }
+
+    /**
      * Move the cursor to the anchor relative to the current position
      * 
      * @param direction The direction
@@ -1091,19 +1103,12 @@ export class AnchorEngine {
         const current = this._editor!.selection.active.line + 1;
         const anchors = [...this.currentAnchors].sort((a, b) => a.lineNumber - b.lineNumber);
 
-        const goTo = (anchor: EntryAnchor) => {
-            const selection = new Selection(anchor.lineNumber - 1, 999, anchor.lineNumber - 1, 999);
-
-            this._editor!.selection = selection;
-            this._editor!.revealRange(selection);
-        };
-
         if (direction == 'up') {
             for (let i = anchors.length - 1; i >= 0; i--) {
                 const anchor = anchors[i];
 
                 if (anchor.lineNumber < current) {
-                    goTo(anchor);
+                    this.jumpToAnchor(anchor);
                     break;
                 }
             }
@@ -1112,7 +1117,7 @@ export class AnchorEngine {
                 const anchor = anchors[i];
 
                 if (anchor.lineNumber > current) {
-                    goTo(anchor);
+                    this.jumpToAnchor(anchor);
                     break;
                 }
             }

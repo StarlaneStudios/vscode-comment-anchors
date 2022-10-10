@@ -9,7 +9,8 @@ import {
     openTagListPanel,
     exportAnchors,
     goToNextAnchor,
-    goToPreviousAnchor
+    goToPreviousAnchor,
+    openAnchorList
 } from "./commands";
 
 export let anchorEngine: AnchorEngine;
@@ -26,6 +27,7 @@ export function activate(context: ExtensionContext): void {
     commands.registerCommand("commentAnchors.listTags", openTagListPanel);
     commands.registerCommand("commentAnchors.previousAnchor", goToPreviousAnchor);
     commands.registerCommand("commentAnchors.nextAnchor", goToNextAnchor);
+    commands.registerCommand("commentAnchors.navigateToAnchor", openAnchorList);
 }
 
 export function deactivate(): void {
