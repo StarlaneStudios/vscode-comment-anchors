@@ -1,6 +1,7 @@
 # Change Log
 
 ## 1.10.1
+- Added new quick navigation command (Bound to `Alt + C + L`)
 - Change default navigation keybind to `Alt + PageUp` & `Alt + PageDown`
 
 ## 1.10.0
