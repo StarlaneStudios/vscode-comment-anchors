@@ -93,7 +93,9 @@ export function openAnchorList() {
         return;
     }
 
-    window.showQuickPick(anchors).then(result => {
+    window.showQuickPick(anchors, {
+        title: 'Navigate to anchor'
+    }).then(result => {
         if (result) {
             anchorEngine.jumpToAnchor(result.anchor);
         }

@@ -54,7 +54,7 @@
 			},
             {
 				"command": "commentAnchors.navigateToAnchor",
-				"title": "Navigate to an anchor in the current file",
+				"title": "Quick navigate to anchor",
 				"category": "Comment Anchors"
 			},
 			{
