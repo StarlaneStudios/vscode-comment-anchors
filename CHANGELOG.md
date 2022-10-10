@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.10.1
+- Change default navigation keybind to `Alt + PageUp` & `Alt + PageDown`
+
 ## 1.10.0
 - Added a command to export all anchors in your workspace as JSON or CSV
 - Added `matchPrefix` and `matchSuffix` settings

@@ -63,12 +63,12 @@
 		],
 		"keybindings": [
 			{
-				"key": "shift+alt+up",
+				"key": "alt+pageUp",
 				"when": "editorTextFocus",
 				"command": "commentAnchors.previousAnchor"
 			},
 			{
-				"key": "shift+alt+down",
+				"key": "alt+pageDown",
 				"when": "editorTextFocus",
 				"command": "commentAnchors.nextAnchor"
 			}

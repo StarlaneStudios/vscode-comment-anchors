@@ -39,7 +39,7 @@ The default settings come with anchors for the following tags:
 Of course you can add your own anchors as well!
 In order to make an anchor, simply place the tag name in a comment, with an additional anchor message behind it. The anchor will be automatically detected and added to the Anchor List in the activity sidebar.
 
-You can also easily navigate between the anchors in the current file using `Shift+Alt+Up` or `Shift+Alt+Down`.
+You can also easily navigate between the anchors in the current file using `Alt + PageUp` or `Alt + PageDown`.
 
 ![Preview](media/preview.gif)
 
