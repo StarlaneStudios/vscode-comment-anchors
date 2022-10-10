@@ -1092,7 +1092,7 @@ export class AnchorEngine {
         const anchors = [...this.currentAnchors].sort((a, b) => a.lineNumber - b.lineNumber);
 
         const goTo = (anchor: EntryAnchor) => {
-            const selection = new Selection(anchor.lineNumber - 1, anchor.startIndex, anchor.lineNumber - 1, anchor.startIndex);
+            const selection = new Selection(anchor.lineNumber - 1, 999, anchor.lineNumber - 1, 999);
 
             this._editor!.selection = selection;
             this._editor!.revealRange(selection);
