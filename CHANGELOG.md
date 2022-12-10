@@ -1,9 +1,12 @@
 # Change Log
 
-## 1.10.2
+## 1.10.3
 - When selecting an anchor, the cursor position now also moves (#173)
 - `bin` and `obj` directories are now excluded from workplace scans by default (#176)
 - Intellisense will now only trigger when an entire prefix is typed (#174)
+
+## 1.10.2
+- Display a badge when the current file contains anchors
 
 ## 1.10.1
 - Added new quick navigation command (Bound to `Alt + C + L`)
