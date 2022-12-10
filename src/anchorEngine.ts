@@ -174,9 +174,6 @@ export class AnchorEngine {
             this._editor = window.activeTextEditor;
         }
 
-        // Build required anchor resources
-        this.buildResources();
-
         // Create the file anchor view
         this.fileTreeView = window.createTreeView("fileAnchors", {
             treeDataProvider: new FileAnchorProvider(this),
@@ -226,6 +223,9 @@ export class AnchorEngine {
 
         this.linkDisposable = languages.registerDocumentLinkProvider({ language: "*" }, provider);
         this.linkProvider = provider;
+
+        // Build required anchor resources
+        this.buildResources();
     }
 
     public registerProviders(): void {
@@ -331,7 +331,7 @@ export class AnchorEngine {
 
                     if (cursor !== undefined && prevLine != cursor) {
                         AnchorEngine.output("Updating cursor position");
-                        this._onDidChangeTreeData.fire(undefined);
+                        this.updateFileAnchors();
                         prevLine = cursor;
                     }
                 }, 100);
@@ -620,7 +620,7 @@ export class AnchorEngine {
         });
 
         // Update workspace tree
-        this._onDidChangeTreeData.fire(undefined);
+        this.updateFileAnchors();
     }
 
     private async loadWorkspace(uris: Uri[]): Promise<void> {
@@ -1032,7 +1032,7 @@ export class AnchorEngine {
 
         // Update the file trees
         this._onDidChangeLinkData.fire(undefined);
-        this._onDidChangeTreeData.fire(undefined);
+        this.updateFileAnchors();
         this.anchorsDirty = false;
     }
 
@@ -1172,6 +1172,22 @@ export class AnchorEngine {
                 }
             });
         });
+    }
+
+    /**
+     * Alert subscribed listeners of a change in the file anchors tree
+     */
+    private updateFileAnchors() {
+        this._onDidChangeTreeData.fire(undefined);
+
+        const anchors = this.currentAnchors.length;
+
+        AnchorEngine.output('ANCHORS =' + anchors);
+
+        this.fileTreeView.badge = anchors > 0 ? {
+            tooltip: 'File anchors',
+            value: anchors
+        } : undefined;
     }
 }
 
