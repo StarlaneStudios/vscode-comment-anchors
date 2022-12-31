@@ -6,6 +6,7 @@ import {
     CompletionItemKind,
     CompletionItemProvider,
     CompletionList,
+    CompletionTriggerKind,
     Disposable,
     languages,
     Position,
@@ -14,7 +15,7 @@ import {
 } from "vscode";
 
 class TagCompletionProvider implements CompletionItemProvider {
-	
+
     private engine: AnchorEngine;
 
     public constructor(engine: AnchorEngine) {
@@ -22,15 +23,24 @@ class TagCompletionProvider implements CompletionItemProvider {
     }
 
     public provideCompletionItems(
-        _document: TextDocument,
-        _position: Position,
+        document: TextDocument,
+        position: Position,
         _token: CancellationToken,
-        _context: CompletionContext
+        context: CompletionContext
     ): ProviderResult<CompletionList> {
         const ret = new CompletionList();
         const config = this.engine._config!;
         const separator = config.tags.separators[0];
         const endTag = config.tags.endTag;
+        const prefixes = config.tags.matchPrefix;
+
+        const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
+        const isAuto = context.triggerKind === CompletionTriggerKind.TriggerCharacter;
+
+        // only match exact prefixes
+        if (isAuto && !prefixes.some((prefix: string) => linePrefix.endsWith(prefix))) {
+            return undefined;
+        }
 
         for (const tag of this.engine.tags.values()) {
             const name = `${tag.tag} Anchor`;
