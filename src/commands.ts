@@ -1,7 +1,8 @@
 import { writeFileSync } from "fs";
 import { anchorEngine } from "./extension";
-import { window, workspace, Uri, commands } from "vscode";
+import { window, workspace, Uri, commands, Position, TextEditorLineNumbersStyle, Selection } from "vscode";
 import { createJSONExport, createTableExport } from "./util/exporting";
+import { AnchorEngine } from "./anchorEngine";
 
 /**
  * Reparse anchors in the current file
@@ -112,7 +113,13 @@ export function openFileAndRevealLine(options: OpenFileAndRevealLineOptions) {
         commands.executeCommand("revealLine", {
             lineNumber: options.lineNumber,
             at: options.at,
-        });
+        });        
+
+        // Move cursor to anchor position
+        if (window.activeTextEditor != undefined) {
+            const pos = new Position(options.lineNumber, 0);
+            window.activeTextEditor.selection = new Selection(pos, pos);
+        }
     }
 
     // Either open right away or wait for the document to open
