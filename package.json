@@ -272,6 +272,12 @@
 					"description": "The method used to sort the anchors in the sidebar",
 					"scope": "window"
 				},
+				"commentAnchors.tags.sortAlphabetically": {
+					"type": "boolean",
+					"default": false,
+					"description": "Whether to sort tags alphabetically",
+					"scope": "window"
+				},
 				"commentAnchors.tags.matchCase": {
 					"type": "boolean",
 					"default": true,
