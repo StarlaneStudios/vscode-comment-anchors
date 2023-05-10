@@ -15,7 +15,7 @@ The changelog can be found [here](CHANGELOG.md)
 * Anchors can be viewed in the anchor list sidebar
 * Anchor names, colors, highlight colors, and much more can be customized (See below for examples)
 * Click an anchor in the anchor list to scroll it into view
-* Naviate to the previous or next anchor using keybinds
+* Navigate to the previous or next anchor using keybinds
 * Quickly toggle tag visibility with commands
 * View anchors across your entire workspace
 * Scope anchors to be visible in your entire workspace, or just the current file
