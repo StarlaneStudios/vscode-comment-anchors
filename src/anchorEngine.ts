@@ -357,8 +357,10 @@ export class AnchorEngine {
 
                     // Optionally insert rulers
                     if (config.tags.displayInRuler) {
-                        highlight.overviewRulerColor = tag.highlightColor || '#828282';
-                        highlight.overviewRulerLane = laneStyle;
+                        if (tag.ruler != false) {
+                            highlight.overviewRulerColor = tag.highlightColor || '#828282';
+                            highlight.overviewRulerLane = laneStyle;
+                        }
                     }
 
                     // Save the icon color
@@ -1203,6 +1205,7 @@ export interface TagEntry {
     styleMode?: 'tag' | 'comment' | 'full';
     borderStyle?: string;
     borderRadius?: number;
+    ruler?: boolean;
     isBold?: boolean;
     isItalic?: boolean;
     scope?: string;
