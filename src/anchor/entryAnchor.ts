@@ -35,6 +35,7 @@ export default class EntryAnchor extends EntryBase {
     ) {
         super(engine, showLine ? `[${lineNumber}] ${anchorText}` : anchorText);
 
+        this.tooltip = `${anchorText} (Click to reveal)`;
         this.command = {
             title: "",
             command: "commentAnchors.openFileAndRevealLine",
@@ -58,7 +59,6 @@ export default class EntryAnchor extends EntryBase {
     }
 
     public contextValue = "anchor";
-    public tooltip = `${this.anchorText} (Click to reveal)`;
 
     public get isHidden(): boolean {
         return this.scope == "hidden";

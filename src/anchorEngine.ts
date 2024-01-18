@@ -1,4 +1,4 @@
-import * as debounce from "debounce";
+import debounce from "debounce";
 import * as escape from "escape-string-regexp";
 import * as fs from "node:fs";
 import * as path from "node:path";

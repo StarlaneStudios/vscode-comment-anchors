@@ -12,10 +12,10 @@ export default class EntryCachedFile extends EntryBase {
     public constructor(engine: AnchorEngine, public readonly file: Uri, public readonly anchors: EntryAnchor[], public readonly format: string) {
         super(engine, EntryCachedFile.fileAnchorStats(file, anchors, format), TreeItemCollapsibleState.Expanded);
 
+        this.tooltip = `${this.file.path}`;
         this.iconPath = ThemeIcon.File;
     }
 
-    public tooltip = `${this.file.path}`;
     public contextValue = "cachedFile";
 
     public toString(): string {
