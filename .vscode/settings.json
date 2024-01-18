@@ -11,5 +11,8 @@
     "typescript.tsc.autoDetect": "off",
 
     // Insert spaces on indent
-    "editor.insertSpaces": true
+    "editor.insertSpaces": true,
+
+    // Use local TS version
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

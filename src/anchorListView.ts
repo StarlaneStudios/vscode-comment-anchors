@@ -10,7 +10,7 @@ import { Webview } from "vscode";
 export function createViewContent(engine: AnchorEngine, webview: Webview): string {
     let tagList = "";
 
-    for (const tag of engine.tags) {
+    for (const tag of engine.tags.values()) {
         const isDefault = tag.iconColor == "default";
         const tagFlags = [];
 

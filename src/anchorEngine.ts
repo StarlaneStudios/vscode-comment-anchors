@@ -154,7 +154,7 @@ export class AnchorEngine {
     public statusLoading: EntryLoading = new EntryLoading(this);
     public statusScan: EntryScan = new EntryScan(this);
 
-    private cursorTask?: NodeJS.Timer;
+    private cursorTask?: NodeJS.Timeout;
 
     public constructor(context: ExtensionContext) {
         this.context = context;
