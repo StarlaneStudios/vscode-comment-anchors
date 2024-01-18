@@ -1,5 +1,4 @@
 import debounce from "debounce";
-import * as escape from "escape-string-regexp";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -48,6 +47,7 @@ import { flattenAnchors } from "./util/flattener";
 import { registerDefaults } from "./util/defaultTags";
 import { setupCompletionProvider } from "./util/completionProvider";
 import { parseCustomAnchors } from "./util/customTags";
+import escapeStringRegexp from "./util/escape";
 
 /* -- Constants -- */
 
@@ -498,7 +498,7 @@ export class AnchorEngine {
 
             // Create a selection of tags
             const tags = tagList
-                .map((tag) => escape(tag))
+                .map((tag) => escapeStringRegexp(tag))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
 
@@ -509,7 +509,7 @@ export class AnchorEngine {
 
             // Create a selection of separators
             const separators = (config.tags.separators as string[])
-                .map((seperator) => escape(seperator).replaceAll(' ', " +"))
+                .map((seperator) => escapeStringRegexp(seperator).replaceAll(' ', " +"))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
 

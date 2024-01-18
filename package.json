@@ -510,7 +510,6 @@
 	"dependencies": {
 		"csv-stringify": "^6.4.5",
 		"debounce": "^2.0.0",
-		"escape-string-regexp": "^5.0.0",
 		"minimatch": "^9.0.3"
 	}
 }
