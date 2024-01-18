@@ -5,14 +5,17 @@ import { AnchorEngine } from "../anchorEngine";
 import { flattenAnchors } from "./flattener";
 import { existsSync, lstatSync } from "fs";
 
-const LINK_REGEX = /^(\.{1,2}[/\\])?([^:#]+)?(:\d+|#[\w-]+)?$/;
 
 export class LinkProvider implements DocumentLinkProvider {
-	
+
     public readonly engine: AnchorEngine;
+
+    public readonly LINK_REGEX;
 
     public constructor(engine: AnchorEngine) {
         this.engine = engine;
+        var defaultRegex = /^(\.{1,2}[/\\])?([^:#]+)?(:\d+|#[\w-]+)?$/;
+        this.LINK_REGEX = engine._config.link_regex || defaultRegex;
     }
 
     public createTarget(uri: Uri, line: number): Uri {
@@ -44,7 +47,7 @@ export class LinkProvider implements DocumentLinkProvider {
                 return tag?.behavior == "link";
             })
             .forEach((anchor) => {
-                const components = LINK_REGEX.exec(anchor.anchorText)!;
+                const components = this.LINK_REGEX.exec(anchor.anchorText)!;
                 const parameter = components[3] || '';
                 const filePath = components[2] || document?.uri?.fsPath || '';
                 const relativeFolder = components[1];
