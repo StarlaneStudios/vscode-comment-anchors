@@ -1,8 +1,7 @@
-import { TreeDataProvider, Event, TreeItem, workspace, Uri } from "vscode";
+import { TreeDataProvider, Event, TreeItem, workspace } from "vscode";
 import EntryAnchor from "../anchor/entryAnchor";
 import { AnchorEngine, AnyEntry, AnyEntryArray } from "../anchorEngine";
 import EntryCachedFile from "../anchor/entryCachedFile";
-import { AnchorIndex } from "../anchorIndex";
 import { flattenAnchors } from "../util/flattener";
 
 /**
@@ -34,17 +33,19 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
                     const cachedFile = element as EntryCachedFile;
 
                     if (this.provider._config!.tags.displayHierarchyInWorkspace) {
-                        cachedFile.anchors.forEach((anchor: EntryAnchor) => {
-                            if (!anchor.isVisibleInWorkspace) return;
-
-                            res.push(anchor.copy(true));
-                        });
+                        for (const anchor of cachedFile.anchors) {
+                            if (anchor.isVisibleInWorkspace) {
+                                res.push(anchor.copy(true));
+                            }
+                        }
                     } else {
-                        flattenAnchors(cachedFile.anchors).forEach((anchor: EntryAnchor) => {
-                            if (!anchor.isVisibleInWorkspace) return;
-
-                            res.push(anchor.copy(false));
-                        });
+                        const flattened = flattenAnchors(cachedFile.anchors);
+                        
+                        for (const anchor of flattened) {
+                            if (anchor.isVisibleInWorkspace) {
+                                res.push(anchor.copy(false));
+                            }
+                        }
                     }
 
                     success(EntryAnchor.sortAnchors(res));
@@ -71,27 +72,27 @@ export class WorkspaceAnchorProvider implements TreeDataProvider<AnyEntry> {
             const format = this.provider._config!.workspace.pathFormat;
             const res: EntryCachedFile[] = [];
 
-            this.provider.anchorMaps.forEach((index: AnchorIndex, document: Uri) => {
+            for (const [document, index] of this.provider.anchorMaps.entries()) {
                 const anchors = index.anchorTree;
 
-                if (anchors.length == 0) return; // Skip empty files
+                if (anchors.length === 0) continue; // Skip empty files
 
                 let notVisible = true;
 
-                anchors.forEach((anchor) => {
+                for (const anchor of anchors) {
                     if (anchor.isVisibleInWorkspace) notVisible = false;
-                });
+                }
 
                 if (!notVisible) {
                     try {
                         res.push(new EntryCachedFile(this.provider, document, anchors, format));
-                    } catch (err) {
+                    } catch {
                         // Simply ignore, we do not want to push this file
                     }
                 }
-            });
+            }
 
-            if (res.length == 0) {
+            if (res.length === 0) {
                 success([this.provider.errorEmptyWorkspace]);
                 return;
             }

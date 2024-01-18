@@ -116,9 +116,9 @@ export default class EntryAnchor extends EntryBase {
         );
 
         if (copyChilds) {
-            this.children.forEach((child) => {
+            for (const child of this.children) {
                 copy.addChild(child.copy(copyChilds, showLine));
-            });
+            }
         }
 
         return copy;

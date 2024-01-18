@@ -1,5 +1,5 @@
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import * as path from "path";
+import * as path from "node:path";
 import { AnchorEngine } from "../anchorEngine";
 
 /**

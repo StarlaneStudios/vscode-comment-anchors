@@ -1,8 +1,7 @@
-const debounce = require("debounce");
-
+import * as debounce from "debounce";
 import * as escape from "escape-string-regexp";
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 import {
     DecorationOptions,
@@ -259,7 +258,7 @@ export class AnchorEngine {
             }, config.parseDelay);
 
             // Disable previous build resources
-            this._subscriptions.forEach((s) => s.dispose());
+            for (const s of this._subscriptions) s.dispose();
             this._subscriptions = [];
 
             // Store the sorting method
@@ -288,15 +287,22 @@ export class AnchorEngine {
             this.iconCache = iconCache;
 
             // Clear icon cache
-            fs.readdirSync(iconCache).forEach((file) => {
+            for (const file of fs.readdirSync(iconCache)) {
                 fs.unlinkSync(path.join(iconCache, file));
-            });
+            }
 
             // Create a map holding the tags
             this.tags.clear();
-            this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
+
+            for (const type of this.anchorDecorators.values()) {
+                type.dispose();
+            }
+
+            for (const type of this.anchorEndDecorators.values()) {
+                type.dispose();
+            }
+
             this.anchorDecorators.clear();
-            this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
             this.anchorEndDecorators.clear();
 
             // Register default tags
@@ -338,7 +344,7 @@ export class AnchorEngine {
             }
 
             // Configure all tags
-            Array.from(this.tags.values()).forEach((tag: TagEntry) => {
+            for (const tag of this.tags.values()) {
                 if (!tag.scope) {
                     tag.scope = "workspace";
                 }
@@ -357,11 +363,9 @@ export class AnchorEngine {
                     };
 
                     // Optionally insert rulers
-                    if (config.tags.displayInRuler) {
-                        if (tag.ruler != false) {
-                            highlight.overviewRulerColor = tag.highlightColor || '#828282';
-                            highlight.overviewRulerLane = laneStyle;
-                        }
+                    if (config.tags.displayInRuler && tag.ruler != false) {
+                        highlight.overviewRulerColor = tag.highlightColor || '#828282';
+                        highlight.overviewRulerLane = laneStyle;
                     }
 
                     // Save the icon color
@@ -415,7 +419,7 @@ export class AnchorEngine {
                             break;
                         }
                         default: {
-                            if (!iconColor.match(HEX_COLOR_REGEX)) {
+                            if (!HEX_COLOR_REGEX.test(iconColor)) {
                                 skipColor = true;
                                 window.showErrorMessage("Invalid color: " + iconColor);
                             }
@@ -425,13 +429,13 @@ export class AnchorEngine {
                     if (skipColor) {
                         tag.iconColor = "auto";
                     } else {
-                        iconColor = iconColor.substr(1);
+                        iconColor = iconColor.slice(1);
 
-                        if (iconColors.indexOf(iconColor) < 0) {
+                        if (!iconColors.includes(iconColor)) {
                             iconColors.push(iconColor);
                         }
 
-                        if (tag.behavior == "region" && regionColors.indexOf(iconColor) < 0) {
+                        if (tag.behavior == "region" && !regionColors.includes(iconColor)) {
                             regionColors.push(iconColor);
                         }
 
@@ -478,19 +482,19 @@ export class AnchorEngine {
                         this.anchorEndDecorators.set(tag.tag, window.createTextEditorDecorationType(endHighlight));
                     }
                 }
-            });
+            }
 
             // Fetch an array of tags
-            const tagList = Array.from(this.tags.keys());
+            const tagList = [...this.tags.keys()];
 
             // Generate region end tags
             const endTag = this._config.tags.endTag;
 
-            this.tags.forEach((entry, tag) => {
+            for (const [tag, entry] of this.tags.entries()) {
                 if (entry.behavior == "region") {
                     tagList.push(endTag + tag);
                 }
-            });
+            }
 
             // Create a selection of tags
             const tags = tagList
@@ -505,7 +509,7 @@ export class AnchorEngine {
 
             // Create a selection of separators
             const separators = (config.tags.separators as string[])
-                .map((seperator) => escape(seperator).replace(/ /g, " +"))
+                .map((seperator) => escape(seperator).replaceAll(' ', " +"))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
 
@@ -516,7 +520,7 @@ export class AnchorEngine {
 
             // Create a selection of prefixes
             const prefixes = (config.tags.matchPrefix as string[])
-                .map((match) => escape(match).replace(/ /g, " +"))
+                .map((match) => escape(match).replaceAll(' ', " +"))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
 
@@ -538,19 +542,19 @@ export class AnchorEngine {
             AnchorEngine.output("Using matcher " + this.matcher);
 
             // Write anchor icons
-            iconColors.forEach((color) => {
+            for (const color of iconColors) {
                 const filename = "anchor_" + color.toLowerCase() + ".svg";
-                const anchorSvg = baseAnchor.replace(COLOR_PLACEHOLDER_REGEX, "#" + color);
+                const anchorSvg = baseAnchor.replaceAll(COLOR_PLACEHOLDER_REGEX, "#" + color);
 
                 fs.writeFileSync(path.join(iconCache, filename), anchorSvg);
 
-                if (regionColors.indexOf(color) >= 0) {
+                if (regionColors.includes(color)) {
                     const filenameEnd = "anchor_end_" + color.toLowerCase() + ".svg";
-                    const anchorEndSvg = baseAnchorEnd.replace(COLOR_PLACEHOLDER_REGEX, "#" + color);
+                    const anchorEndSvg = baseAnchorEnd.replaceAll(COLOR_PLACEHOLDER_REGEX, "#" + color);
 
                     fs.writeFileSync(path.join(iconCache, filenameEnd), anchorEndSvg);
                 }
-            });
+            }
 
             AnchorEngine.output("Generated icon cache at " + iconCache);
 
@@ -579,12 +583,12 @@ export class AnchorEngine {
                 this._watcher = workspace.createFileSystemWatcher(config.workspace.matchFiles, true, true, false);
 
                 this._watcher.onDidDelete((file: Uri) => {
-                    this.anchorMaps.forEach((_, uri) => {
+                    for (const [uri, _] of this.anchorMaps.entries()) {
                         if (uri.toString() == file.toString()) {
                             this.removeMap(uri);
-                            return false;
+                            false; continue;
                         }
-                    });
+                    }
                 });
             }
 
@@ -655,7 +659,7 @@ export class AnchorEngine {
 
                     parseStatus.text = `$(telescope) Parsing Comment Anchors... (${parsePercentage.toFixed(1)}%)`;
                 }
-            } catch (err) {
+            } catch {
                 // Ignore, already taken care of
             }
         }
@@ -687,9 +691,18 @@ export class AnchorEngine {
      * Dispose anchor list resources
      */
     public dispose(): void {
-        this.anchorDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
-        this.anchorEndDecorators.forEach((type: TextEditorDecorationType) => type.dispose());
-        this._subscriptions.forEach((s) => s.dispose());
+        for (const type of this.anchorDecorators.values()) {
+            type.dispose();
+        }
+
+        for (const type of this.anchorEndDecorators.values()) {
+            type.dispose();
+        }
+        
+        for (const subscription of this._subscriptions) {
+            subscription.dispose();
+        }
+
         this.linkDisposable.dispose();
 
         if (this.cursorTask) {
@@ -749,11 +762,11 @@ export class AnchorEngine {
         const mapping = new Map<string, string>();
 
         // parse all 'key1=value1,key2=value2'
-        raw.split(",").forEach((pair) => {
+        for (const pair of raw.split(",")) {
             const [key, value] = pair.trim().split("=");
             AnchorEngine.output(`Trying to set key=${key},value=${value}`);
             mapping.set(key, value);
-        });
+        }
 
         // Parse the epic value
         if (mapping.has("epic")) {
@@ -762,7 +775,7 @@ export class AnchorEngine {
 
         // Parse the sequence value
         if (mapping.has("seq")) {
-            result.seq = parseInt(mapping.get("seq")!, 10);
+            result.seq = Number.parseInt(mapping.get("seq")!, 10);
         }
 
         // Parse the id value
@@ -789,6 +802,7 @@ export class AnchorEngine {
                 displayTagName,
                 displayInSidebar,
                 displayLineNumber,
+                matchSuffix,
             } = config.tags;
 
             let text = null;
@@ -799,12 +813,12 @@ export class AnchorEngine {
             }
 
             // Read text from open documents
-            workspace.textDocuments.forEach((td) => {
+            for (const td of workspace.textDocuments) {
                 if (td.uri == document) {
                     text = td.getText();
-                    return false;
+                    false; continue;
                 }
-            });
+            }
 
             // Read the text from the file system
             if (text == null) {
@@ -834,18 +848,18 @@ export class AnchorEngine {
 
                 const tagEntry: TagEntry = this.tags.get(tagName)!;
                 const isRegionStart = tagEntry.behavior == "region";
-                const currRegion: EntryAnchorRegion | null = currRegions.length ? currRegions[currRegions.length - 1] : null;
+                const currRegion: EntryAnchorRegion | null = (currRegions.length > 0 && currRegions.at(-1)) || null;
                 const style = tagEntry.styleMode;
 
                 // Compute positions and lengths
                 const offsetPos = match[0].indexOf(tagMatch);
                 const startPos = match.index + (style == 'full' ? 0 : offsetPos);
-                const lineNumber = text.substr(0, startPos).split(/\r\n|\r|\n/g).length;
+                const lineNumber = text.slice(0, Math.max(0, startPos)).split(/\r\n|\r|\n/g).length;
                 const rangeLength = style == 'full'
                     ? match[0].length
-                    : style == 'comment'
+                    : (style == 'comment'
                         ? match[0].length - offsetPos
-                        : tagMatch.length;
+                        : tagMatch.length);
 
                 // We have found at least one anchor
                 anchorsFound = true;
@@ -855,14 +869,14 @@ export class AnchorEngine {
                 let display = "";
 
                 const rawAttributeStr = match[MATCHER_ATTR_INDEX] || "[]";
-                const attributes = this.parseAttributes(rawAttributeStr.substr(1, rawAttributeStr.length - 2), {
+                const attributes = this.parseAttributes(rawAttributeStr.slice(1, 1 + rawAttributeStr.length - 2), {
                     seq: lineNumber,
                 });
 
                 // Clean up the comment and adjust the endPos
-                for (const endMatch of config.tags.matchSuffix) {
+                for (const endMatch of matchSuffix) {
                     if (comment.endsWith(endMatch)) {
-                        comment = comment.substr(0, comment.length - endMatch.length);
+                        comment = comment.slice(0, Math.max(0, comment.length - endMatch.length));
 
                         if (style == 'comment') {
                             endPos -= endMatch.length;
@@ -888,7 +902,7 @@ export class AnchorEngine {
                 }
 
                 // Construct the resulting string to display
-                if (comment.length == 0) {
+                if (comment.length === 0) {
                     display = tagEntry.tag;
                 } else if (displayInSidebar && tagEntry.behavior != "link") {
                     display = displayTagName ? (tagEntry.tag + ": " + comment) : comment;
@@ -970,7 +984,7 @@ export class AnchorEngine {
         const cached = this.anchorMaps.get(file)?.anchorTree;
 
         if (cached) {
-            return Promise.resolve(cached);
+            return cached;
         } else {
             await this.parse(file);
             return await this.getAnchors(file);
@@ -989,17 +1003,17 @@ export class AnchorEngine {
             const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
 
             // Create a mapping between tags and decorators
-            this.anchorDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
+            for (const [tag, decorator] of this.anchorDecorators.entries()) {
                 tags.set(tag, [decorator, []]);
-            });
+            }
 
-            this.anchorEndDecorators.forEach((decorator: TextEditorDecorationType, tag: string) => {
+            for (const [tag, decorator] of this.anchorEndDecorators.entries()) {
                 tagsEnd.set(tag, [decorator, []]);
-            });
+            }
 
             // Create a function to handle decorating
             const applyDecorators = (anchors: EntryAnchor[]) => {
-                anchors.forEach((anchor) => {
+                for (const anchor of anchors) {
                     const deco = tags.get(anchor.anchorTag)![1];
 
                     anchor.decorateDocument(document, deco);
@@ -1011,7 +1025,7 @@ export class AnchorEngine {
                     if (anchor.children) {
                         applyDecorators(anchor.children);
                     }
-                });
+                }
             };
 
             // Start by decorating the root list
@@ -1020,13 +1034,13 @@ export class AnchorEngine {
             }
 
             // Apply all decorators to the document
-            tags.forEach((decorator) => {
+            for (const decorator of Object.values(tags)) {
                 this._editor!.setDecorations(decorator[0], decorator[1]);
-            });
+            }
 
-            tagsEnd.forEach((decorator) => {
+            for (const decorator of Object.values(tagsEnd)) {
                 this._editor!.setDecorations(decorator[0], decorator[1]);
-            });
+            }
         }
 
         // Reset the expansion arrays
@@ -1050,12 +1064,11 @@ export class AnchorEngine {
         }
 
         // Make sure we have no duplicates
-        this.anchorMaps.forEach((_, doc) => {
+        for (const [doc, _] of this.anchorMaps.entries()) {
             if (doc.path == document.path) {
                 this.anchorMaps.delete(doc);
-                return false;
             }
-        });
+        }
 
         this.anchorMaps.set(document, AnchorIndex.EMPTY);
 
@@ -1116,9 +1129,7 @@ export class AnchorEngine {
                 }
             }
         } else {
-            for (let i = 0; i < anchors.length; i++) {
-                const anchor = anchors[i];
-
+            for (const anchor of anchors) {
                 if (anchor.lineNumber > current) {
                     this.jumpToAnchor(anchor);
                     break;
@@ -1136,12 +1147,12 @@ export class AnchorEngine {
 
         if (editor && !this.anchorMaps.has(editor.document.uri)) {
             // Bugfix - Replace duplicates
-            new Map<Uri, AnchorIndex>(this.anchorMaps).forEach((_, document) => {
+            for (const [document, _] of new Map<Uri, AnchorIndex>(this.anchorMaps).entries()) {
                 if (document.path.toString() == editor.document.uri.path.toString()) {
                     this.anchorMaps.delete(document);
-                    return false;
+                    false; continue;
                 }
-            });
+            }
 
             this.anchorMaps.set(editor.document.uri, AnchorIndex.EMPTY);
 

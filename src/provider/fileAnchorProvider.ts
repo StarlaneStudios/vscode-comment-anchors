@@ -51,7 +51,7 @@ export class FileAnchorProvider implements TreeDataProvider<EntryBase> {
                 resolve([this.provider.statusLoading]);
             } else if (this.provider._editor == undefined) {
                 resolve([this.provider.errorUnusableItem]);
-            } else if (fileAnchors.length == 0) {
+            } else if (fileAnchors.length === 0) {
                 resolve([this.provider.errorEmptyItem]);
             } else {
                 let anchors: EntryBase[] = EntryAnchor.sortAnchors(fileAnchors);

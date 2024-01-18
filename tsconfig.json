@@ -3,7 +3,7 @@
 		"module": "commonjs",
 		"target": "es2020",
 		"outDir": "out",
-		"lib": ["ES2020"],
+		"lib": ["ES2021"],
 		"sourceMap": true,
 		"strict": true,
 		"rootDir": "src"

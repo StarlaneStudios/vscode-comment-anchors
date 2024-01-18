@@ -53,17 +53,19 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
                     );
 
                     if (this.provider._config!.tags.displayHierarchyInWorkspace) {
-                        epic.anchors.forEach((anchor: EntryAnchor) => {
-                            if (!anchor.isVisibleInWorkspace) return;
-
-                            res.push(anchor.copy(true, false));
-                        });
+                        for (const anchor of epic.anchors) {
+                            if (anchor.isVisibleInWorkspace) {
+                                res.push(anchor.copy(true, false));
+                            }
+                        }
                     } else {
-                        flattenAnchors(epic.anchors).forEach((anchor: EntryAnchor) => {
-                            if (!anchor.isVisibleInWorkspace) return;
-
-                            res.push(anchor.copy(false, false));
-                        });
+                        const flattened = flattenAnchors(epic.anchors);
+                        
+                        for (const anchor of flattened) {
+                            if (anchor.isVisibleInWorkspace) {
+                                res.push(anchor.copy(false, false));
+                            }
+                        }
                     }
 
                     const anchors = res.sort((left, right) => {
@@ -96,10 +98,12 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
             const epicMaps = new Map<string, EntryAnchor[]>();
 
             // Build the epic entries
-            Array.from(this.provider.anchorMaps).forEach(([, anchorIndex], _: number) => {
-                flattenAnchors(anchorIndex.anchorTree).forEach((anchor) => {
+            for (const [_, anchorIndex] of this.provider.anchorMaps.entries()) {
+                const flattened = flattenAnchors(anchorIndex.anchorTree);
+
+                for (const anchor of flattened) {
                     const epic = anchor.attributes.epic;
-                    if (!epic) return;
+                    if (!epic) continue;
 
                     const anchorEpic = epicMaps.get(epic);
 
@@ -108,19 +112,19 @@ export class EpicAnchorProvider implements TreeDataProvider<AnyEntry> {
                     } else {
                         epicMaps.set(epic, [anchor]);
                     }
-                });
-            });
+                }
+            }
 
             // Sort and build the entry list
-            epicMaps.forEach((anchorArr: EntryAnchor[], epic: string) => {
+            for (const [epic, anchorArr] of epicMaps.entries()) {
                 anchorArr.sort((left, right) => {
                     return left.attributes.seq - right.attributes.seq;
                 });
 
                 res.push(new EntryEpic(epic, `${epic}`, anchorArr, this.provider));
-            });
+            }
 
-            if (res.length == 0) {
+            if (res.length === 0) {
                 success([this.provider.errorEmptyEpics]);
                 return;
             }
@@ -148,23 +152,22 @@ export class EpicAnchorIntelliSenseProvider implements CompletionItemProvider {
         AnchorEngine.output("provideCompletionItems");
 
         const keyWord = _document.getText(_document.getWordRangeAtPosition(_position.translate(0, -1)));
-
-        const hasKeyWord = Array.from(this.engine.tags.keys()).find((v) => v === keyWord);
+        const hasKeyWord = [...this.engine.tags.keys()].find((v) => v === keyWord);
 
         if (hasKeyWord) {
             const epicCtr = new Map<string, number>();
 
-            this.engine.anchorMaps.forEach((anchorIndex, uri) => {
-                anchorIndex.anchorTree.forEach((entryAnchor) => {
+            for (const [_, anchorIndex] of this.engine.anchorMaps.entries()) {
+                for (const entryAnchor of anchorIndex.anchorTree) {
                     const { seq, epic } = entryAnchor.attributes;
 
                     if (epic) {
                         epicCtr.set(epic, Math.max(epicCtr.get(epic) || 0, seq));
                     }
-                });
-            });
+                }
+            }
 
-            return Array.from(epicCtr).map(
+            return [...epicCtr].map(
                 ([epic, maxSeq]) => new CompletionItem(`epic=${epic},seq=${maxSeq + config.epic.seqStep}`, CompletionItemKind.Enum)
             );
         }

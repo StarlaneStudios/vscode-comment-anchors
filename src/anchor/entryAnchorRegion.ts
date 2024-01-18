@@ -85,9 +85,9 @@ export default class EntryAnchorRegion extends EntryAnchor {
         }
 
         if (copyChilds) {
-            this.children.forEach((child) => {
+            for (const child of this.children) {
                 copy.addChild(child.copy(copyChilds));
-            });
+            }
         }
 
         return copy;

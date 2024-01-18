@@ -11,22 +11,22 @@ type TagConfig = Omit<TagEntry, 'tag'>;
  */
 export function parseCustomAnchors(config: WorkspaceConfiguration, tagMap: Map<string, TagEntry>): void {
     const legacy: TagEntry[] = config.tags.list || [];
-    const custom: Record<string, TagConfig> = {...config.tags.anchors || {}};
+    const custom: Record<string, TagConfig> = {...config.tags.anchors};
 
     // Parse legacy configuration format
-    legacy.forEach((tag: TagEntry) => {
+    for (const tag of legacy) {
         custom[tag.tag] = tag;
-    });
+    }
 
     // Parse custom tags
-    Object.entries(custom).forEach(([tag, config]) => {
+    for (const [tag, config] of Object.entries(custom)) {
         const def = tagMap.get(tag) || {};
         const opts: any = { ...def, ...config };
 
         // Skip disabled default tags
         if (config.enabled === false) {
             tagMap.delete(tag);
-            return;
+            continue;
         }
 
         // Migrate the isRegion property
@@ -43,5 +43,5 @@ export function parseCustomAnchors(config: WorkspaceConfiguration, tagMap: Map<s
             ...opts,
             tag: tag
         });
-    });
+    }
 }

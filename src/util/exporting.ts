@@ -5,11 +5,11 @@ import { stringify } from 'csv-stringify/sync';
 export function createTableExport(): string {
     const rows: any[] = [];
 
-    anchorEngine.anchorMaps.forEach((anchors, file) => {
+    for (const [file, anchors] of anchorEngine.anchorMaps.entries()) {
         const fullList = flattenAnchors(anchors.anchorTree);
         const filePath = file.fsPath;
 
-        fullList.forEach((anchor) => {
+        for (const anchor of fullList) {
             rows.push({
                 Filename: filePath,
                 Line: anchor.lineNumber,
@@ -18,8 +18,8 @@ export function createTableExport(): string {
                 Id: anchor.attributes.id,
                 Epic: anchor.attributes.epic,
             });
-        });
-    });
+        }
+    }
 
     return stringify(rows, {
         header: true,
@@ -37,7 +37,7 @@ export function createTableExport(): string {
 export function createJSONExport(): string {
     const fileMap: any = {};
 
-    anchorEngine.anchorMaps.forEach((anchors, file) => {
+    for (const [file, anchors] of anchorEngine.anchorMaps.entries()) {
         const fullList = flattenAnchors(anchors.anchorTree);
 
         fileMap[file.fsPath] = fullList.map(anchor => ({
@@ -47,7 +47,7 @@ export function createJSONExport(): string {
             id: anchor.attributes.id,
             epic: anchor.attributes.epic,
         }));
-    });
+    }
 
     return JSON.stringify(fileMap, null, 2);
 }

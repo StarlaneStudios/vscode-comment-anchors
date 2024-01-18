@@ -1,7 +1,7 @@
 import { TreeItemCollapsibleState, Uri, workspace, ThemeIcon } from "vscode";
 import EntryAnchor from "./entryAnchor";
 import EntryBase from "./entryBase";
-import * as path from "path";
+import * as path from "node:path";
 import { AnchorEngine } from "../anchorEngine";
 
 /**
@@ -29,13 +29,13 @@ export default class EntryCachedFile extends EntryBase {
         let visible = 0;
         let hidden = 0;
 
-        anchors.forEach((anchor) => {
+        for (const anchor of anchors) {
             if (anchor.isVisibleInWorkspace) {
                 visible++;
             } else {
                 hidden++;
             }
-        });
+        }
 
         let ret = visible + " Anchors";
 
@@ -60,11 +60,11 @@ export default class EntryCachedFile extends EntryBase {
         }
 
         // Always use unix style separators
-        titlePath = titlePath.replace(/\\/g, "/");
+        titlePath = titlePath.replaceAll('\\', "/");
 
         // Tweak the path format based on settings
         if (format == "hidden") {
-            title = titlePath.substr(titlePath.lastIndexOf("/") + 1);
+            title = titlePath.slice(titlePath.lastIndexOf("/") + 1);
         } else if (format == "abbreviated") {
             const segments = titlePath.split("/");
             const abbrPath = segments
@@ -86,7 +86,7 @@ export default class EntryCachedFile extends EntryBase {
             let ws = root.name;
 
             if (ws.length > 12) {
-                ws = ws.substr(0, 12) + "…";
+                ws = ws.slice(0, 12) + "…";
             }
 
             title = ws + " → " + title;

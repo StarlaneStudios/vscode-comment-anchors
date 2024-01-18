@@ -10,7 +10,7 @@ import { Webview } from "vscode";
 export function createViewContent(engine: AnchorEngine, webview: Webview): string {
     let tagList = "";
 
-    engine.tags.forEach((tag) => {
+    for (const tag of engine.tags) {
         const isDefault = tag.iconColor == "default";
         const tagFlags = [];
 
@@ -40,9 +40,9 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
             tagStyle += "font-style: italic;";
         }
 
-		if (tag.textDecorationStyle) {
-			tagStyle += `text-decoration: ${tag.textDecorationStyle};`;
-		}
+        if (tag.textDecorationStyle) {
+            tagStyle += `text-decoration: ${tag.textDecorationStyle};`;
+        }
 
         if (tag.scope == "workspace") {
             tagFlags.push("Workspace Scope");
@@ -71,7 +71,7 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
 			</div>
 		</section>
 		`;
-    });
+    }
 
     return `
 	<html>

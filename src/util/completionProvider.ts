@@ -68,7 +68,7 @@ class TagCompletionProvider implements CompletionItemProvider {
 
 export function setupCompletionProvider(engine: AnchorEngine): Disposable {
     const prefixes = engine._config!.tags.matchPrefix;
-    const triggers = [...new Set<string>(prefixes.map((p: string) => p[p.length - 1]))];
+    const triggers = [...new Set<string>(prefixes.map((p: string) => p.at(-1)))];
 
     return languages.registerCompletionItemProvider(
         { language: "*" },

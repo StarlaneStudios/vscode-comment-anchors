@@ -28,7 +28,7 @@ export class AnchorIndex {
         for (const anchor of list) {
             this.textIndex.set(anchor.anchorText, anchor);
 
-            if (anchor.children.length) {
+            if (anchor.children.length > 0) {
                 this.indexAnchors(anchor.children);
             }
         }

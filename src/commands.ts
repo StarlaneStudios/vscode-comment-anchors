@@ -1,8 +1,7 @@
-import { writeFileSync } from "fs";
+import { writeFileSync } from "node:fs";
 import { anchorEngine } from "./extension";
-import { window, workspace, Uri, commands, Position, TextEditorLineNumbersStyle, Selection } from "vscode";
+import { window, workspace, Uri, commands, Position, Selection } from "vscode";
 import { createJSONExport, createTableExport } from "./util/exporting";
-import { AnchorEngine } from "./anchorEngine";
 
 /**
  * Reparse anchors in the current file
@@ -52,7 +51,7 @@ export async function exportAnchors() {
     if (!uri) return;
 
     const extIndex = uri.path.lastIndexOf('.');
-    const extension = uri.path.substring(extIndex + 1);
+    const extension = uri.path.slice(Math.max(0, extIndex + 1));
 
     let exportText = '';
 
@@ -89,7 +88,7 @@ export function openAnchorList() {
         anchor: anchor
     }));
 
-    if (!anchors.length) {
+    if (anchors.length === 0) {
         window.showInformationMessage('No anchors found in this file');
         return;
     }

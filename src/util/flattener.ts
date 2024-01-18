@@ -9,11 +9,11 @@ export function flattenAnchors(anchors: EntryAnchor[]): EntryAnchor[] {
     const list: EntryAnchor[] = [];
 
     function crawlList(anchors: EntryAnchor[]) {
-        anchors.forEach((anchor) => {
+        for (const anchor of anchors) {
             list.push(anchor);
 
             crawlList(anchor.children);
-        });
+        }
     }
 
     crawlList(anchors);
