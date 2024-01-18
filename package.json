@@ -392,6 +392,11 @@
 								"description": "The curvature radius of the applied border (Requires borderStyle to be set)",
 								"default": 0
 							},
+							"ruler": {
+								"type": "boolean",
+								"default": true,
+								"description": "Sets whether the tag is rendered in ruler"
+              },
 							"textdecorationStyle": {
 								"type": "string",
 								"description": "The style applied to the text-decoration, see https://www.w3schools.com/cssref/pr_text_text-decoration.php for more information"

@@ -345,6 +345,7 @@ Use `commentAnchors.tags.anchors` to configure the anchor tags. Below is a list 
 - styleMode - *Customize what part of the comment is highlighted*
 - borderStyle - *Style to be applied to the tag border (See https://www.w3schools.com/cssref/pr_border.asp)*
 - borderRadius - *The curvature radius of the border (Requires borderStyle)*
+- ruler - *Overwrite the global setting when false*
 - textdecorationStyle - *Style to be applied to the tag text-decoration (See https://www.w3schools.com/cssref/pr_text_text-decoration.php)*
 - isBold - *Whether to apply bold formatting to the tag*
 - isItalic - *Whether to apply italicized formatting to the tag*
