@@ -352,7 +352,8 @@ export class AnchorEngine {
                         color: tag.highlightColor,
                         backgroundColor: tag.backgroundColor,
                         border: tag.borderStyle,
-                        borderRadius: tag.borderRadius ? tag.borderRadius + "px" : undefined
+                        borderRadius: tag.borderRadius ? tag.borderRadius + "px" : undefined,
+                        textDecoration: tag.textdecorationStyle,
                     };
 
                     // Optionally insert rulers
@@ -1203,6 +1204,7 @@ export interface TagEntry {
     styleMode?: 'tag' | 'comment' | 'full';
     borderStyle?: string;
     borderRadius?: number;
+    textdecorationStyle?: string;
     isBold?: boolean;
     isItalic?: boolean;
     scope?: string;

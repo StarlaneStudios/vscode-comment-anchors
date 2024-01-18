@@ -40,6 +40,10 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
             tagStyle += "font-style: italic;";
         }
 
+		if (tag.textdecorationStyle) {
+			tagStyle += `text-decoration: ${tag.textdecorationStyle};`;
+		}
+
         if (tag.scope == "workspace") {
             tagFlags.push("Workspace Scope");
         } else {
