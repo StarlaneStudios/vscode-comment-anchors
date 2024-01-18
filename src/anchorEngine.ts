@@ -28,8 +28,6 @@ import {
     Selection,
 } from "vscode";
 
-import * as minimatch from 'minimatch';
-import { AnchorIndex } from "./anchorIndex";
 import EntryAnchor from "./anchor/entryAnchor";
 import EntryAnchorRegion from "./anchor/entryAnchorRegion";
 import EntryBase from "./anchor/entryBase";
@@ -37,6 +35,9 @@ import EntryCursor from "./anchor/entryCursor";
 import EntryError from "./anchor/entryError";
 import EntryLoading from "./anchor/entryLoading";
 import EntryScan from "./anchor/entryScan";
+import escapeStringRegexp from "./util/escape";
+import { minimatch } from 'minimatch';
+import { AnchorIndex } from "./anchorIndex";
 import { LinkProvider } from "./util/linkProvider";
 import { FileAnchorProvider } from "./provider/fileAnchorProvider";
 import { EpicAnchorIntelliSenseProvider, EpicAnchorProvider } from "./provider/epicAnchorProvider";
@@ -47,7 +48,6 @@ import { flattenAnchors } from "./util/flattener";
 import { registerDefaults } from "./util/defaultTags";
 import { setupCompletionProvider } from "./util/completionProvider";
 import { parseCustomAnchors } from "./util/customTags";
-import escapeStringRegexp from "./util/escape";
 
 /* -- Constants -- */
 
@@ -520,7 +520,7 @@ export class AnchorEngine {
 
             // Create a selection of prefixes
             const prefixes = (config.tags.matchPrefix as string[])
-                .map((match) => escape(match).replaceAll(' ', " +"))
+                .map((match) => escapeStringRegexp(match).replaceAll(' ', " +"))
                 .sort((left, right) => right.length - left.length)
                 .join("|");
 
@@ -596,7 +596,7 @@ export class AnchorEngine {
             this.registerProviders();
         } catch (err: any) {
             AnchorEngine.output("Failed to build resources: " + err.message);
-            AnchorEngine.output(err);
+            AnchorEngine.output(err.stack);
         }
     }
 
@@ -816,7 +816,7 @@ export class AnchorEngine {
             for (const td of workspace.textDocuments) {
                 if (td.uri == document) {
                     text = td.getText();
-                    false; continue;
+                    break;
                 }
             }
 
@@ -995,62 +995,67 @@ export class AnchorEngine {
      * Refresh the visual representation of the anchors
      */
     public refresh(): void {
-        if (this._editor && this._config!.tagHighlights.enabled) {
-            const document = this._editor!.document;
-            const doc = document.uri;
-            const index = this.anchorMaps.get(doc);
-            const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
-            const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
+        try {
+            if (this._editor && this._config!.tagHighlights.enabled) {
+                const document = this._editor!.document;
+                const doc = document.uri;
+                const index = this.anchorMaps.get(doc);
+                const tags = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
+                const tagsEnd = new Map<string, [TextEditorDecorationType, DecorationOptions[]]>();
 
-            // Create a mapping between tags and decorators
-            for (const [tag, decorator] of this.anchorDecorators.entries()) {
-                tags.set(tag, [decorator, []]);
-            }
-
-            for (const [tag, decorator] of this.anchorEndDecorators.entries()) {
-                tagsEnd.set(tag, [decorator, []]);
-            }
-
-            // Create a function to handle decorating
-            const applyDecorators = (anchors: EntryAnchor[]) => {
-                for (const anchor of anchors) {
-                    const deco = tags.get(anchor.anchorTag)![1];
-
-                    anchor.decorateDocument(document, deco);
-
-                    if (anchor instanceof EntryAnchorRegion) {
-                        anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag)![1]);
-                    }
-
-                    if (anchor.children) {
-                        applyDecorators(anchor.children);
-                    }
+                // Create a mapping between tags and decorators
+                for (const [tag, decorator] of this.anchorDecorators.entries()) {
+                    tags.set(tag, [decorator, []]);
                 }
-            };
 
-            // Start by decorating the root list
-            if (index) {
-                applyDecorators(index.anchorTree);
+                for (const [tag, decorator] of this.anchorEndDecorators.entries()) {
+                    tagsEnd.set(tag, [decorator, []]);
+                }
+
+                // Create a function to handle decorating
+                const applyDecorators = (anchors: EntryAnchor[]) => {
+                    for (const anchor of anchors) {
+                        const deco = tags.get(anchor.anchorTag)![1];
+
+                        anchor.decorateDocument(document, deco);
+
+                        if (anchor instanceof EntryAnchorRegion) {
+                            anchor.decorateDocumentEnd(document, tagsEnd.get(anchor.anchorTag)![1]);
+                        }
+
+                        if (anchor.children) {
+                            applyDecorators(anchor.children);
+                        }
+                    }
+                };
+
+                // Start by decorating the root list
+                if (index) {
+                    applyDecorators(index.anchorTree);
+                }
+
+                // Apply all decorators to the document
+                for (const decorator of tags.values()) {
+                    this._editor!.setDecorations(decorator[0], decorator[1]);
+                }
+
+                for (const decorator of tagsEnd.values()) {
+                    this._editor!.setDecorations(decorator[0], decorator[1]);
+                }
             }
 
-            // Apply all decorators to the document
-            for (const decorator of Object.values(tags)) {
-                this._editor!.setDecorations(decorator[0], decorator[1]);
-            }
+            // Reset the expansion arrays
+            this.expandedFileTreeViewItems = [];
+            this.expandedWorkspaceTreeViewItems = [];
 
-            for (const decorator of Object.values(tagsEnd)) {
-                this._editor!.setDecorations(decorator[0], decorator[1]);
-            }
+            // Update the file trees
+            this._onDidChangeLinkData.fire(undefined);
+            this.updateFileAnchors();
+            this.anchorsDirty = false;
+        } catch(err: any) {
+            AnchorEngine.output("Failed to refresh: " + err.message);
+            AnchorEngine.output(err.stack);
         }
-
-        // Reset the expansion arrays
-        this.expandedFileTreeViewItems = [];
-        this.expandedWorkspaceTreeViewItems = [];
-
-        // Update the file trees
-        this._onDidChangeLinkData.fire(undefined);
-        this.updateFileAnchors();
-        this.anchorsDirty = false;
     }
 
     /**
@@ -1195,8 +1200,6 @@ export class AnchorEngine {
         this._onDidChangeTreeData.fire(undefined);
 
         const anchors = this.currentAnchors.length;
-
-        AnchorEngine.output('ANCHORS =' + anchors);
 
         this.fileTreeView.badge = anchors > 0 ? {
             tooltip: 'File anchors',
