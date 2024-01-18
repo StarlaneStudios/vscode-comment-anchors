@@ -5,7 +5,7 @@
 	"version": "1.10.4",
 	"publisher": "ExodiusStudios",
 	"engines": {
-		"vscode": "^1.66.0"
+		"vscode": "^1.75.0"
 	},
 	"categories": [
 		"Other"
@@ -499,7 +499,7 @@
 		"@types/debounce": "^1.2.4",
 		"@types/mocha": "^10.0.6",
 		"@types/node": "20.11.5",
-		"@types/vscode": "^1.85.0",
+		"@types/vscode": "^1.75.0",
 		"@typescript-eslint/eslint-plugin": "^6.19.0",
 		"@typescript-eslint/parser": "^6.19.0",
 		"eslint": "^8.56.0",
