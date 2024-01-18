@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.10.4
+- Added the ability to toggle rulers per anchor tag (#203)
+- Added the ability to style tags with underlines, strikethroughs, and more (#216)
+- Improved code maintainability (CI, improved linting & issue templates)
+
 ## 1.10.3
 - When selecting an anchor, the cursor position now also moves (#173)
 - `bin` and `obj` directories are now excluded from workplace scans by default (#176)
