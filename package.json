@@ -397,7 +397,7 @@
 								"default": true,
 								"description": "Sets whether the tag is rendered in ruler"
               },
-							"textdecorationStyle": {
+							"textDecorationStyle": {
 								"type": "string",
 								"description": "The style applied to the text-decoration, see https://www.w3schools.com/cssref/pr_text_text-decoration.php for more information"
 							},
