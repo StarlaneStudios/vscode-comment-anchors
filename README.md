@@ -6,6 +6,10 @@ Anchors can be viewed for the current file, or throughout the entire workspace, 
 
 Comment Anchors provides many configuration options, allowing you to tailor this extension to your personal workflow, and increase productivity. Check below for a complete list of features!
 
+### Maintenance notice
+
+We do not intend to make any major changes or additions to this project ourselves as we have moved on to other projects, however we will continue to review and merge community submitted pull requests from time to time.
+
 ### Changelog
 The changelog can be found [here](CHANGELOG.md)
 
