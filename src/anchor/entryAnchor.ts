@@ -86,8 +86,7 @@ export default class EntryAnchor extends EntryBase {
 
     public decorateDocument(document: TextDocument, options: DecorationOptions[]): void {
         options.push({
-            hoverMessage: "Comment Anchor: " + this.anchorText,
-            range: this.getAnchorRange(document, false),
+            range: this.getAnchorRange(document, false)
         });
     }
 

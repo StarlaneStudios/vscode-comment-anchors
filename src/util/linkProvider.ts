@@ -36,13 +36,15 @@ export class LinkProvider implements DocumentLinkProvider {
         const workspacePath = workspace.getWorkspaceFolder(document.uri)?.uri?.fsPath ?? "";
         const tasks: Promise<unknown>[] = [];
 
-        for (const anchor of flattened
+        const flattenedLinks = flattened
             .filter((anchor) => {
                 const tagId = anchor.anchorTag;
                 const tag = this.engine.tags.get(tagId);
 
                 return tag?.behavior == "link";
-            })) {
+            });
+
+        for (const anchor of flattenedLinks) {
             const components = LINK_REGEX.exec(anchor.anchorText)!;
             const parameter = components[3] || '';
             const filePath = components[2] || document?.uri?.fsPath || '';
@@ -73,9 +75,10 @@ export class LinkProvider implements DocumentLinkProvider {
                         const flattened = flattenAnchors(anchors);
                         let targetLine = 0;
 
-                        for (const anchor of flattened) {
-                            if (anchor.attributes.id == targetId) {
-                                targetLine = anchor.lineNumber;
+                        for (const otherAnchor of flattened) {
+                            if (otherAnchor.attributes.id == targetId) {
+                                targetLine = otherAnchor.lineNumber;
+                                break;
                             }
                         }
 

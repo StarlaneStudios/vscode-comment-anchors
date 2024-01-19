@@ -11,7 +11,6 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
     let tagList = "";
 
     for (const tag of engine.tags.values()) {
-        const isDefault = tag.iconColor == "default";
         const tagFlags = [];
 
         let tagStyle = "";
