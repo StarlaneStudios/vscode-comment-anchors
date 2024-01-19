@@ -10,7 +10,7 @@ Comment Anchors provides many configuration options, allowing you to tailor this
 
 We do not intend to make any major changes or additions to this project ourselves as we have moved on to other projects, however we will continue to review and merge community submitted pull requests from time to time.
 
-Read more about this [here](#218).
+Read more about this [here](https://github.com/StarlaneStudios/vscode-comment-anchors/issues/218).
 
 ### Changelog
 The changelog can be found [here](CHANGELOG.md)
