@@ -812,7 +812,9 @@ export class AnchorEngine {
             let text = null;
 
             // Match the document against the configured glob
-            if(!minimatch(document.path, config.workspace.matchFiles, MATCH_OPTIONS)) {
+            const relativePath = workspace.asRelativePath(document);
+
+            if (!minimatch(relativePath, config.workspace.matchFiles, MATCH_OPTIONS)) {
                 return false;
             }
 
