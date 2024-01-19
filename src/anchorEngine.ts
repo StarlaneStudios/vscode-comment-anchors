@@ -36,7 +36,7 @@ import EntryError from "./anchor/entryError";
 import EntryLoading from "./anchor/entryLoading";
 import EntryScan from "./anchor/entryScan";
 import escapeStringRegexp from "./util/escape";
-import { minimatch } from 'minimatch';
+import { MinimatchOptions, minimatch } from 'minimatch';
 import { AnchorIndex } from "./anchorIndex";
 import { LinkProvider } from "./util/linkProvider";
 import { FileAnchorProvider } from "./provider/fileAnchorProvider";
@@ -53,6 +53,10 @@ import { parseCustomAnchors } from "./util/customTags";
 
 const HEX_COLOR_REGEX = /^#([\da-f]{3}){1,2}$/i;
 const COLOR_PLACEHOLDER_REGEX = /%COLOR%/g;
+
+const MATCH_OPTIONS: MinimatchOptions = {
+    dot: true
+};
 
 /* -- Anchor entry type aliases -- */
 
@@ -808,7 +812,7 @@ export class AnchorEngine {
             let text = null;
 
             // Match the document against the configured glob
-            if(!minimatch(document.path, config.workspace.matchFiles)) {
+            if(!minimatch(document.path, config.workspace.matchFiles, MATCH_OPTIONS)) {
                 return false;
             }
 
