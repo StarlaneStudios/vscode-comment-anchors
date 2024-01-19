@@ -4,9 +4,10 @@
 - Added the ability to toggle rulers per anchor tag (#203)
 - Added the ability to style tags with underlines, strikethroughs, and more (#216)
 - Allow parsing of anchors in files prefixed with a dot (#209)
-- Improved code maintainability (CI, improved linting & issue templates)
+- Removed unnecessary hover text (#208)
 - Match the `matchFiles` setting against the relative path of the file (#209)
     - This may break existing settings which expect an absolute path
+- Improved code maintainability (CI, improved linting & issue templates)
 
 ## 1.10.3
 - When selecting an anchor, the cursor position now also moves (#173)
