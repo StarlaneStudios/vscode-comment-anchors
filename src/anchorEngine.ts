@@ -1205,7 +1205,7 @@ export class AnchorEngine {
     private updateFileAnchors() {
         this._onDidChangeTreeData.fire(undefined);
 
-        const anchors = this.currentAnchors.length;
+        const anchors = flattenAnchors(this.currentAnchors).length;
 
         this.fileTreeView.badge = anchors > 0 ? {
             tooltip: 'File anchors',
