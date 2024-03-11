@@ -14,5 +14,7 @@
     "editor.insertSpaces": true,
 
     // Use local TS version
-    "typescript.tsdk": "node_modules\\typescript\\lib"
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+
+    "editor.formatOnSave": false
 }
