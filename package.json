@@ -187,7 +187,7 @@
 				},
 				"commentAnchors.workspace.excludeFiles": {
 					"type": "string",
-					"default": "**/{node_modules,.git,.idea,target,out,build,bin,obj,dist,vendor}/**/*",
+					"default": "**/{node_modules,.git,.idea,.next,target,out,build,bin,obj,dist,vendor}/**/*",
 					"description": "The glob pattern of the files that will be excluded from matching by Comment Anchors",
 					"scope": "window"
 				},
