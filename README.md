@@ -356,6 +356,7 @@ Use `commentAnchors.tags.anchors` to configure the anchor tags. Below is a list 
 - isBold - *Whether to apply bold formatting to the tag*
 - isItalic - *Whether to apply italicized formatting to the tag*
 - behavior - *Either "link" for link tags, "region" for region tags, or "anchor" for regular tags*
+- hierarchyLevel - *Controls the nesting level for hierarchical organization. Non-region tags default to level 1. Region tags use their existing auto-nesting behavior unless this is explicitly set.*
 - enabled - *Allows the disabling of default (and custom) tags*
 
 ```
@@ -391,6 +392,34 @@ If you would like for tags to only provide highlighting without rendering in the
 	...
 }
 ```
+
+## Hierarchy levels
+
+You can control the nesting level of anchors using the `hierarchyLevel` property. This allows you to create structured hierarchies independent of region tags. Non-region tags default to level 1, while region tags maintain their existing auto-nesting behavior unless a level is explicitly set.
+
+For example, to create a simple heading hierarchy with L1 and L2 tags:
+
+```
+"commentAnchors.tags.anchors": {
+	"L1": {
+		"scope": "workspace",
+		"highlightColor": "#FF6B6B",
+		"behavior": "anchor",
+		"hierarchyLevel": 1
+	},
+	"L2": {
+		"scope": "workspace",
+		"highlightColor": "#4ECDC4",
+		"behavior": "anchor",
+		"hierarchyLevel": 2
+	},
+	...
+}
+```
+
+With this configuration, L2 anchors will be nested under the most recent L1 anchor, allowing you to create structured TOC-like hierarchies:
+
+![Hierarchy levels](media/hierarchy-levels.png)
 
 ## Icon colors
 At startup, anchor icons are generated for all colors specified on your tags. The icon color defaults to using the tags `highlightColor`,
