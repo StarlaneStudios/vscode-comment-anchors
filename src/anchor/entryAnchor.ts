@@ -1,5 +1,5 @@
 import { AnchorEngine, TagAttributes } from "../anchorEngine";
-import { DecorationOptions, Range, TextDocument, Uri, window } from "vscode";
+import { DecorationOptions, Range, TextDocument, TreeItemCollapsibleState, Uri, window } from "vscode";
 
 import EntryBase from "./entryBase";
 
@@ -18,6 +18,9 @@ export default class EntryAnchor extends EntryBase {
      * Child anchors, only present when this anchor is a region type
      */
     private childAnchors: EntryAnchor[] = [];
+
+    /** Effective hierarchy level for nesting (set during parsing) */
+    public effectiveHierarchyLevel?: number;
 
     public constructor(
         engine: AnchorEngine,
@@ -92,6 +95,11 @@ export default class EntryAnchor extends EntryBase {
 
     public addChild(child: EntryAnchor): void {
         this.childAnchors.push(child);
+
+        if (this.collapsibleState === undefined || this.collapsibleState === TreeItemCollapsibleState.None) {
+            const autoExpand = this.engine._config!.tags.expandSections;
+            this.collapsibleState = autoExpand ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed;
+        }
     }
 
     public toString(): string {
