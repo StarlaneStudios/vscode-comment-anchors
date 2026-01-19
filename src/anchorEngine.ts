@@ -832,6 +832,7 @@ export class AnchorEngine {
             }
 
             const currRegions: EntryAnchorRegion[] = [];
+            const hierarchyStack: EntryAnchor[] = [];
             const anchors: EntryAnchor[] = [];
             const folds: FoldingRange[] = [];
 
@@ -956,14 +957,34 @@ export class AnchorEngine {
                     );
                 }
 
+                // Determine effective hierarchy level
+                const effectiveLevel = tagEntry.hierarchyLevel ?? (isRegionStart ? undefined : 1);
+
                 // Push this region onto the stack
                 if (isRegionStart) {
                     currRegions.push(anchor as EntryAnchorRegion);
                 }
 
+                // Manage hierarchy stack for level-based nesting
+                let levelParent: EntryAnchor | null = null;
+                if (effectiveLevel !== undefined) {
+                    // Pop hierarchy stack while top level >= current level
+                    while (hierarchyStack.length > 0 && hierarchyStack[hierarchyStack.length - 1].effectiveHierarchyLevel! >= effectiveLevel) {
+                        hierarchyStack.pop();
+                    }
+                    // Parent is the current top after popping
+                    levelParent = hierarchyStack.length > 0 ? hierarchyStack[hierarchyStack.length - 1] : null;
+                    // Push current anchor to hierarchy stack
+                    anchor.effectiveHierarchyLevel = effectiveLevel;
+                    hierarchyStack.push(anchor);
+                }
+
                 // Place this anchor on root or child level
-                if (currRegion) {
-                    currRegion.addChild(anchor);
+                // First try level-based parent, then region-based parent
+                const parent = levelParent || currRegion;
+
+                if (parent) {
+                    parent.addChild(anchor);
                 } else {
                     anchors.push(anchor);
                 }
@@ -1234,6 +1255,7 @@ export interface TagEntry {
     isSequential?: boolean;
     isEpic?: boolean;
     behavior: "anchor" | "region" | "link";
+    hierarchyLevel?: number;
 }
 
 /**

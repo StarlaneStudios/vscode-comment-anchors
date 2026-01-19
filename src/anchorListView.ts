@@ -59,6 +59,10 @@ export function createViewContent(engine: AnchorEngine, webview: Webview): strin
             tagFlags.push("Link Tag");
         }
 
+        if (tag.hierarchyLevel !== undefined) {
+            tagFlags.push(`Level ${tag.hierarchyLevel}`);
+        }
+
         const flags = tagFlags.join(", ");
 
         tagList += `
