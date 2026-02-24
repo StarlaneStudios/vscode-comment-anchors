@@ -987,7 +987,7 @@ export class AnchorEngine {
      * @returns The anchor array
      */
     public async getAnchors(file: Uri): Promise<EntryAnchor[]> {
-        const cached = this.anchorMaps.get(file)?.anchorTree;
+        const cached = this.getFromAnchorMaps(file)?.anchorTree;
 
         if (cached) {
             return cached;
@@ -996,6 +996,17 @@ export class AnchorEngine {
             return await this.getAnchors(file);
         }
     }
+
+    //fetch anchorIndex from anchorMaps
+    public getFromAnchorMaps(document: Uri): AnchorIndex | undefined {
+        for (const [doc, anchorIndex] of this.anchorMaps) {
+            if (doc.path === document.path) {
+                return anchorIndex;
+            }
+        }
+     
+        return undefined;
+    }        
 
     /**
      * Refresh the visual representation of the anchors
