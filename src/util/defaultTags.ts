@@ -12,6 +12,7 @@ export function registerDefaults(tagMap: Map<string, TagEntry>): void {
 
     register({
         tag: "ANCHOR",
+        icon: "⚓",
         iconColor: "default",
         highlightColor: "#A8C023",
         scope: "file",
@@ -20,6 +21,7 @@ export function registerDefaults(tagMap: Map<string, TagEntry>): void {
 
     register({
         tag: "TODO",
+        icon: "🗅",
         iconColor: "blue",
         highlightColor: "#3ea8ff",
         scope: "workspace",
@@ -28,6 +30,7 @@ export function registerDefaults(tagMap: Map<string, TagEntry>): void {
 
     register({
         tag: "FIXME",
+        icon: "🚧",
         iconColor: "red",
         highlightColor: "#F44336",
         scope: "workspace",
@@ -44,6 +47,7 @@ export function registerDefaults(tagMap: Map<string, TagEntry>): void {
 
     register({
         tag: "NOTE",
+        icon: "🗈",
         iconColor: "orange",
         highlightColor: "#FFB300",
         scope: "file",
@@ -68,6 +72,7 @@ export function registerDefaults(tagMap: Map<string, TagEntry>): void {
 
     register({
         tag: "LINK",
+        icon: "🔗",
         iconColor: "#2ecc71",
         highlightColor: "#2ecc71",
         scope: "workspace",
