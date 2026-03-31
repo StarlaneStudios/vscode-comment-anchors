@@ -443,22 +443,14 @@ export class AnchorEngine {
                             regionColors.push(iconColor);
                         }
 
-                        tag.iconColor = iconColor.toLowerCase();
+                        // tag.iconColor = iconColor.toLowerCase();
                     }
 
-                    // Optional gutter icons
-                    if (config.tags.displayInGutter) {
-                        if (tag.iconColor == "auto") {
-                            highlight.dark = {
-                                gutterIconPath: path.join(__dirname, "..", "res", "anchor_white.svg"),
-                            };
-
-                            highlight.light = {
-                                gutterIconPath: path.join(__dirname, "..", "res", "anchor_black.svg"),
-                            };
-                        } else {
-                            highlight.gutterIconPath = path.join(iconCache, "anchor_" + tag.iconColor + ".svg");
-                        }
+                    // Optional gutter icons (skip if iconColor is "none" or "transparent")
+                    if (tag.icon?.length && [1, 2].includes(tag.icon.length)) {
+                        highlight.gutterIconPath = this.createEmojiIcon(tag.icon, tag.iconColor??"auto");
+                    } else {
+                        delete highlight.gutterIconPath;
                     }
 
                     // Create the decoration type
@@ -467,19 +459,11 @@ export class AnchorEngine {
                     if (tag.behavior == "region") {
                         const endHighlight = { ...highlight };
 
-                        // Optional gutter icons
-                        if (config.tags.displayInGutter) {
-                            if (tag.iconColor == "auto") {
-                                endHighlight.dark = {
-                                    gutterIconPath: path.join(__dirname, "..", "res", "anchor_end_white.svg"),
-                                };
-
-                                endHighlight.light = {
-                                    gutterIconPath: path.join(__dirname, "..", "res", "anchor_end_black.svg"),
-                                };
-                            } else {
-                                endHighlight.gutterIconPath = path.join(iconCache, "anchor_end_" + tag.iconColor + ".svg");
-                            }
+                        // Optional gutter icons (skip if iconColor is "none" or "transparent")
+                        if (tag.icon?.length && [1, 2].includes(tag.icon.length)) {
+                            endHighlight.gutterIconPath = this.createEmojiIcon(tag.icon, tag.iconColor??"auto");
+                        } else {
+                            delete endHighlight.gutterIconPath;
                         }
 
                         // Create the ending decoration type
@@ -623,6 +607,11 @@ export class AnchorEngine {
             AnchorEngine.output("Failed to build resources: " + err.message);
             AnchorEngine.output(err.stack);
         }
+    }
+
+    public createEmojiIcon(emojiSymbol: string, color: string): Uri {
+        const fontFamily: string = workspace.getConfiguration('editor').get('fontFamily') ?? '';
+        return Uri.parse(`data:image/svg+xml;utf8,<svg viewBox="-10 -6 20 10" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><style>* {fill: ${color};}</style><text font-family="${fontFamily}" text-anchor="middle" dominant-baseline="middle">${emojiSymbol}</text></svg>`);
     }
 
     public initiateWorkspaceScan(): void {
@@ -1268,6 +1257,7 @@ export interface TagEntry {
     tag: string;
     pattern?: string;
     enabled?: boolean;
+    icon?: string;
     iconColor?: string;
     highlightColor?: string;
     backgroundColor?: string;
