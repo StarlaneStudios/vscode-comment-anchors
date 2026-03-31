@@ -226,12 +226,6 @@
 					"description": "Whether to display tag names in the sidebar",
 					"scope": "window"
 				},
-				"commentAnchors.tags.displayInGutter": {
-					"type": "boolean",
-					"default": true,
-					"description": "Whether to display tag icons in the gutter",
-					"scope": "window"
-				},
 				"commentAnchors.tags.displayInRuler": {
 					"type": "boolean",
 					"default": true,
@@ -360,6 +354,11 @@
 								"type": "boolean",
 								"default": true,
 								"description": "Enable or disable this tag"
+							},
+							"icon": {
+								"type": "string",
+								"default": null,
+								"description": "The character to show at the gutter"
 							},
 							"iconColor": {
 								"type": "string",
