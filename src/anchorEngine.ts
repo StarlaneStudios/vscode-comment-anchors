@@ -500,17 +500,6 @@ export class AnchorEngine {
                 }
             }
 
-            // Create a selection of tags
-            const tags = tagList
-                .map((tag) => escapeStringRegexp(tag))
-                .sort((left, right) => right.length - left.length)
-                .join("|");
-
-            if (tags.length === 0) {
-                window.showErrorMessage("At least one tag must be defined");
-                return;
-            }
-
             // Create a selection of separators
             const separators = (config.tags.separators as string[])
                 .map((seperator) => escapeStringRegexp(seperator).replaceAll(' ', " +"))
@@ -533,6 +522,33 @@ export class AnchorEngine {
                 return;
             }
 
+            // Build tag patterns - support both literal tags and custom regex patterns
+            const tagPatterns: string[] = [];
+
+            for (const tag of tagList) {
+                tagPatterns.push(escapeStringRegexp(tag));
+            }
+
+            for (const [tag, entry] of this.tags.entries()) {
+                if (entry.pattern) {
+                    try {
+                        new RegExp(entry.pattern);
+                        tagPatterns.push(`(?:${entry.pattern})`);
+                    } catch {
+                        // Silently skip invalid regex patterns
+                    }
+                }
+            }
+
+            if (tagPatterns.length === 0) {
+                window.showErrorMessage("At least one tag must be defined");
+                return;
+            }
+
+            const tags = tagPatterns
+                .sort((left, right) => right.length - left.length)
+                .join("|");
+
             // ANCHOR: Regex for matching tags
             // group 1 - Anchor tag
             // group 2 - Attributes
@@ -541,7 +557,12 @@ export class AnchorEngine {
             const regex = `(?:${prefixes})(?:\\x20{0,4}|\\t{0,1})(${tags})(\\[.*\\])?(?:(?:${separators})(.*))?$`;
             const flags = config.tags.matchCase ? "gm" : "img";
 
-            this.matcher = new RegExp(regex, flags);
+            try {
+                this.matcher = new RegExp(regex, flags);
+            } catch {
+                window.showErrorMessage("Invalid regex pattern in tag configuration");
+                return;
+            }
 
             AnchorEngine.output("Using matcher " + this.matcher);
 
@@ -847,9 +868,14 @@ export class AnchorEngine {
                     tagName = tagMatch;
                     isRegionEnd = false;
                 } else {
-                    if (!tagMatch.startsWith(endTag)) throw new TypeError("matched non-existent tag");
-                    tagName = tagMatch.slice(endTag.length);
-                    isRegionEnd = true;
+                    tagName = this.findTagByMatch(tagMatch);
+                    if (tagName) {
+                        isRegionEnd = false;
+                    } else {
+                        if (!tagMatch.startsWith(endTag)) throw new TypeError("matched non-existent tag");
+                        tagName = tagMatch.slice(endTag.length);
+                        isRegionEnd = true;
+                    }
                 }
 
                 const tagEntry: TagEntry = this.tags.get(tagName)!;
@@ -1200,6 +1226,27 @@ export class AnchorEngine {
     }
 
     /**
+     * Find a tag by matching against its custom pattern
+     *
+     * @param tagMatch The matched tag text
+     */
+    private findTagByMatch(tagMatch: string): string | undefined {
+        for (const [tagName, entry] of this.tags.entries()) {
+            if (entry.pattern) {
+                try {
+                    const pattern = new RegExp(`^${entry.pattern}$`);
+                    if (pattern.test(tagMatch)) {
+                        return tagName;
+                    }
+                } catch {
+                    // Skip invalid patterns
+                }
+            }
+        }
+        return undefined;
+    }
+
+    /**
      * Alert subscribed listeners of a change in the file anchors tree
      */
     private updateFileAnchors() {
@@ -1219,6 +1266,7 @@ export class AnchorEngine {
  */
 export interface TagEntry {
     tag: string;
+    pattern?: string;
     enabled?: boolean;
     iconColor?: string;
     highlightColor?: string;
