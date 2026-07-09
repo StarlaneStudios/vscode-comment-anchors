@@ -228,7 +228,7 @@ Use `commentAnchors.workspace.excludeFiles` to define which files are excluded f
 
 ```
 {
-	"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build,bin,obj,vendor}/**/*"
+	"commentAnchors.workspace.excludeFiles": "**/{node_modules,.git,.idea,target,out,build,bin,obj,vendor,.venv}/**/*"
 }
 ```
 
